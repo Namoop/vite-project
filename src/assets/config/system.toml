@@ -1,0 +1,6 @@
+[runOptions]
+gamespeed = 0
+scale = 100
+
+[mouse]
+onHoverDelay = 1
