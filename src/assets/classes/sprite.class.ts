@@ -22,7 +22,7 @@ export class Sprite extends Base {
 	};
 	constructor(src: CanvasImageSource) {
 		super();
-		while (sprites[this.id]) this.id++
+		while (sprites[this.id]) this.id++;
 		//this.id = performance.now();
 		this.src = src;
 
@@ -73,8 +73,8 @@ export class Sprite extends Base {
 		return this;
 	}
 
-	filterString () {
-		return ""//`blur(${this.effects.blur}) brightness(${this.effects.brightness}) grayscale(${this.effects.grayscale}) hue-rotate(${this.effects.hue}deg) invert(${this.effects.invert}) saturate(${this.effects.saturate})`
+	filterString() {
+		return `blur(${this.effects.blur/10}px) brightness(${this.effects.brightness/100}) grayscale(${this.effects.grayscale/100}) hue-rotate(${this.effects.hue}deg) invert(${this.effects.invert/100}) saturate(${this.effects.saturate/100})`;
 	}
 	static Override(spr: Sprite, prop: string, value: any): void {
 		// @ts-ignore
