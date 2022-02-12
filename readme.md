@@ -17,10 +17,8 @@ Config: TOML
 Clone the repository, then in a terminal in the repository:
 
 ```sh
-npm install --save-dev parcel
-mkdir dist
-npm run build
-npm start
+npm install
+npm run dev
 ```
 
 You can now open localhost:1234 to view the project
