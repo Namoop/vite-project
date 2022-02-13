@@ -5,7 +5,15 @@ export class Sprite extends Base {
 	x = 0;
 	y = 0;
 	direction = 0;
-	zIndex: bigint = 0n;
+	//zIndex: bigint = 0n;
+	private _zIndex = 0n;
+	get zIndex() {
+		if (this.dragging) return 999n;
+		return this._zIndex;
+	}
+	set zIndex(x) {
+		this._zIndex = x;
+	}
 	width = 100;
 	height = 100;
 	id = 0;
@@ -19,6 +27,9 @@ export class Sprite extends Base {
 		hue: 0,
 		invert: 0,
 		saturate: 100,
+	};
+	async = {
+		glide: 0,
 	};
 	constructor(src: CanvasImageSource) {
 		super();
@@ -53,14 +64,17 @@ export class Sprite extends Base {
 	 * @param {number} y
 	 */
 	async glide(x: number, y: number, speed: number) {
+		let asyncID = ++this.async.glide;
 		while (Math.hypot(x - this.x, y - this.y) > 1) {
-			this.x += (x - this.x) / (speed * 10);
-			this.y += (y - this.y) / (speed * 10);
+			if (asyncID != this.async.glide) return;
+			let newX = this.x + (x - this.x) / (speed * 10);
+			let newY = this.y + (y - this.y) / (speed * 10);
+			this.move(newX, newY);
 			await nextframe;
 		}
 		[this.x, this.y] = [x, y];
+		this.async.glide = 0;
 	}
-
 	//touching() {} //colliding with
 	//touchingAll() {} //colliding with type | sprite.touchingAll(Dot) -> [dot1, dot2]
 
@@ -74,11 +88,20 @@ export class Sprite extends Base {
 	}
 
 	filterString() {
-		return `blur(${this.effects.blur/10}px) brightness(${this.effects.brightness/100}) grayscale(${this.effects.grayscale/100}) hue-rotate(${this.effects.hue}deg) invert(${this.effects.invert/100}) saturate(${this.effects.saturate/100})`;
+		return `blur(${this.effects.blur / 10}px)
+		brightness(${this.effects.brightness / 100})
+		grayscale(${this.effects.grayscale / 100})
+		hue-rotate(${this.effects.hue}deg)
+		invert(${this.effects.invert / 100})
+		saturate(${this.effects.saturate / 100})`;
 	}
 	static Override(spr: Sprite, prop: string, value: any): void {
 		// @ts-ignore
 		spr[prop] = value;
+	}
+
+	protected defaultOnMouseDown(): void {
+		if (this.draggable) this.dragging = true;
 	}
 }
 

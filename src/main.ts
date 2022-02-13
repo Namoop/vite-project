@@ -5,7 +5,7 @@ window["globals"] = [2];
 
 import toml from "#config/maps.toml";
 import { cnv, Time, loop } from "./assets/lib";
-import { Button, Sprite } from "./assets/classes/Sprite.class";
+import { Button, Sprite } from "./assets/classes/sprite.class";
 import Bob from "#images/bob.png";
 import lmnop from "#images/brown.png";
 const app = document.getElementById("app") as HTMLElement;
@@ -17,6 +17,7 @@ function init() {
 	let img = new Image();
 	img.src = Bob;
 	bob = new Sprite(img).move(100, 100).resize(200);
+	bob.draggable = true;
 
 	bob.glide(600, 100, 10);
 	Time.in(5, "seconds", () => {

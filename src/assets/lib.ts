@@ -1,4 +1,4 @@
-import { Sprite } from "./classes/Sprite.class";
+import { Sprite } from "./classes/sprite.class";
 import config from "./config/system.toml";
 
 export const cnv = document.createElement("canvas");
@@ -14,7 +14,7 @@ function spriteToCanvas(
 	sprite: Sprite
 ) {
 	context.save();
-	context.filter = sprite.filterString()
+	context.filter = sprite.filterString();
 	//context.globalAlpha = sprite.effects.opacity / 100;
 	context.translate(sprite.x, sprite.y);
 	context.rotate((sprite.direction * Math.PI) / 180);
@@ -37,7 +37,9 @@ export function draw(): void {
 }
 
 const offscreencanvas = new OffscreenCanvas(cnv.width, cnv.height);
-const offctx = offscreencanvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
+const offctx = offscreencanvas.getContext(
+	"2d"
+) as OffscreenCanvasRenderingContext2D;
 function checkHover(): void {
 	//  use if laggy
 	if (frame % config.mouse.onHoverDelay != 0) return;
@@ -102,8 +104,10 @@ window.onkeydown = window.onkeyup = function (e) {
 };
 
 let windowMouseX: number, windowMouseY: number;
-cnv.onmousemove = (e) =>
-	([windowMouseX, windowMouseY] = [e.clientX, e.clientY]);
+cnv.onmousemove = (e) => {
+	[windowMouseX, windowMouseY] = [e.clientX, e.clientY];
+	if (hover?.dragging) [hover.x, hover.y] = Mouse.pos;
+};
 cnv.ontouchmove = (
 	e //probably broken
 ) =>
@@ -139,6 +143,10 @@ export const Mouse = {
 		let rounded = Math.round(relative * 100) / 100;
 		return rounded;
 	},
+	/** Returns the mouse x and y as an array */
+	get pos() {
+		return [this.x, this.y];
+	},
 	/** Returns true if currently pressed */
 	get left() {
 		return windowMouseDownArray[0];
@@ -154,10 +162,13 @@ export const Mouse = {
 };
 const windowMouseDownArray = [false, false, false];
 let onClickStartSprite: Sprite | null;
+let clickCancel: number;
 cnv.onmouseup = function (e) {
 	windowMouseDownArray[e.button] = false;
 	if (hover == onClickStartSprite) onClickStartSprite?.onclick();
-	else hover?.onmouseup();
+	clearTimeout(clickCancel)
+	hover?.onmouseup();
+	if (hover) hover.dragging = false;
 };
 cnv.ontouchend = function (/*e*/) {
 	//might be broken
@@ -166,6 +177,7 @@ cnv.ontouchend = function (/*e*/) {
 cnv.onmousedown = function (e) {
 	windowMouseDownArray[e.button] = true;
 	onClickStartSprite = hover;
+	clickCancel = setTimeout(()=>onClickStartSprite = null, 5000)
 	hover?.onmousedown();
 };
 cnv.ontouchstart = function (e) {
@@ -185,7 +197,7 @@ export function loop(func?: Function | number): void {
 	if (typeof func == "function") run = func;
 	frame++;
 	fps.push(Date.now());
-	let dg = document.getElementById("dg") as HTMLElement
+	let dg = document.getElementById("dg") as HTMLElement;
 	dg.innerText = `fps: ${fps.length}`;
 	let mDOM = document.getElementById("mouse") as HTMLElement;
 	mDOM.innerHTML = Mouse.x + " &#9; " + Mouse.y;
