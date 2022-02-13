@@ -1,5 +1,4 @@
 import { Base } from "./events.class";
-
 export class Sprite extends Base {
 	src: any;
 	x = 0;
@@ -43,7 +42,7 @@ export class Sprite extends Base {
 	 * @param {number} x Target position
 	 * @param {number} y
 	 */
-	move(x: number, y: number): Sprite {
+	move(x: number, y: number) {
 		if (this.dragging) return this;
 		this.x = x;
 		this.y = y;
@@ -53,7 +52,7 @@ export class Sprite extends Base {
 	 * @param {number} width
 	 * @param {number} height | Optional - If left blank will set to same as height
 	 */
-	resize(width: number, height?: number): Sprite {
+	resize(width: number, height?: number) {
 		if (typeof height == "undefined") this.height = this.width = width;
 		else [this.width, this.height] = [width, height];
 		return this;
@@ -81,7 +80,7 @@ export class Sprite extends Base {
 	/** Point towards target sprite
 	 * @param {Sprite} target The sprite to orientate towards
 	 */
-	pointTowards(target: Sprite): Sprite {
+	pointTowards(target: Sprite) {
 		let radians = Math.atan2(target.y - this.y, target.x - this.x);
 		this.direction = (radians * 180) / Math.PI;
 		return this;
@@ -105,9 +104,15 @@ export class Sprite extends Base {
 	}
 }
 
-class SVGSprite extends Sprite {
+export class SVGSprite extends Sprite {
 	svg: SVGSVGElement;
-	constructor(svg: SVGSVGElement) {
+	constructor(svg: SVGSVGElement | string) {
+		if (typeof svg == "string") {
+			let container = document.createElement("div");
+			container.innerHTML = svg;
+			svg = container.firstChild as SVGSVGElement;
+		}
+		svg.setAttribute("xmlns", svgURL);
 		const blob = new Blob([svg.outerHTML], { type: "image/svg+xml" });
 		const url = URL.createObjectURL(blob);
 		const image = new Image();
@@ -140,6 +145,7 @@ interface buttonOptions {
 	stroke?: string;
 	strokewidth?: number;
 	font?: string;
+	textSize?: number;
 }
 export class Button extends SVGSprite {
 	constructor(text: string, op: buttonOptions = {}) {
@@ -148,7 +154,6 @@ export class Button extends SVGSprite {
 		const sw = op.strokewidth ?? 2;
 		const svg = newSVG("svg") as SVGSVGElement;
 		setatts(svg, {
-			xmlns: svgURL,
 			width: w + sw,
 			height: h + sw,
 		});
@@ -161,7 +166,7 @@ export class Button extends SVGSprite {
 			rx: op.roundedx ?? 15,
 			ry: op.roundedy ?? 15,
 			fill: op.fill ?? "gray",
-			stroke: op.stroke ?? "orange",
+			stroke: op.stroke ?? "black",
 			"stroke-width": sw,
 		});
 		const txt = newSVG("text");
@@ -171,6 +176,7 @@ export class Button extends SVGSprite {
 			x: w / 2,
 			y: h / 2,
 			"font-family": op.font ?? "Arial",
+			"font-size": op.textSize ?? 15,
 			"text-anchor": "middle",
 			"dominant-baseline": "central",
 		});

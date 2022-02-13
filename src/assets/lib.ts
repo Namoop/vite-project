@@ -7,12 +7,12 @@ cnv.oncontextmenu = function () {
 	return false;
 };
 cnv.style.border = "3px solid #000000";
-
 let hover: Sprite | null, spriteArr: Sprite[];
 function spriteToCanvas(
 	context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
 	sprite: Sprite
 ) {
+	globals[0] = scale;
 	context.save();
 	context.filter = sprite.filterString();
 	//context.globalAlpha = sprite.effects.opacity / 100;
@@ -22,8 +22,8 @@ function spriteToCanvas(
 		sprite.src,
 		0 - ((sprite.src.width / 2) * sprite.width) / 100,
 		0 - ((sprite.src.height / 2) * sprite.height) / 100,
-		(sprite.src.width * sprite.width) / 100,
-		(sprite.src.height * sprite.height) / 100
+		((sprite.src.width * sprite.width) / 100) * scale,
+		((sprite.src.height * sprite.height) / 100) * scale
 	);
 	context.restore();
 }
@@ -166,7 +166,7 @@ let clickCancel: number;
 cnv.onmouseup = function (e) {
 	windowMouseDownArray[e.button] = false;
 	if (hover == onClickStartSprite) onClickStartSprite?.onclick();
-	clearTimeout(clickCancel)
+	clearTimeout(clickCancel);
 	hover?.onmouseup();
 	if (hover) hover.dragging = false;
 };
@@ -177,7 +177,7 @@ cnv.ontouchend = function (/*e*/) {
 cnv.onmousedown = function (e) {
 	windowMouseDownArray[e.button] = true;
 	onClickStartSprite = hover;
-	clickCancel = setTimeout(()=>onClickStartSprite = null, 5000)
+	clickCancel = setTimeout(() => (onClickStartSprite = null), 5000);
 	hover?.onmousedown();
 };
 cnv.ontouchstart = function (e) {
@@ -204,7 +204,8 @@ export function loop(func?: Function | number): void {
 	while (Date.now() - fps[0] > 980) fps.shift();
 
 	//clear and resize canvas
-	scale = ((window.innerWidth - 20) / 800) * (config.runOptions.scale / 100);
+	// 82475 from: /800 (base width), /100 (scale as percentage), *0.97 (canvas overflow)
+	scale = (window.innerWidth * config.runOptions.scale) / 82475;
 	offscreencanvas.width = cnv.width = 800 * scale;
 	offscreencanvas.height = cnv.height = 400 * scale;
 

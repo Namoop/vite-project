@@ -3,50 +3,28 @@ window["sprites"] = {};
 // @ts-ignore
 window["globals"] = [2];
 
-import toml from "#config/maps.toml";
+import maps from "#config/maps.toml";
 import { cnv, Time, loop } from "./assets/lib";
-import { Button, Sprite } from "./assets/classes/sprite.class";
-import Bob from "#images/bob.png";
-import lmnop from "#images/brown.png";
+import { Button, Sprite, SVGSprite } from "./assets/classes/sprite.class";
+import tower from "#images/bob.png";
 const app = document.getElementById("app") as HTMLElement;
-//https://parceljs.org/features/dependency-resolution/#glob-specifiers
+app.appendChild(cnv);
 
-let bob: Sprite, button: Sprite;
+//let bob: Sprite, button: Sprite;
 function init() {
-	app.appendChild(cnv);
-	let img = new Image();
-	img.src = Bob;
-	bob = new Sprite(img).move(100, 100).resize(200);
-	bob.draggable = true;
+	let background = `<svg width=800 height=400 style=background-color:#5e5e5e>
+	<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
+	</svg>`;
+	let bg = new SVGSprite(background).move(400, 200);
+	console.log(bg.svg);
 
-	bob.glide(600, 100, 10);
-	Time.in(5, "seconds", () => {
-		bob.move(100, 100).glide(350, 100, 10);
-		console.log(toml);
-		console.log("you're welcome");
-	});
-
-	button = new Button("balloon 12pt", { width: 100 });
-	console.log(button);
-	let bruh = new Image();
-	bruh.src = lmnop;
-	let square = new Sprite(bruh);
-	square.move(80, 150).resize(100,200)
-	//square.zIndex = 3n
-	button.zIndex = 2n
-	let rect = new Sprite(bruh);
-	rect.move(90, 180);
-
-	rect.onhover = () => {console.log("rect hovered")}
-	bob.onclick = () => {
-		console.log("Face clicked");
-	};
+	let lane = new Button("Dot Lane", {
+		width: 100,
+		height: 30,
+		textSize: 20,
+	}).move(100, 200);
 }
-function myloop() {
-	bob.direction += 0.1;
-	button.move(Math.sin(Date.now() / 3000) * 100 + 200, 200);
-	button.pointTowards(bob);
-}
+function myloop() {}
 
 init();
 loop(myloop);
