@@ -192,7 +192,12 @@ let fps: number[] = [],
 // @ts-ignore
 window["nextframe"] = new Promise((r) => (resolveframe = r));
 
-export function loop(func?: Function | number): void {
+let looping = false;
+export function beginLoop ( func: Function) {
+	if (looping) {run = func}
+	else {loop(func); looping = true}
+}
+function loop(func: Function | number): void {
 	//manage internals
 	if (typeof func == "function") run = func;
 	frame++;
@@ -211,7 +216,7 @@ export function loop(func?: Function | number): void {
 
 	//run code!
 	run();
-	draw(); //includes hover detection
+	draw();
 	resolveframe();
 	checkHover();
 
@@ -227,4 +232,5 @@ export function loop(func?: Function | number): void {
 				loop
 			);
 	}
+	else looping = false;
 }

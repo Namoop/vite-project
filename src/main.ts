@@ -4,7 +4,7 @@ window["sprites"] = {};
 window["globals"] = [2];
 
 import maps from "#config/maps.toml";
-import { cnv, Time, loop } from "./assets/lib";
+import { cnv, Time, beginLoop } from "./assets/lib";
 import { Button, Sprite, SVGSprite } from "./assets/classes/sprite.class";
 import tower from "#images/bob.png";
 const app = document.getElementById("app") as HTMLElement;
@@ -23,8 +23,20 @@ function init() {
 		height: 30,
 		textSize: 20,
 	}).move(100, 200);
+
+	Time.in (5, "seconds", () => {
+		beginLoop(loop2);
+	})
+	Time.in (7, "seconds", () => {
+		beginLoop(myloop);
+	})
+	Time.in (10, "seconds", () => {
+		beginLoop(()=>{});
+	})
+	
 }
-function myloop() {}
+function myloop() {console.log("2")}
+function loop2 () {console.log("3")}
 
 init();
-loop(myloop);
+beginLoop(myloop);
