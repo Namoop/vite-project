@@ -42,8 +42,8 @@ const offctx = offscreencanvas.getContext(
 	"2d"
 ) as OffscreenCanvasRenderingContext2D;
 function checkHover(): void {
-	//  use if laggy
 	if (frame % config.mouse.onHoverDelay != 0) return;
+	if (World.getAll()[hover?.id ?? -1] != hover) hover = null;
 	let hoverHold = hover,
 		prev = false;
 	for (let i of spriteArr) {
@@ -224,6 +224,8 @@ function loop(func: Function | number): void {
 	draw();
 	resolveframe();
 	checkHover();
+	//@ts-ignore
+	document.getElementById("other").innerHTML = hover?.constructor.name;
 
 	//prepare for next frame
 	nextframe = new Promise((r) => (resolveframe = r));

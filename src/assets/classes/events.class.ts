@@ -1,10 +1,10 @@
 export class Base {
-	constructor () {
-		this.userOnHover = () => {}
-		this.userOnClick = () => {}
-		this.userOnBlur = () => {}
-		this.userOnMouseDown = () => {}
-		this.userOnMouseUp = () => {}
+	constructor() {
+		this.userOnHover = () => {};
+		this.userOnClick = () => {};
+		this.userOnBlur = () => {};
+		this.userOnMouseDown = () => {};
+		this.userOnMouseUp = () => {};
 	}
 	get onhover(): Function {
 		return () => {

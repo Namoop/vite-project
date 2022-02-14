@@ -4,7 +4,7 @@ import { World } from "./world.class";
  * and can be moved around, rotated, hidden, etc
  * @param {CanvasImageSource | String} source
  * an htmlImage or a url string to an image
-*/
+ */
 export class Sprite extends Base {
 	src: any;
 	x = 0;
@@ -38,9 +38,9 @@ export class Sprite extends Base {
 	};
 	constructor(src: CanvasImageSource | string) {
 		if (typeof src == "string") {
-			let container = new Image()
-			container.src = src
-			src = container
+			let container = new Image();
+			container.src = src;
+			src = container;
 		}
 		super();
 		while (World.getAll()[this.id]) this.id++;
@@ -61,7 +61,7 @@ export class Sprite extends Base {
 	}
 	/** Toggle the sprite being hidden or not - prevent or restore visibility and interactivity  */
 	toggleHiddenState() {
-		this.hidden = !this.hidden
+		this.hidden = !this.hidden;
 		return this;
 	}
 	/** Move the position of the sprite
@@ -78,12 +78,19 @@ export class Sprite extends Base {
 	 * @param {Sprite} target
 	 */
 	moveTo(target: Sprite) {
-		this.move(target.x, target.y)
+		this.move(target.x, target.y);
 		return this;
 	}
 	/** Move the sprite to the center of the screen. Alias to move(400,200)*/
 	center() {
-		this.move(400,200)
+		this.move(400, 200);
+		return this;
+	}
+	/** Turn the sprite x degrees
+	 * @param {number} degrees The value, in degrees, to change the rotation by
+	 */
+	rotate(deg: number) {
+		this.direction += deg
 		return this;
 	}
 	/** Change the size (percentage) of the sprite
@@ -124,6 +131,7 @@ export class Sprite extends Base {
 		return this;
 	}
 
+	/** Internal function to return the sprite's effects as a string for drawing to the screen */
 	filterString() {
 		return `blur(${this.effects.blur / 10}px)
 		brightness(${this.effects.brightness / 100})
@@ -132,9 +140,10 @@ export class Sprite extends Base {
 		invert(${this.effects.invert / 100})
 		saturate(${this.effects.saturate / 100})`;
 	}
-	static Override(spr: Sprite, prop: string, value: any): void {
+	/** Overrides any property or function on any sprite - USE SPARINGLY AND CAREFULLY */
+	static Override(spr: Sprite, prop: string, newvalue: any): void {
 		// @ts-ignore
-		spr[prop] = value;
+		spr[prop] = newvalue;
 	}
 
 	protected defaultOnMouseDown(): void {
@@ -176,6 +185,8 @@ export class SVGSprite extends Sprite {
 
 interface buttonOptions {
 	width?: number;
+	svgWidth?: number;
+	svgHeight?: number;
 	height?: number;
 	roundedx?: number;
 	roundedy?: number;
@@ -184,6 +195,7 @@ interface buttonOptions {
 	strokewidth?: number;
 	font?: string;
 	textSize?: number;
+	additionalData?: string;
 }
 export class Button extends SVGSprite {
 	constructor(text: string, op: buttonOptions = {}) {
@@ -192,8 +204,8 @@ export class Button extends SVGSprite {
 		const sw = op.strokewidth ?? 2;
 		const svg = newSVG("svg") as SVGSVGElement;
 		setatts(svg, {
-			width: w + sw,
-			height: h + sw,
+			width: op.svgWidth ?? w + sw,
+			height: op.svgHeight ?? h + sw,
 		});
 		const rect = newSVG("rect");
 		setatts(rect, {
@@ -221,6 +233,7 @@ export class Button extends SVGSprite {
 
 		svg.appendChild(rect);
 		svg.appendChild(txt);
+		if (op.additionalData) svg.innerHTML += op.additionalData;
 		super(svg);
 	}
 	defaultOnBlur(): void {
