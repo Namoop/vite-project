@@ -16,12 +16,12 @@ function spriteToCanvas(
 	context.save();
 	context.filter = sprite.filterString();
 	//context.globalAlpha = sprite.effects.opacity / 100;
-	context.translate(sprite.x, sprite.y);
+	context.translate(sprite.x*scale, sprite.y*scale);
 	context.rotate((sprite.direction * Math.PI) / 180);
 	context.drawImage(
 		sprite.src,
-		0 - ((sprite.src.width / 2) * sprite.width) / 100,
-		0 - ((sprite.src.height / 2) * sprite.height) / 100,
+		0 - (sprite.src.width / 2) * (sprite.width / 100) * scale,
+		0 - (sprite.src.height / 2) * (sprite.height / 100) * scale,
 		((sprite.src.width * sprite.width) / 100) * scale,
 		((sprite.src.height * sprite.height) / 100) * scale
 	);
