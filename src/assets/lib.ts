@@ -1,4 +1,5 @@
 import { Sprite } from "./classes/sprite.class";
+import { World } from "./classes/world.class";
 import config from "./config/system.toml";
 
 export const cnv = document.createElement("canvas");
@@ -16,7 +17,7 @@ function spriteToCanvas(
 	context.save();
 	context.filter = sprite.filterString();
 	//context.globalAlpha = sprite.effects.opacity / 100;
-	context.translate(sprite.x*scale, sprite.y*scale);
+	context.translate(sprite.x * scale, sprite.y * scale);
 	context.rotate((sprite.direction * Math.PI) / 180);
 	context.drawImage(
 		sprite.src,
@@ -28,9 +29,9 @@ function spriteToCanvas(
 	context.restore();
 }
 export function draw(): void {
-	spriteArr = Object.values(sprites).sort((a, b) =>
-		Number(a.zIndex - b.zIndex)
-	);
+	spriteArr = Object.values(World.getAll())
+		.filter((k) => !k.hidden)
+		.sort((a, b) => Number(a.zIndex - b.zIndex));
 	for (let i of spriteArr) {
 		spriteToCanvas(ctx, i);
 	}
@@ -193,9 +194,13 @@ let fps: number[] = [],
 window["nextframe"] = new Promise((r) => (resolveframe = r));
 
 let looping = false;
-export function beginLoop ( func: Function) {
-	if (looping) {run = func}
-	else {loop(func); looping = true}
+export function beginLoop(func: Function) {
+	if (looping) {
+		run = func;
+	} else {
+		loop(func);
+		looping = true;
+	}
 }
 function loop(func: Function | number): void {
 	//manage internals
@@ -231,6 +236,18 @@ function loop(func: Function | number): void {
 				config.runOptions.gamespeed,
 				loop
 			);
+	} else looping = false;
+}
+
+/** Converts image url's into images - should be called at beggining of script
+ * @param {string} ImageURL any number...
+ */
+export function preload(...args: string[]) {
+	let arr = [];
+	for (let i of args) {
+		let container = new Image();
+		container.src = i;
+		arr.push(container);
 	}
-	else looping = false;
+	return arr;
 }

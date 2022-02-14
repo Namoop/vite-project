@@ -1,10 +1,15 @@
 import { Base } from "./events.class";
+import { World } from "./world.class";
+/** An object with a postion, that is drawn to the screen
+ * and can be moved around, rotated, hidden, etc
+ * @param {CanvasImageSource | String} source
+ * an htmlImage or a url string to an image
+*/
 export class Sprite extends Base {
 	src: any;
 	x = 0;
 	y = 0;
 	direction = 0;
-	//zIndex: bigint = 0n;
 	private _zIndex = 0n;
 	get zIndex() {
 		if (this.dragging) return 999n;
@@ -18,6 +23,7 @@ export class Sprite extends Base {
 	id = 0;
 	draggable = false;
 	dragging = false;
+	private hidden = false;
 	effects = {
 		blur: 0,
 		brightness: 100,
@@ -30,13 +36,33 @@ export class Sprite extends Base {
 	async = {
 		glide: 0,
 	};
-	constructor(src: CanvasImageSource) {
+	constructor(src: CanvasImageSource | string) {
+		if (typeof src == "string") {
+			let container = new Image()
+			container.src = src
+			src = container
+		}
 		super();
-		while (sprites[this.id]) this.id++;
+		while (World.getAll()[this.id]) this.id++;
 		//this.id = performance.now();
 		this.src = src;
 
-		sprites[this.id] = this;
+		World.getAll()[this.id] = this;
+	}
+	/** Prevents the sprite from being shown or interacted with */
+	hide() {
+		this.hidden = true;
+		return this;
+	}
+	/** Allow the sprite to be visible and interacted with */
+	show() {
+		this.hidden = false;
+		return this;
+	}
+	/** Toggle the sprite being hidden or not - prevent or restore visibility and interactivity  */
+	toggleHiddenState() {
+		this.hidden = !this.hidden
+		return this;
 	}
 	/** Move the position of the sprite
 	 * @param {number} x Target position
@@ -46,6 +72,18 @@ export class Sprite extends Base {
 		if (this.dragging) return this;
 		this.x = x;
 		this.y = y;
+		return this;
+	}
+	/** Go directly to another sprite
+	 * @param {Sprite} target
+	 */
+	moveTo(target: Sprite) {
+		this.move(target.x, target.y)
+		return this;
+	}
+	/** Move the sprite to the center of the screen. Alias to move(400,200)*/
+	center() {
+		this.move(400,200)
 		return this;
 	}
 	/** Change the size (percentage) of the sprite
@@ -183,8 +221,6 @@ export class Button extends SVGSprite {
 
 		svg.appendChild(rect);
 		svg.appendChild(txt);
-
-		console.log(svg);
 		super(svg);
 	}
 	defaultOnBlur(): void {

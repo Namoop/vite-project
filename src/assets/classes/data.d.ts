@@ -1,18 +1,5 @@
 declare let nextframe: any;
-// @ts-ignore
-type SpriteObj = { [key: string]: Sprite };
-declare let sprites: SpriteObj;
 declare let globals: any[];
-
-// declare module "*.png" {
-// 	const file: any;
-// 	export default file;
-// }
-// declare module "*.svg" {
-// 	const file: any;
-// 	export default file;
-// }
-
 
 interface OffscreenCanvas extends EventTarget {
 	width: number;
