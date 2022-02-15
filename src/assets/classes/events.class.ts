@@ -1,10 +1,13 @@
 export class Base {
 	constructor() {
-		this.userOnHover = () => {};
-		this.userOnClick = () => {};
-		this.userOnBlur = () => {};
-		this.userOnMouseDown = () => {};
-		this.userOnMouseUp = () => {};
+		this.userOnHover =
+		this.userOnClick =
+		this.userOnBlur =
+		this.userOnMouseDown =
+		this.userOnMouseUp =
+		this.userOnDragStart =
+		this.userOnDragEnd =
+			() => {};
 	}
 	get onhover(): Function {
 		return () => {
@@ -65,4 +68,28 @@ export class Base {
 	}
 	protected defaultOnMouseUp() {}
 	protected userOnMouseUp: Function;
+
+	get ondragstart(): Function {
+		return () => {
+			this.defaultOnDragStart?.();
+			this.userOnDragStart?.();
+		};
+	}
+	set ondragstart(x) {
+		this.userOnDragStart = x;
+	}
+	protected defaultOnDragStart() {}
+	protected userOnDragStart: Function;
+
+	get ondragend(): Function {
+		return () => {
+			this.defaultOnMouseUp?.();
+			this.userOnMouseUp?.();
+		};
+	}
+	set ondragend(x) {
+		this.userOnMouseUp = x;
+	}
+	protected defaultODragEnd() {}
+	protected userOnDragEnd: Function;
 }

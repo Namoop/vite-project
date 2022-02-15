@@ -47,12 +47,13 @@ function laneInit() {
 		.resize(80);
 	towerbtn.draggable = true;
 	towerbtn.onclick = () => {
-		let k = new Tower("red");
-		k.moveTo(towerbtn).resize(80);
-		World.inFrames(1, () => {
-			towerbtn.move(660, 100);
-		});
+		towerbtn.dragging = true
 	};
+
+	/*World.inFrames(1, () => {
+			new Tower("red").moveTo(towerbtn).resize(80);
+			towerbtn.move(660, 100);
+		}); */
 
 	beginLoop(gameloop);
 }

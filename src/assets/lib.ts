@@ -106,16 +106,50 @@ window.onkeydown = window.onkeyup = function (e) {
 
 let windowMouseX: number, windowMouseY: number;
 cnv.onmousemove = (e) => {
+	if (hover?.draggable) onClickStartSprite = null;
 	[windowMouseX, windowMouseY] = [e.clientX, e.clientY];
 	if (hover?.dragging) [hover.x, hover.y] = Mouse.pos;
+	else {
+		if (hover?.draggable && Mouse.left) {
+			hover.dragging = true;
+			hover.ondragstart();
+		}
+	}
 };
-cnv.ontouchmove = (
-	e //probably broken
-) =>
-	([windowMouseX, windowMouseY] = [
-		e.touches[0].clientX,
-		e.touches[0].clientY,
-	]); //consider tap and place?
+// cnv.ontouchmove = (
+// 	e //probably broken
+// ) =>
+// 	([windowMouseX, windowMouseY] = [
+// 		e.touches[0].clientX,
+// 		e.touches[0].clientY,
+// 	]); //consider tap and place?
+
+const windowMouseDownArray = [false, false, false];
+let onClickStartSprite: Sprite | null;
+let clickCancel: number;
+cnv.onmouseup = function (e) {
+	windowMouseDownArray[e.button] = false;
+	if (hover) hover.dragging = false;
+	if (hover == onClickStartSprite) onClickStartSprite?.onclick();
+	clearTimeout(clickCancel);
+	hover?.onmouseup();
+};
+// cnv.ontouchend = function (/*e*/) {
+// 	//might be broken
+// 	windowMouseDownArray[0] = false;
+// };
+cnv.onmousedown = function (e) {
+	windowMouseDownArray[e.button] = true;
+	onClickStartSprite = hover;
+	clickCancel = setTimeout(() => (onClickStartSprite = null), 5000);
+	hover?.onmousedown();
+	//if (hover?.draggable) hover.dragging = true
+};
+// cnv.ontouchstart = function (e) {
+// 	//might be broken
+// 	[windowMouseX, windowMouseY] = [e.touches[0].clientX, e.touches[0].clientY];
+// 	windowMouseDownArray[0] = true;
+// };
 
 /** Returns user mouse input including position and buttons pressed */
 export const Mouse = {
@@ -160,31 +194,6 @@ export const Mouse = {
 	get right() {
 		return windowMouseDownArray[2];
 	},
-};
-const windowMouseDownArray = [false, false, false];
-let onClickStartSprite: Sprite | null;
-let clickCancel: number;
-cnv.onmouseup = function (e) {
-	windowMouseDownArray[e.button] = false;
-	if (hover == onClickStartSprite) onClickStartSprite?.onclick();
-	clearTimeout(clickCancel);
-	hover?.onmouseup();
-	if (hover) hover.dragging = false;
-};
-cnv.ontouchend = function (/*e*/) {
-	//might be broken
-	windowMouseDownArray[0] = false;
-};
-cnv.onmousedown = function (e) {
-	windowMouseDownArray[e.button] = true;
-	onClickStartSprite = hover;
-	clickCancel = setTimeout(() => (onClickStartSprite = null), 5000);
-	hover?.onmousedown();
-};
-cnv.ontouchstart = function (e) {
-	//might be broken
-	[windowMouseX, windowMouseY] = [e.touches[0].clientX, e.touches[0].clientY];
-	windowMouseDownArray[0] = true;
 };
 
 let resolveframe: Function, run: Function, scale: number;

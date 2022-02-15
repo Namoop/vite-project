@@ -145,10 +145,6 @@ export class Sprite extends Base {
 		// @ts-ignore
 		spr[prop] = newvalue;
 	}
-
-	protected defaultOnMouseDown(): void {
-		if (this.draggable) this.dragging = true;
-	}
 }
 
 export class SVGSprite extends Sprite {
