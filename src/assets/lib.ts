@@ -9,13 +9,27 @@ cnv.oncontextmenu = function () {
 };
 cnv.style.border = "3px solid #000000";
 let hover: Sprite | null, spriteArr: Sprite[];
+
+function filterString(obj: Sprite) {
+	let dragshadow = obj.dragging
+		? `drop-shadow(${10 * scale}px ${10 * scale}px ${3 * scale}px)`
+		: "";
+	return `blur(${obj.effects.blur / 10}px)
+	brightness(${obj.effects.brightness / 100})
+	grayscale(${obj.effects.grayscale / 100})
+	hue-rotate(${obj.effects.hue}deg)
+	invert(${obj.effects.invert / 100})
+	saturate(${obj.effects.saturate / 100})
+	${dragshadow}`;
+}
+
 function spriteToCanvas(
 	context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
 	sprite: Sprite
 ) {
 	globals[0] = scale;
 	context.save();
-	context.filter = sprite.filterString();
+	context.filter = filterString(sprite);
 	//context.globalAlpha = sprite.effects.opacity / 100;
 	context.translate(sprite.x * scale, sprite.y * scale);
 	context.rotate((sprite.direction * Math.PI) / 180);
@@ -29,9 +43,6 @@ function spriteToCanvas(
 	context.restore();
 }
 export function draw(): void {
-	spriteArr = Object.values(World.getAll())
-		.filter((k) => !k.hidden)
-		.sort((a, b) => Number(a.zIndex - b.zIndex));
 	for (let i of spriteArr) {
 		spriteToCanvas(ctx, i);
 	}
@@ -109,10 +120,13 @@ cnv.onmousemove = (e) => {
 	if (hover?.draggable) onClickStartSprite = null;
 	[windowMouseX, windowMouseY] = [e.clientX, e.clientY];
 	if (hover?.dragging) [hover.x, hover.y] = Mouse.pos;
-	else if (hover?.draggable && Mouse.left && Math.hypot(hover.x-Mouse.x, hover.y-Mouse.y)>20) {
+	else if (
+		hover?.draggable &&
+		Mouse.left &&
+		Math.hypot(hover.x - Mouse.x, hover.y - Mouse.y) > 20
+	) {
 		hover.dragging = true;
 		hover.ondragstart();
-		console.log("start");
 	}
 };
 // cnv.ontouchmove = (
@@ -242,6 +256,9 @@ function loop(func: Function | number): void {
 
 	//run code!
 	run();
+	spriteArr = Object.values(World.getAll())
+		.filter((k) => !k.hidden)
+		.sort((a, b) => Number(a.zIndex - b.zIndex));
 	draw();
 	resolveframe();
 	checkHover();

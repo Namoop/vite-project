@@ -83,13 +83,13 @@ export class Base {
 
 	get ondragend(): Function {
 		return () => {
-			this.defaultOnMouseUp?.();
-			this.userOnMouseUp?.();
+			this.defaultOnDragEnd?.();
+			this.userOnDragEnd?.();
 		};
 	}
 	set ondragend(x) {
-		this.userOnMouseUp = x;
+		this.userOnDragEnd = x;
 	}
-	protected defaultODragEnd() {}
+	protected defaultOnDragEnd() {}
 	protected userOnDragEnd: Function;
 }

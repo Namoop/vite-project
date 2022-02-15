@@ -131,15 +131,6 @@ export class Sprite extends Base {
 		return this;
 	}
 
-	/** Internal function to return the sprite's effects as a string for drawing to the screen */
-	filterString() {
-		return `blur(${this.effects.blur / 10}px)
-		brightness(${this.effects.brightness / 100})
-		grayscale(${this.effects.grayscale / 100})
-		hue-rotate(${this.effects.hue}deg)
-		invert(${this.effects.invert / 100})
-		saturate(${this.effects.saturate / 100})`;
-	}
 	/** Overrides any property or function on any sprite - USE SPARINGLY AND CAREFULLY */
 	static Override(spr: Sprite, prop: string, newvalue: any): void {
 		// @ts-ignore

@@ -28,3 +28,36 @@ export class World {
 		callback();
 	}
 }
+
+class Point {
+	x: number;
+	y: number;
+	constructor(x: number, y: number) {
+		this.x = x;
+		this.y = y;
+	}
+	arr() {
+		return [this.x, this.y];
+	}
+	inPoly(poly: Poly) {
+		//+ Jonas Raoni Soares Silva
+		//@ http://jsfromhell.com/math/is-point-in-poly
+		let pt = this,
+			c: boolean,
+			i: number,
+			l: number,
+			j: number;
+		for (c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
+			((poly[i].y <= pt.y && pt.y < poly[j].y) ||
+				(poly[j].y <= pt.y && pt.y < poly[i].y)) &&
+				pt.x <
+					((poly[j].x - poly[i].x) * (pt.y - poly[i].y)) /
+						(poly[j].y - poly[i].y) +
+						poly[i].x &&
+				(c = !c);
+		return c;
+	}
+}
+
+type Poly = Point[];
+//class Poly extends Array {}
