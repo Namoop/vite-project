@@ -46,9 +46,6 @@ function laneInit() {
 		.move(660, 100)
 		.resize(80);
 	towerbtn.draggable = true;
-	towerbtn.onclick = () => {
-		towerbtn.dragging = true
-	};
 
 	/*World.inFrames(1, () => {
 			new Tower("red").moveTo(towerbtn).resize(80);

@@ -109,11 +109,10 @@ cnv.onmousemove = (e) => {
 	if (hover?.draggable) onClickStartSprite = null;
 	[windowMouseX, windowMouseY] = [e.clientX, e.clientY];
 	if (hover?.dragging) [hover.x, hover.y] = Mouse.pos;
-	else {
-		if (hover?.draggable && Mouse.left) {
-			hover.dragging = true;
-			hover.ondragstart();
-		}
+	else if (hover?.draggable && Mouse.left && Math.hypot(hover.x-Mouse.x, hover.y-Mouse.y)>20) {
+		hover.dragging = true;
+		hover.ondragstart();
+		console.log("start");
 	}
 };
 // cnv.ontouchmove = (
@@ -129,8 +128,21 @@ let onClickStartSprite: Sprite | null;
 let clickCancel: number;
 cnv.onmouseup = function (e) {
 	windowMouseDownArray[e.button] = false;
-	if (hover) hover.dragging = false;
-	if (hover == onClickStartSprite) onClickStartSprite?.onclick();
+	let dragThisEvent = false;
+	if (hover == onClickStartSprite) {
+		if (hover?.draggable) {
+			if (!hover.dragging) {
+				dragThisEvent = true;
+				hover.dragging = true;
+				hover?.ondragstart();
+			}
+		}
+		onClickStartSprite?.onclick();
+	}
+	if (hover?.dragging && !dragThisEvent) {
+		hover.dragging = false;
+		hover.ondragend();
+	}
 	clearTimeout(clickCancel);
 	hover?.onmouseup();
 };
