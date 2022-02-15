@@ -6,7 +6,7 @@ Built for my own purposes but anybody can use it
 
 Will be used for ts remake of https://uselesspie.itch.io/ddt
 
-Packager: Parcel
+Packager: Vite
 
 Language: Typescript
 
