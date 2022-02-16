@@ -182,6 +182,7 @@ interface buttonOptions {
 	strokewidth?: number;
 	font?: string;
 	textSize?: number;
+	textColor?: string;
 	additionalData?: string;
 }
 export class Button extends SVGSprite {
@@ -209,7 +210,7 @@ export class Button extends SVGSprite {
 		const txt = newSVG("text");
 		txt.innerHTML = text;
 		setatts(txt, {
-			fill: "white",
+			fill: op.textColor ?? "white",
 			x: w / 2,
 			y: h / 2,
 			"font-family": op.font ?? "Arial",

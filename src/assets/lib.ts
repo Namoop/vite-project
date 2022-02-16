@@ -120,11 +120,7 @@ cnv.onmousemove = (e) => {
 	if (hover?.draggable) onClickStartSprite = null;
 	[windowMouseX, windowMouseY] = [e.clientX, e.clientY];
 	if (hover?.dragging) [hover.x, hover.y] = Mouse.pos;
-	else if (
-		hover?.draggable &&
-		Mouse.left &&
-		Math.hypot(hover.x - Mouse.x, hover.y - Mouse.y) > 20
-	) {
+	else if (hover?.draggable && Mouse.left) {
 		hover.dragging = true;
 		hover.ondragstart();
 	}

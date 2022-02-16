@@ -32,24 +32,22 @@ function init() {
 
 function laneInit() {
 	new Sprite(laneMap).center(); //background
-
-	let towerbtn = new Button("", {
-		roundedx: 0,
-		roundedy: 0,
-		width: 50,
-		height: 50,
-		svgWidth: 65,
-		fill: "red",
-		stroke: "none",
-		additionalData: `<rect width=40 height=15 x=25 y=17.5></rect>`,
-	})
-		.move(660, 100)
-		.resize(80);
+	let towerbtn = new Sprite(tower).move(660, 100).resize(80);
 	towerbtn.draggable = true;
 	towerbtn.ondragend = () => {
 		new Tower("red").moveTo(towerbtn).resize(80);
 		towerbtn.move(660, 100);
 	};
+
+	let nextwavebtn = new Button(" ▶", {
+		width: 30,
+		height: 30,
+		stroke: "none",
+		textColor: "blue",
+		fill: "orange",
+		textSize: 20,
+	}).move(20, 50);
+	nextwavebtn.onclick = () => {};
 
 	beginLoop(gameloop);
 }
@@ -75,8 +73,6 @@ class Tower extends Sprite {
 		super(src);
 	}
 }
-function myloop() {}
-//function loop2 () {console.log("3")}
 
 init();
-beginLoop(myloop);
+beginLoop(() => {});

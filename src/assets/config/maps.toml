@@ -1,12 +1,14 @@
-spicy = "meatballs"
-hot = "sauce"
-pasta = "straciatelle"
-[table]
-test = 4
-other = 5
+[lane]
+background = "images/..."
+life = 50
+gold = 1000
 
-myarr = [
-	"pleasestop",
-	"go to sleep",
-	"15"
+path_start = [0, 150]
+path = [
+	"150l",
+	"100d",
+	"150l",
+	"100u",
+	"150l",
+	""
 ]
