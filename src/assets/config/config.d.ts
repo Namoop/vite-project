@@ -13,6 +13,14 @@ declare module "*/system.toml" {
 }
 
 declare module "*/maps.toml" {
-	const file: {};
+	const file: {
+		[map: string]: {
+			background: string,
+			life: number,
+			gold: number,
+			path_start: [number, number],
+			path: number[]
+		}
+	};
 	export default file;
 }

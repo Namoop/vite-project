@@ -1,7 +1,7 @@
 // @ts-ignore
 window["globals"] = [2];
 
-//import maps from "#config/maps.toml";
+import maps from "#config/maps.toml";
 import laneMapString from "./assets/images/dotlane.png";
 import { cnv, beginLoop, preload } from "./assets/lib";
 import { Button, Sprite, SVGSprite } from "./assets/classes/sprite.class";
@@ -11,6 +11,7 @@ const app = document.getElementById("app") as HTMLElement;
 app.appendChild(cnv);
 
 let [laneMap] = preload(laneMapString);
+console.log(maps)
 
 //let bob: Sprite, button: Sprite;
 function init() {
