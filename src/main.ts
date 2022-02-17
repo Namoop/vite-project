@@ -102,24 +102,27 @@ class Dot extends SVGSprite {
 	}
 	get x() {
 		let fin = map.path_start[0];
-		let dist = World.frame - this.spawn;
-		globals[1] = dist
+		let dist = (World.frame - this.spawn) * this.speed;
 		for (let i = 0; dist >= 0; i++) {
+			if (!map.path[i]) {delete World.getAll()[this.id]; break;}
 			let [dir, len] = map.path[i];
-			if (dist < len) {
-				fin += dist
-				break;
-			}
+			if (dir == "r") fin += dist < len ? dist : len;
+			if (dir == "l") fin -= dist < len ? dist : len;
 			dist -= len;
-			if (dir == "r") fin += len;
-			if (dir == "l") fin -= len;
 		}
-		//globals[1] = dist
-		globals[2] = fin;
 		return fin;
 	}
-	get y () {
-		return 150
+	get y() {
+		let fin = map.path_start[1];
+		let dist = (World.frame - this.spawn) * this.speed;
+		for (let i = 0; dist >= 0; i++) {
+			if (!map.path[i]) {delete World.getAll()[this.id]; break;}
+			let [dir, len] = map.path[i];
+			if (dir == "d") fin += dist < len ? dist : len;
+			if (dir == "u") fin -= dist < len ? dist : len;
+			dist -= len;
+		}
+		return fin;
 	}
 }
 

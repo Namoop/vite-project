@@ -7,8 +7,8 @@ import { World } from "./world.class";
  */
 export class Sprite extends Base {
 	src: any;
-	_x = 0;
-	_y = 0;
+	private _x = 0;
+	private _y = 0;
 	get x() {
 		return this._x;
 	}
