@@ -54,7 +54,7 @@ function laneInit() {
 	}).move(20, 50);
 	nextwavebtn.onclick = () => {};
 
-	new Dot("red");
+	new Dot("red", map.path[0]);
 
 	beginLoop(gameloop);
 }
@@ -89,7 +89,8 @@ class Dot extends SVGSprite {
 	speed: number;
 	health: number;
 	conf;
-	constructor(type: string) {
+	path;
+	constructor(type: string, path: typeof map.path[0]) {
 		let c = dots[type];
 		super(
 			`<svg width=${c.srcSize * 2} height=${c.srcSize * 2}>
@@ -97,15 +98,16 @@ class Dot extends SVGSprite {
 			</svg>`
 		);
 		this.conf = c;
+		this.path = path
 		this.speed = c.speed;
 		this.health = c.health;
 	}
 	get x() {
-		let fin = map.path_start[0];
+		let fin = Number(this.path[0][0]);
 		let dist = (World.frame - this.spawn) * this.speed;
-		for (let i = 0; dist >= 0; i++) {
-			if (!map.path[i]) {delete World.getAll()[this.id]; break;}
-			let [dir, len] = map.path[i];
+		for (let i = 1; dist >= 0; i++) {
+			if (!this.path[i]) {delete World.getAll()[this.id]; break;}
+			let [dir, len] = this.path[i];
 			if (dir == "r") fin += dist < len ? dist : len;
 			if (dir == "l") fin -= dist < len ? dist : len;
 			dist -= len;
@@ -113,11 +115,11 @@ class Dot extends SVGSprite {
 		return fin;
 	}
 	get y() {
-		let fin = map.path_start[1];
+		let fin = this.path[0][1];
 		let dist = (World.frame - this.spawn) * this.speed;
-		for (let i = 0; dist >= 0; i++) {
-			if (!map.path[i]) {delete World.getAll()[this.id]; break;}
-			let [dir, len] = map.path[i];
+		for (let i = 1; dist >= 0; i++) {
+			if (!this.path[i]) {delete World.getAll()[this.id]; break;}
+			let [dir, len] = this.path[i];
 			if (dir == "d") fin += dist < len ? dist : len;
 			if (dir == "u") fin -= dist < len ? dist : len;
 			dist -= len;

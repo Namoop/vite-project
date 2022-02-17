@@ -19,7 +19,7 @@ declare module "*/maps.toml" {
 			life: number,
 			gold: number,
 			path_start: [number, number],
-			path: ["l" | "u" | "d" | "r", number][]
+			path: ["l" | "u" | "d" | "r", number][][]
 		}
 	};
 	export default file;
