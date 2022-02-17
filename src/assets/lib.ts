@@ -27,7 +27,6 @@ function spriteToCanvas(
 	context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
 	sprite: Sprite
 ) {
-	globals[0] = scale;
 	context.save();
 	context.filter = filterString(sprite);
 	//context.globalAlpha = sprite.effects.opacity / 100;
@@ -256,8 +255,8 @@ function loop(func: Function | number): void {
 	draw();
 	resolveframe();
 	checkHover();
-	(document.getElementById("other") as HTMLElement).innerHTML = hover
-		?.constructor.name as string;
+	globals[0] = hover?.constructor.name as string
+	(document.getElementById("other") as HTMLElement).innerHTML = globals.join();
 
 	//prepare for next frame
 	World.nextframe = new Promise((r) => (resolveframe = r));
