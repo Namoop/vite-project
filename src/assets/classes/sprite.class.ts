@@ -7,8 +7,20 @@ import { World } from "./world.class";
  */
 export class Sprite extends Base {
 	src: any;
-	x = 0;
-	y = 0;
+	_x = 0;
+	_y = 0;
+	get x() {
+		return this._x;
+	}
+	set x(z) {
+		this._x = z;
+	}
+	get y() {
+		return this._y;
+	}
+	set y(z) {
+		this._y = z;
+	}
 	direction = 0;
 	private _zIndex = 0n;
 	get zIndex() {
@@ -90,7 +102,7 @@ export class Sprite extends Base {
 	 * @param {number} degrees The value, in degrees, to change the rotation by
 	 */
 	rotate(deg: number) {
-		this.direction += deg
+		this.direction += deg;
 		return this;
 	}
 	/** Change the size (percentage) of the sprite
@@ -114,7 +126,7 @@ export class Sprite extends Base {
 			let newX = this.x + (x - this.x) / (speed * 10);
 			let newY = this.y + (y - this.y) / (speed * 10);
 			this.move(newX, newY);
-			await nextframe;
+			await World.nextframe;
 		}
 		[this.x, this.y] = [x, y];
 		this.async.glide = 0;

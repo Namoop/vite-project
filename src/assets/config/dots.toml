@@ -1,0 +1,5 @@
+[red]
+speed = 1
+health = 1
+src = """<circle cx=size cy=size r=size fill="red"/>"""
+srcSize = 15

@@ -1,4 +1,3 @@
-declare let nextframe: any;
 declare let globals: any[];
 
 interface OffscreenCanvas extends EventTarget {

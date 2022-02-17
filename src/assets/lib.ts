@@ -53,7 +53,7 @@ const offctx = offscreencanvas.getContext(
 	"2d"
 ) as OffscreenCanvasRenderingContext2D;
 function checkHover(): void {
-	if (frame % config.mouse.onHoverDelay != 0) return;
+	if (World.frame % config.mouse.onHoverDelay != 0) return;
 	if (World.getAll()[hover?.id ?? -1] != hover) hover = null;
 	let hoverHold = hover,
 		prev = false;
@@ -219,10 +219,8 @@ export const Mouse = {
 };
 
 let resolveframe: Function, run: Function, scale: number;
-let fps: number[] = [],
-	frame = 0;
-// @ts-ignore
-window["nextframe"] = new Promise((r) => (resolveframe = r));
+let fps: number[] = [];
+World.nextframe = new Promise((r) => (resolveframe = r));
 
 let looping = false;
 export function beginLoop(func: Function) {
@@ -236,7 +234,7 @@ export function beginLoop(func: Function) {
 function loop(func: Function | number): void {
 	//manage internals
 	if (typeof func == "function") run = func;
-	frame++;
+	World.frame++;
 	fps.push(Date.now());
 	let dg = document.getElementById("dg") as HTMLElement;
 	dg.innerText = `fps: ${fps.length}`;
@@ -258,11 +256,11 @@ function loop(func: Function | number): void {
 	draw();
 	resolveframe();
 	checkHover();
-	//@ts-ignore
-	document.getElementById("other").innerHTML = hover?.constructor.name;
+	(document.getElementById("other") as HTMLElement).innerHTML = hover
+		?.constructor.name as string;
 
 	//prepare for next frame
-	nextframe = new Promise((r) => (resolveframe = r));
+	World.nextframe = new Promise((r) => (resolveframe = r));
 	if (!config.runOptions.stop) {
 		if (config.runOptions.gamespeed == 0)
 			window.requestAnimationFrame(loop);

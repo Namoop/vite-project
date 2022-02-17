@@ -1,7 +1,8 @@
 // @ts-ignore
-window["globals"] = [2];
+window["globals"] = [];
 
 import maps from "#config/maps.toml";
+import dots from "#config/dots.toml";
 import laneMapString from "./assets/images/dotlane.png";
 import { cnv, beginLoop, preload } from "./assets/lib";
 import { Button, Sprite, SVGSprite } from "./assets/classes/sprite.class";
@@ -9,9 +10,10 @@ import { World } from "./assets/classes/world.class";
 import tower from "#images/bob.png";
 const app = document.getElementById("app") as HTMLElement;
 app.appendChild(cnv);
+// @ts-ignore
+globals.world = World;
 
-let [laneMap] = preload(laneMapString);
-console.log(maps)
+const [laneMap] = preload(laneMapString);
 
 //let bob: Sprite, button: Sprite;
 function init() {
@@ -31,7 +33,9 @@ function init() {
 	};
 }
 
+let map = maps.interface;
 function laneInit() {
+	map = maps.lane;
 	new Sprite(laneMap).center(); //background
 	let towerbtn = new Sprite(tower).move(660, 100).resize(80);
 	towerbtn.draggable = true;
@@ -50,6 +54,8 @@ function laneInit() {
 	}).move(20, 50);
 	nextwavebtn.onclick = () => {};
 
+	new Dot("red");
+
 	beginLoop(gameloop);
 }
 
@@ -59,11 +65,14 @@ function gameloop() {
 		t.rotate(t.dirspeed);
 		if (Math.random() > 0.999) t.dirspeed = (Math.random() * 0.2 - 0.1) * 3;
 	});
+
+	let dots = World.getEvery(Dot) as Dot[];
+	dots.forEach;
 }
 
 class Tower extends Sprite {
 	dirspeed = 0.2;
-	constructor(type: String) {
+	constructor(type: string) {
 		let src;
 		switch (type) {
 			case "red":
@@ -72,6 +81,36 @@ class Tower extends Sprite {
 				break;
 		}
 		super(src);
+	}
+}
+
+class Dot extends SVGSprite {
+	spawn = World.frame;
+	speed: number;
+	health: number;
+	conf;
+	constructor(type: string) {
+		let c = dots[type];
+		super(
+			`<svg width=${c.srcSize * 2} height=${c.srcSize * 2}>
+				${c.src.replaceAll("size", String(c.srcSize))}
+			</svg>`
+		);
+		this.conf = c;
+		this.speed = c.speed;
+		this.health = c.health;
+	}
+	get x() {
+		let fin = map.path_start[0];
+		let dist = World.frame - this.spawn;
+		for (let i = 0; dist >= 0; i++) {
+			let [dir, len] = map.path[i];
+			if (dir == "r") fin += len;
+			if (dir == "l") fin -= len;
+			dist -= len;
+		}
+
+		return fin;
 	}
 }
 
