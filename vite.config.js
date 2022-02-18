@@ -11,4 +11,7 @@ export default {
 			"#src": __dirname + "/src",
 		},
 	},
+	build: {
+		target: "esnext"
+	}
 };
