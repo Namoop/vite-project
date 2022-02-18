@@ -3,6 +3,7 @@ import { Sprite } from "./sprite.class";
 import { Button, SVGSprite } from "./templates.class";
 import config from "#config/system.toml";
 import {Mouse} from "./mouse.class"
+import { Time } from "./time.class";
 export {Sprite, SVGSprite, Button, World, cnv, ctx, draw, Time, Mouse}
 
 const cnv = World.canvas
@@ -81,27 +82,6 @@ function checkHover(): void {
 	}
 	World.hover = hoverHold;
 }
-
-const Time = {
-	sleep: (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
-	in: async function (time: number, unit: string, callback: Function) {
-		switch (unit) {
-			case "m":
-			case "minutes":
-				time *= 60;
-			//break;
-			case "ms":
-			case "milliseconds":
-				break;
-			case "s":
-			case "seconds":
-			default:
-				time *= 1000;
-		}
-		await this.sleep(time);
-		callback();
-	},
-};
 
 const kp: any = {};
 window.onkeydown = window.onkeyup = function (e) {
