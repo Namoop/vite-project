@@ -1,4 +1,5 @@
 declare let globals: any[];
+type Sprite = any //##NOT GOOD
 
 interface OffscreenCanvas extends EventTarget {
 	width: number;
