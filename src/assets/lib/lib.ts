@@ -1,5 +1,6 @@
 import { World } from "./world.class";
-import { Sprite, SVGSprite, Button } from "./sprite.class";
+import { Sprite } from "./sprite.class";
+import { Button, SVGSprite } from "./templates.class";
 import config from "#config/system.toml";
 import {Mouse} from "./mouse.class"
 export {Sprite, SVGSprite, Button, World, cnv, ctx, draw, Time, Mouse}
