@@ -7,7 +7,7 @@ export default {
 			"#root": __dirname,
 			"#images": __dirname + "/src/assets/images",
 			"#config": __dirname + "/src/assets/config",
-			"#classes": __dirname + "/src/assets/classes",
+			"#lib": __dirname + "/src/assets/lib",
 			"#src": __dirname + "/src",
 		},
 	},

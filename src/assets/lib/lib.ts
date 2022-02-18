@@ -1,9 +1,10 @@
-import { Sprite } from "./classes/sprite.class";
-import { World } from "./classes/world.class";
-import config from "./config/system.toml";
+import { Sprite, SVGSprite, Button } from "./sprite.class";
+import { World } from "./world.class";
+import config from "#config/system.toml";
+export {Sprite, SVGSprite, Button, World, cnv, ctx, draw, Time, Mouse}
 
-export const cnv = document.createElement("canvas");
-export const ctx = cnv.getContext("2d") as CanvasRenderingContext2D;
+const cnv = document.createElement("canvas");
+const ctx = cnv.getContext("2d") as CanvasRenderingContext2D;
 cnv.oncontextmenu = function () {
 	return false;
 };
@@ -41,7 +42,7 @@ function spriteToCanvas(
 	);
 	context.restore();
 }
-export function draw(): void {
+function draw(): void {
 	for (let i of spriteArr) {
 		spriteToCanvas(ctx, i);
 	}
@@ -79,7 +80,7 @@ function checkHover(): void {
 	hover = hoverHold;
 }
 
-export const Time = {
+const Time = {
 	sleep: (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
 	in: async function (time: number, unit: string, callback: Function) {
 		switch (unit) {
@@ -172,7 +173,7 @@ cnv.onmousedown = function (e) {
 // };
 
 /** Returns user mouse input including position and buttons pressed */
-export const Mouse = {
+const Mouse = {
 	/** The position of the mouse, before scale transformations. Used internally. */
 	raw: {
 		get x() {

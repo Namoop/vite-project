@@ -3,15 +3,14 @@ window["globals"] = [];
 
 import maps from "#config/maps.toml";
 import dots from "#config/dots.toml";
-import laneMapString from "./assets/images/dotlane.png";
-import { cnv, beginLoop, preload } from "./assets/lib";
-import { Button, Sprite, SVGSprite } from "./assets/classes/sprite.class";
-import { World } from "./assets/classes/world.class";
+import laneMapString from "#images/dotlane.png";
 import redTower from "#images/bob.png";
+import { cnv, beginLoop, preload, Sprite, SVGSprite, Button, World } from "./assets/lib/lib";
 const app = document.getElementById("app") as HTMLElement;
 app.appendChild(cnv);
 // @ts-ignore
 globals.world = World;
+console.log(globalThis)
 
 const [laneMap] = preload(laneMapString);
 
@@ -74,7 +73,7 @@ class Tower extends Sprite {
 	dirspeed = 0.2;
 	constructor(type: string) {
 		super(type == "red" ? redTower : "");
-		
+
 	}
 }
 
