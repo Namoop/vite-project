@@ -37,3 +37,16 @@ declare module "*/dots.toml" {
 	export default file;
 }
 
+declare module "*/towers.toml" {
+	const file: {
+		[tower: string]: {
+			src: string
+			bullet: string
+			magazine_size: number
+			pellets: number
+			fireDelay: number
+			reloadTime: number
+		}
+	}
+	export default file;
+}

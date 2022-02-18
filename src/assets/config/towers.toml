@@ -1,0 +1,8 @@
+[red]
+src = "../images/bob.png"
+bullet = "regular"
+magazine_size = 2
+pellets = 1
+fireDelay = 3
+reloadTime = 40
+damage = 1

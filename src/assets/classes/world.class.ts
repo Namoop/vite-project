@@ -43,8 +43,6 @@ class Point {
 		return [this.x, this.y];
 	}
 	inPoly(poly: Poly) {
-		//+ Jonas Raoni Soares Silva
-		//@ http://jsfromhell.com/math/is-point-in-poly
 		let pt = this,
 			c: boolean,
 			i: number,

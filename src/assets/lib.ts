@@ -164,7 +164,6 @@ cnv.onmousedown = function (e) {
 	onClickStartSprite = hover;
 	clickCancel = setTimeout(() => (onClickStartSprite = null), 5000);
 	hover?.onmousedown();
-	//if (hover?.draggable) hover.dragging = true
 };
 // cnv.ontouchstart = function (e) {
 // 	//might be broken

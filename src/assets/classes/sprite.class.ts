@@ -56,7 +56,6 @@ export class Sprite extends Base {
 		}
 		super();
 		while (World.getAll()[this.id]) this.id++;
-		//this.id = performance.now();
 		this.src = src;
 
 		World.getAll()[this.id] = this;

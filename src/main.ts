@@ -7,7 +7,7 @@ import laneMapString from "./assets/images/dotlane.png";
 import { cnv, beginLoop, preload } from "./assets/lib";
 import { Button, Sprite, SVGSprite } from "./assets/classes/sprite.class";
 import { World } from "./assets/classes/world.class";
-import tower from "#images/bob.png";
+import redTower from "#images/bob.png";
 const app = document.getElementById("app") as HTMLElement;
 app.appendChild(cnv);
 // @ts-ignore
@@ -37,7 +37,7 @@ let map = maps.interface;
 function laneInit() {
 	map = maps.lane;
 	new Sprite(laneMap).center(); //background
-	let towerbtn = new Sprite(tower).move(660, 100).resize(80);
+	let towerbtn = new Sprite(redTower).move(660, 100).resize(80);
 	towerbtn.draggable = true;
 	towerbtn.ondragend = () => {
 		new Tower("red").moveTo(towerbtn).resize(80);
@@ -73,14 +73,8 @@ function gameloop() {
 class Tower extends Sprite {
 	dirspeed = 0.2;
 	constructor(type: string) {
-		let src;
-		switch (type) {
-			case "red":
-			default:
-				src = tower;
-				break;
-		}
-		super(src);
+		super(type == "red" ? redTower : "");
+		
 	}
 }
 
