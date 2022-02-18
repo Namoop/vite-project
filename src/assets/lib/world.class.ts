@@ -1,4 +1,3 @@
-// @ts-ignore
 type SpriteObj = { [key: string]: Sprite };
 let sprites: SpriteObj = {};
 /** World object that offers useful data about the current state of the game and other methods*/
@@ -30,6 +29,9 @@ export const World = {
 	},
 	frame: 0,
 	nextframe: new Promise(() => {}),
+	hover: null as null | Sprite,
+	canvas: document.createElement("canvas"),
+	scale: 1,
 };
 
 class Point {

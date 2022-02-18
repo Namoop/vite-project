@@ -1,19 +1,22 @@
-import { Sprite, SVGSprite, Button } from "./sprite.class";
 import { World } from "./world.class";
+import { Sprite } from "./sprite.class";
+import { Button, SVGSprite } from "./templates.class";
 import config from "#config/system.toml";
+import {Mouse} from "./mouse.class"
+import { Time } from "./time.class";
 export {Sprite, SVGSprite, Button, World, cnv, ctx, draw, Time, Mouse}
 
-const cnv = document.createElement("canvas");
+const cnv = World.canvas
 const ctx = cnv.getContext("2d") as CanvasRenderingContext2D;
 cnv.oncontextmenu = function () {
 	return false;
 };
 cnv.style.border = "3px solid #000000";
-let hover: Sprite | null, spriteArr: Sprite[];
+let spriteArr: Sprite[];
 
 function filterString(obj: Sprite) {
 	let dragshadow = obj.dragging
-		? `drop-shadow(${10 * scale}px ${10 * scale}px ${3 * scale}px)`
+		? `drop-shadow(${10 *World.scale}px ${10 *World.scale}px ${3 *World.scale}px)`
 		: "";
 	return `blur(${obj.effects.blur / 10}px)
 	brightness(${obj.effects.brightness / 100})
@@ -31,14 +34,14 @@ function spriteToCanvas(
 	context.save();
 	context.filter = filterString(sprite);
 	//context.globalAlpha = sprite.effects.opacity / 100;
-	context.translate(sprite.x * scale, sprite.y * scale);
+	context.translate(sprite.x *World.scale, sprite.y *World.scale);
 	context.rotate((sprite.direction * Math.PI) / 180);
 	context.drawImage(
 		sprite.src,
-		0 - (sprite.src.width / 2) * (sprite.width / 100) * scale,
-		0 - (sprite.src.height / 2) * (sprite.height / 100) * scale,
-		((sprite.src.width * sprite.width) / 100) * scale,
-		((sprite.src.height * sprite.height) / 100) * scale
+		0 - (sprite.src.width / 2) * (sprite.width / 100) *World.scale,
+		0 - (sprite.src.height / 2) * (sprite.height / 100) *World.scale,
+		((sprite.src.width * sprite.width) / 100) *World.scale,
+		((sprite.src.height * sprite.height) / 100) *World.scale
 	);
 	context.restore();
 }
@@ -54,8 +57,8 @@ const offctx = offscreencanvas.getContext(
 ) as OffscreenCanvasRenderingContext2D;
 function checkHover(): void {
 	if (World.frame % config.mouse.onHoverDelay != 0) return;
-	if (World.getAll()[hover?.id ?? -1] != hover) hover = null;
-	let hoverHold = hover,
+	if (World.getAll()[World.hover?.id ?? -1] != World.hover) World.hover = null;
+	let hoverHold = World.hover,
 		prev = false;
 	for (let i of spriteArr) {
 		offctx.clearRect(0, 0, offscreencanvas.width, offscreencanvas.height);
@@ -66,40 +69,19 @@ function checkHover(): void {
 			.data.join();
 		let touching = newpixel != "0,0,0,0";
 
-		if (hover == i) {
+		if (World.hover == i) {
 			if (!touching) hoverHold = null;
 			prev = true;
 		}
-		if (!hover || prev) if (touching) hoverHold = i;
+		if (!World.hover || prev) if (touching) hoverHold = i;
 	}
 
-	if (hoverHold != hover) {
-		hover?.onblur();
+	if (hoverHold != World.hover) {
+		World.hover?.onblur();
 		hoverHold?.onhover();
 	}
-	hover = hoverHold;
+	World.hover = hoverHold;
 }
-
-const Time = {
-	sleep: (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
-	in: async function (time: number, unit: string, callback: Function) {
-		switch (unit) {
-			case "m":
-			case "minutes":
-				time *= 60;
-			//break;
-			case "ms":
-			case "milliseconds":
-				break;
-			case "s":
-			case "seconds":
-			default:
-				time *= 1000;
-		}
-		await this.sleep(time);
-		callback();
-	},
-};
 
 const kp: any = {};
 window.onkeydown = window.onkeyup = function (e) {
@@ -115,109 +97,7 @@ window.onkeydown = window.onkeyup = function (e) {
 	//if (me.logEvents) console.log(event);
 };
 
-let windowMouseX: number, windowMouseY: number;
-cnv.onmousemove = (e) => {
-	if (hover?.draggable) onClickStartSprite = null;
-	[windowMouseX, windowMouseY] = [e.clientX, e.clientY];
-	if (hover?.dragging) [hover.x, hover.y] = Mouse.pos;
-	else if (hover?.draggable && Mouse.left) {
-		hover.dragging = true;
-		hover.ondragstart();
-	}
-};
-// cnv.ontouchmove = (
-// 	e //probably broken
-// ) =>
-// 	([windowMouseX, windowMouseY] = [
-// 		e.touches[0].clientX,
-// 		e.touches[0].clientY,
-// 	]); //consider tap and place?
-
-const windowMouseDownArray = [false, false, false];
-let onClickStartSprite: Sprite | null;
-let clickCancel: number;
-cnv.onmouseup = function (e) {
-	windowMouseDownArray[e.button] = false;
-	let dragThisEvent = false;
-	if (hover == onClickStartSprite) {
-		if (hover?.draggable) {
-			if (!hover.dragging) {
-				dragThisEvent = true;
-				hover.dragging = true;
-				hover?.ondragstart();
-			}
-		}
-		onClickStartSprite?.onclick();
-	}
-	if (hover?.dragging && !dragThisEvent) {
-		hover.dragging = false;
-		hover.ondragend();
-	}
-	clearTimeout(clickCancel);
-	hover?.onmouseup();
-};
-// cnv.ontouchend = function (/*e*/) {
-// 	//might be broken
-// 	windowMouseDownArray[0] = false;
-// };
-cnv.onmousedown = function (e) {
-	windowMouseDownArray[e.button] = true;
-	onClickStartSprite = hover;
-	clickCancel = setTimeout(() => (onClickStartSprite = null), 5000);
-	hover?.onmousedown();
-};
-// cnv.ontouchstart = function (e) {
-// 	//might be broken
-// 	[windowMouseX, windowMouseY] = [e.touches[0].clientX, e.touches[0].clientY];
-// 	windowMouseDownArray[0] = true;
-// };
-
-/** Returns user mouse input including position and buttons pressed */
-const Mouse = {
-	/** The position of the mouse, before scale transformations. Used internally. */
-	raw: {
-		get x() {
-			let data = windowMouseX - cnv.getBoundingClientRect().x;
-			if (isNaN(data)) data = 0;
-			return data;
-		},
-		get y() {
-			let data = windowMouseY - cnv.getBoundingClientRect().y;
-			if (isNaN(data)) data = 0;
-			return data;
-		},
-	},
-	/** X Position of mouse pointer, relative to canvas (0-800) */
-	get x() {
-		let relative = this.raw.x / scale;
-		let rounded = Math.round(relative * 100) / 100;
-		return rounded;
-	},
-	/** Y Position of mouse pointer, relative to canvas (0-400) */
-	get y() {
-		let relative = this.raw.y / scale;
-		let rounded = Math.round(relative * 100) / 100;
-		return rounded;
-	},
-	/** Returns the mouse x and y as an array */
-	get pos() {
-		return [this.x, this.y];
-	},
-	/** Returns true if currently pressed */
-	get left() {
-		return windowMouseDownArray[0];
-	},
-	/** Returns true if currently pressed */
-	get middle() {
-		return windowMouseDownArray[1];
-	},
-	/** Returns true if currently pressed */
-	get right() {
-		return windowMouseDownArray[2];
-	},
-};
-
-let resolveframe: Function, run: Function, scale: number;
+let resolveframe: Function, run: Function;
 let fps: number[] = [];
 World.nextframe = new Promise((r) => (resolveframe = r));
 
@@ -243,9 +123,9 @@ function loop(func: Function | number): void {
 
 	//clear and resize canvas
 	// 82475 from: /800 (base width), /100 (scale as percentage), *0.97 (canvas overflow)
-	scale = (window.innerWidth * config.runOptions.scale) / 82475;
-	offscreencanvas.width = cnv.width = 800 * scale;
-	offscreencanvas.height = cnv.height = 400 * scale;
+	World.scale = (window.innerWidth * config.runOptions.scale) / 82475;
+	offscreencanvas.width = cnv.width = 800 *World.scale;
+	offscreencanvas.height = cnv.height = 400 *World.scale;
 
 	//run code!
 	run();
@@ -255,7 +135,7 @@ function loop(func: Function | number): void {
 	draw();
 	resolveframe();
 	checkHover();
-	globals[0] = hover?.constructor.name as string
+	globals[0] = World.hover?.constructor.name as string
 	(document.getElementById("other") as HTMLElement).innerHTML = globals.join();
 
 	//prepare for next frame
