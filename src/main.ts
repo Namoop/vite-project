@@ -5,9 +5,9 @@ import maps from "#config/maps.toml";
 import dots from "#config/dots.toml";
 import laneMapString from "#images/dotlane.png";
 import redTower from "#images/bob.png";
-import { cnv, beginLoop, preload, Sprite, SVGSprite, Button, World } from "./assets/lib/lib";
+import { beginLoop, preload, Sprite, SVGSprite, Button, World } from "./assets/lib/lib";
 const app = document.getElementById("app") as HTMLElement;
-app.appendChild(cnv);
+app.appendChild(World.canvas);
 // @ts-ignore
 globals.world = World;
 console.log(globalThis)

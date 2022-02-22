@@ -1,4 +1,5 @@
 import { World } from "./world.class";
+import { Sprite } from "./sprite.class";
 export {Mouse}
 let windowMouseX: number, windowMouseY: number;
 let cnv = World.canvas as HTMLCanvasElement

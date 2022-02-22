@@ -75,6 +75,9 @@ export class Sprite extends Base {
 		this.hidden = !this.hidden;
 		return this;
 	}
+	isHidden () {
+		return this.hidden;
+	}
 	/** Move the position of the sprite
 	 * @param {number} x Target position
 	 * @param {number} y

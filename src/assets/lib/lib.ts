@@ -3,8 +3,7 @@ import { Sprite } from "./sprite.class";
 import { Button, SVGSprite } from "./templates.class";
 import config from "#config/system.toml";
 import {Mouse} from "./mouse.class"
-import { Time } from "./time.class";
-export {Sprite, SVGSprite, Button, World, cnv, ctx, draw, Time, Mouse}
+export {Sprite, SVGSprite, Button, World, Mouse, preload, beginLoop}
 
 const cnv = World.canvas
 const ctx = cnv.getContext("2d") as CanvasRenderingContext2D;
@@ -102,7 +101,7 @@ let fps: number[] = [];
 World.nextframe = new Promise((r) => (resolveframe = r));
 
 let looping = false;
-export function beginLoop(func: Function) {
+function beginLoop(func: Function) {
 	if (looping) {
 		run = func;
 	} else {
@@ -130,7 +129,7 @@ function loop(func: Function | number): void {
 	//run code!
 	run();
 	spriteArr = Object.values(World.getAll())
-		.filter((k) => !k.hidden)
+		.filter((k) => !k.isHidden())
 		.sort((a, b) => Number(a.zIndex - b.zIndex));
 	draw();
 	resolveframe();
@@ -155,7 +154,7 @@ function loop(func: Function | number): void {
 /** Converts image url's into images - should be called at beggining of script
  * @param {string} ImageURL any number...
  */
-export function preload(...args: string[]) {
+function preload(...args: string[]) {
 	let arr = [];
 	for (let i of args) {
 		let container = new Image();

@@ -1,3 +1,4 @@
+import { Sprite } from "./sprite.class";
 type SpriteObj = { [key: string]: Sprite };
 let sprites: SpriteObj = {};
 /** World object that offers useful data about the current state of the game and other methods*/
