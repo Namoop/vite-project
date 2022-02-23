@@ -6,7 +6,7 @@ import {Mouse} from "./mouse.class"
 export {Sprite, SVGSprite, Button, World, Mouse, preload, beginLoop}
 
 const cnv = World.canvas
-const ctx = cnv.getContext("2d") as CanvasRenderingContext2D;
+const ctx = World.context;
 cnv.oncontextmenu = function () {
 	return false;
 };
@@ -43,20 +43,37 @@ function spriteToCanvas(
 		((sprite.src.height * sprite.height) / 100) *World.scale
 	);
 
-	if (World.debugView) {
-		context.moveTo(sprite.poly[0].x*World.scale,sprite.poly[0].y*World.scale)
-		context.beginPath()
-		for (let k=0;k<sprite.poly.length;k++) context.lineTo(sprite.poly[k].x*World.scale,sprite.poly[k].y*World.scale)
-		context.lineTo(sprite.poly[0].x*World.scale,sprite.poly[0].y*World.scale)
-		context.lineWidth = 5
-		context.strokeStyle = "orange"
-		context.stroke()
-	}
+	// if (World.debugView) {
+	// 	context.moveTo(sprite.poly[0].x*World.scale,sprite.poly[0].y*World.scale)
+	// 	context.beginPath()
+	// 	for (let k=0;k<sprite.poly.length;k++) context.lineTo(sprite.poly[k].x*World.scale,sprite.poly[k].y*World.scale)
+	// 	context.lineTo(sprite.poly[0].x*World.scale,sprite.poly[0].y*World.scale)
+	// 	context.lineWidth = 5
+	// 	context.strokeStyle = "orange"
+	// 	World.getEvery(Sprite).forEach((s)=>{
+	// 		if (s != sprite)
+	// 			if (World.areColliding(s, sprite))
+	// 				context.strokeStyle = "red"
+	// 	})
+	// 	context.stroke()
+	// }
 	context.restore();
 }
 function draw(): void {
 	for (let i of spriteArr) {
 		spriteToCanvas(ctx, i);
+		if (World.debugView) {
+			ctx.lineWidth = 5
+			ctx.strokeStyle = "orange"
+			World.getEvery(Sprite).forEach((s)=>{
+				if (s != i)
+					{if (World.areColliding(s, i))
+						ctx.strokeStyle = "red"
+					else ctx.strokeStyle = "orange"}
+				ctx.stroke()
+			})
+			
+		}
 	}
 }
 

@@ -1,8 +1,9 @@
 import { Sprite } from "./sprite.class";
-import config from "../config/system.toml"
+import config from "../config/system.toml";
 export { World, Point, Poly };
 type SpriteObj = { [key: string]: Sprite };
 let sprites: SpriteObj = {};
+let tempcnv = document.createElement("canvas")
 /** World object that offers useful data about the current state of the game and other methods*/
 const World = {
 	/** Removes every sprite from the world */
@@ -32,15 +33,32 @@ const World = {
 	},
 	/** Returns true if both sprites' hitboxes are currently colliding */
 	areColliding(a: Sprite, b: Sprite): boolean {
+		//if either are inside of the other, any random point would be inside
 		if (a.poly[0].inPoly(b.poly)) return true;
+		if (b.poly[0].inPoly(a.poly)) return true;
+		
+		//this part checks if any line from poly a
+		//intersects with any line from poly b
+		let apos = new Point(a.x, a.y)
+		let bpos = new Point(b.x, b.y)
+		for (let i = 0; i < a.poly.length; i++)
+			for (let k = 0; k < b.poly.length; k++)
+				if (intersects(
+					...a.poly[i].add(apos).arr(),
+					...(a.poly[i+1] ?? a.poly[0]).add(apos).arr(),
+
+					...b.poly[k].add(bpos).arr(),
+					...(b.poly[k+1] ?? b.poly[0]).add(bpos).arr()
+				)) return true
 		return false;
 	},
 	frame: 0,
 	nextframe: new Promise(() => {}),
 	hover: null as null | Sprite,
-	canvas: document.createElement("canvas"),
+	canvas: tempcnv,
+	context: tempcnv.getContext("2d") as CanvasRenderingContext2D,
 	scale: 1,
-	debugView: config.runOptions.debugView
+	debugView: config.runOptions.debugView,
 };
 
 class Point {
@@ -49,6 +67,9 @@ class Point {
 	constructor(x: number, y: number) {
 		this.x = x;
 		this.y = y;
+	}
+	add(b:Point) {
+		return new Point (this.x+b.x, this.y+b.y)
 	}
 	arr(): [number, number] {
 		return [this.x, this.y];
@@ -70,15 +91,29 @@ class Point {
 		return c;
 	}
 }
-
-let g = new Point(5, 9);
-let jk: Poly = [
-	new Point(0, 0),
-	new Point(0, 10),
-	new Point(10, 10),
-	new Point(10, 0),
-];
-console.log(g.inPoly(jk));
-
 type Poly = { 0: Point; 1: Point; 2: Point } & Point[];
-//class Poly extends Array {}
+
+/** returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s) */
+function intersects(
+	a: number,
+	b: number,
+	c: number,
+	d: number,
+	p: number,
+	q: number,
+	r: number,
+	s: number
+) {
+	World.context.moveTo(a*World.scale, b*World.scale)
+	World.context.beginPath()
+	World.context.lineTo(c*World.scale,d*World.scale)
+	let det, gamma, lambda;
+	det = (c - a) * (s - q) - (r - p) * (d - b);
+	if (det === 0) {
+		return false;
+	} else {
+		lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+		gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+		return 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
+	}
+}

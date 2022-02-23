@@ -49,16 +49,13 @@ export class Sprite extends Base {
 		glide: 0,
 	};
 	private _poly: Poly = [new Point(0, 0), new Point(1, 0), new Point(0, 1)];
-	abc = false;
 	get poly() {
 		let p = this._poly;
-		if (!this.abc) console.log(p)
 		p.map(
 			(a) =>
 				new Point((a.x * this.width) / 100, (a.y * this.height) / 100)
 		);
 		
-		if (!this.abc) {console.log(p); console.log(this.width);this.abc = true}
 		return p;
 	}
 	set poly(h) {
@@ -138,7 +135,6 @@ export class Sprite extends Base {
 	 * @param {number} height | Optional - If left blank will set to same as height
 	 */
 	resize(width: number, height?: number) {
-		this.abc = false
 		if (typeof height == "undefined") this.height = this.width = width;
 		else [this.width, this.height] = [width, height];
 		return this;
