@@ -24,7 +24,7 @@ function init() {
 		width: 100,
 		height: 30,
 		textSize: 20,
-	}).move(100, 200);
+	}).move(100, 180);
 	lane.onclick = () => {
 		World.deleteAll();
 		laneInit();

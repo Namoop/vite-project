@@ -33,17 +33,19 @@ const World = {
 	},
 	/** Returns true if both sprites' hitboxes are currently colliding */
 	areColliding(a: Sprite, b: Sprite): boolean {
+		let apos = new Point(a.x, a.y)
+		let bpos = new Point(b.x, b.y)
+		//polyactual = poly.map(a=>a.add(apos))
+		
 		//if either are inside of the other, any random point would be inside
-		if (a.poly[0].inPoly(b.poly)) return true;
-		if (b.poly[0].inPoly(a.poly)) return true;
+		if (a.poly[0].add(apos).inPoly(b.poly, bpos)) return true;
+		if (b.poly[0].add(bpos).inPoly(a.poly, apos)) return true;
 		
 		//this part checks if any line from poly a
 		//intersects with any line from poly b
-		let apos = new Point(a.x, a.y)
-		let bpos = new Point(b.x, b.y)
 		for (let i = 0; i < a.poly.length; i++)
 			for (let k = 0; k < b.poly.length; k++)
-				if (intersects(
+				if (lineIntersects(
 					...a.poly[i].add(apos).arr(),
 					...(a.poly[i+1] ?? a.poly[0]).add(apos).arr(),
 
@@ -74,7 +76,8 @@ class Point {
 	arr(): [number, number] {
 		return [this.x, this.y];
 	}
-	inPoly(poly: Poly) {
+	inPoly(poly: Poly, offset?: Point) {
+		if (offset) poly = poly.map(b=>b.add(offset)) as Poly
 		let pt = this,
 			c: boolean,
 			i: number,
@@ -93,8 +96,31 @@ class Point {
 }
 type Poly = { 0: Point; 1: Point; 2: Point } & Point[];
 
+// function polyTouchingPoly (a: Poly, b: Poly) {
+// 	let apos = new Point(a.x, a.y)
+// 	let bpos = new Point(b.x, b.y)
+// 	//polyactual = poly.map(a=>a.add(apos))
+	
+// 	//if either are inside of the other, any random point would be inside
+// 	if (a.poly[0].add(apos).inPoly(b.poly, bpos)) return true;
+// 	if (b.poly[0].add(bpos).inPoly(a.poly, apos)) return true;
+	
+// 	//this part checks if any line from poly a
+// 	//intersects with any line from poly b
+// 	for (let i = 0; i < a.poly.length; i++)
+// 		for (let k = 0; k < b.poly.length; k++)
+// 			if (intersects(
+// 				...a.poly[i].add(apos).arr(),
+// 				...(a.poly[i+1] ?? a.poly[0]).add(apos).arr(),
+
+// 				...b.poly[k].add(bpos).arr(),
+// 				...(b.poly[k+1] ?? b.poly[0]).add(bpos).arr()
+// 			)) return true
+// 	return false;
+// }
+
 /** returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s) */
-function intersects(
+function lineIntersects(
 	a: number,
 	b: number,
 	c: number,
@@ -105,15 +131,16 @@ function intersects(
 	s: number
 ) {
 	World.context.moveTo(a*World.scale, b*World.scale)
-	World.context.beginPath()
 	World.context.lineTo(c*World.scale,d*World.scale)
 	let det, gamma, lambda;
 	det = (c - a) * (s - q) - (r - p) * (d - b);
+	let ans = false
 	if (det === 0) {
-		return false;
+		//return false;
 	} else {
 		lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
 		gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
-		return 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
+		ans = 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
 	}
+	return ans
 }

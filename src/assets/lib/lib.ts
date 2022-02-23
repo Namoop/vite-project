@@ -2,10 +2,10 @@ import { World } from "./world.class";
 import { Sprite } from "./sprite.class";
 import { Button, SVGSprite } from "./templates.class";
 import config from "#config/system.toml";
-import {Mouse} from "./mouse.class"
-export {Sprite, SVGSprite, Button, World, Mouse, preload, beginLoop}
+import { Mouse } from "./mouse.class";
+export { Sprite, SVGSprite, Button, World, Mouse, preload, beginLoop };
 
-const cnv = World.canvas
+const cnv = World.canvas;
 const ctx = World.context;
 cnv.oncontextmenu = function () {
 	return false;
@@ -15,7 +15,9 @@ let spriteArr: Sprite[];
 
 function filterString(obj: Sprite) {
 	let dragshadow = obj.dragging
-		? `drop-shadow(${10 *World.scale}px ${10 *World.scale}px ${3 *World.scale}px)`
+		? `drop-shadow(${10 * World.scale}px ${10 * World.scale}px ${
+				3 * World.scale
+		  }px)`
 		: "";
 	return `blur(${obj.effects.blur / 10}px)
 	brightness(${obj.effects.brightness / 100})
@@ -33,14 +35,14 @@ function spriteToCanvas(
 	context.save();
 	context.filter = filterString(sprite);
 	//context.globalAlpha = sprite.effects.opacity / 100;
-	context.translate(sprite.x *World.scale, sprite.y *World.scale);
+	context.translate(sprite.x * World.scale, sprite.y * World.scale);
 	context.rotate((sprite.direction * Math.PI) / 180);
 	context.drawImage(
 		sprite.src,
-		0 - (sprite.src.width / 2) * (sprite.width / 100) *World.scale,
-		0 - (sprite.src.height / 2) * (sprite.height / 100) *World.scale,
-		((sprite.src.width * sprite.width) / 100) *World.scale,
-		((sprite.src.height * sprite.height) / 100) *World.scale
+		0 - (sprite.src.width / 2) * (sprite.width / 100) * World.scale,
+		0 - (sprite.src.height / 2) * (sprite.height / 100) * World.scale,
+		((sprite.src.width * sprite.width) / 100) * World.scale,
+		((sprite.src.height * sprite.height) / 100) * World.scale
 	);
 
 	// if (World.debugView) {
@@ -63,16 +65,17 @@ function draw(): void {
 	for (let i of spriteArr) {
 		spriteToCanvas(ctx, i);
 		if (World.debugView) {
-			ctx.lineWidth = 5
-			ctx.strokeStyle = "orange"
-			World.getEvery(Sprite).forEach((s)=>{
-				if (s != i)
-					{if (World.areColliding(s, i))
-						ctx.strokeStyle = "red"
-					else ctx.strokeStyle = "orange"}
-				ctx.stroke()
-			})
-			
+			ctx.lineWidth = 5;
+			ctx.strokeStyle = "orange";
+			World.getEvery(Sprite).forEach((s) => {
+				World.context.beginPath()
+				if (s != i) {
+					World.areColliding(s, i)
+					if (World.areColliding(s, i)) ctx.strokeStyle = "red";
+					else ctx.strokeStyle = "orange";
+				}
+				ctx.stroke();
+			});
 		}
 	}
 }
@@ -83,7 +86,8 @@ const offctx = offscreencanvas.getContext(
 ) as OffscreenCanvasRenderingContext2D;
 function checkHover(): void {
 	if (World.frame % config.mouse.onHoverDelay != 0) return;
-	if (World.getAll()[World.hover?.id ?? -1] != World.hover) World.hover = null;
+	if (World.getAll()[World.hover?.id ?? -1] != World.hover)
+		World.hover = null;
 	let hoverHold = World.hover,
 		prev = false;
 	for (let i of spriteArr) {
@@ -150,8 +154,8 @@ function loop(func: Function | number): void {
 	//clear and resize canvas
 	// 82475 from: /800 (base width), /100 (scale as percentage), *0.97 (canvas overflow)
 	World.scale = (window.innerWidth * config.runOptions.scale) / 82475;
-	offscreencanvas.width = cnv.width = 800 *World.scale;
-	offscreencanvas.height = cnv.height = 400 *World.scale;
+	offscreencanvas.width = cnv.width = 800 * World.scale;
+	offscreencanvas.height = cnv.height = 400 * World.scale;
 
 	//run code!
 	run();
@@ -161,8 +165,9 @@ function loop(func: Function | number): void {
 	draw();
 	resolveframe();
 	checkHover();
-	globals[0] = World.hover?.constructor.name as string
-	(document.getElementById("other") as HTMLElement).innerHTML = globals.join();
+	globals[0] = World.hover?.constructor.name as string;
+	(document.getElementById("other") as HTMLElement).innerHTML =
+		globals.join();
 
 	//prepare for next frame
 	World.nextframe = new Promise((r) => (resolveframe = r));
