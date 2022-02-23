@@ -62,6 +62,7 @@ function gameloop() {
 	let towers = World.getEvery(Tower) as Tower[];
 	towers.forEach((t) => {
 		t.rotate(t.dirspeed);
+
 		if (Math.random() > 0.999) t.dirspeed = (Math.random() * 0.2 - 0.1) * 3;
 	});
 

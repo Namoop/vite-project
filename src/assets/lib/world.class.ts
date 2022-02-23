@@ -1,8 +1,10 @@
 import { Sprite } from "./sprite.class";
+import config from "../config/system.toml"
+export { World, Point, Poly };
 type SpriteObj = { [key: string]: Sprite };
 let sprites: SpriteObj = {};
 /** World object that offers useful data about the current state of the game and other methods*/
-export const World = {
+const World = {
 	/** Removes every sprite from the world */
 	deleteAll() {
 		sprites = {};
@@ -28,11 +30,17 @@ export const World = {
 		for (let n = 0; n < frames; n++) await World.nextframe;
 		callback();
 	},
+	/** Returns true if both sprites' hitboxes are currently colliding */
+	areColliding(a: Sprite, b: Sprite): boolean {
+		if (a.poly[0].inPoly(b.poly)) return true;
+		return false;
+	},
 	frame: 0,
 	nextframe: new Promise(() => {}),
 	hover: null as null | Sprite,
 	canvas: document.createElement("canvas"),
 	scale: 1,
+	debugView: config.runOptions.debugView
 };
 
 class Point {
@@ -42,7 +50,7 @@ class Point {
 		this.x = x;
 		this.y = y;
 	}
-	arr() {
+	arr(): [number, number] {
 		return [this.x, this.y];
 	}
 	inPoly(poly: Poly) {
@@ -63,5 +71,14 @@ class Point {
 	}
 }
 
-type Poly = Point[];
+let g = new Point(5, 9);
+let jk: Poly = [
+	new Point(0, 0),
+	new Point(0, 10),
+	new Point(10, 10),
+	new Point(10, 0),
+];
+console.log(g.inPoly(jk));
+
+type Poly = { 0: Point; 1: Point; 2: Point } & Point[];
 //class Poly extends Array {}

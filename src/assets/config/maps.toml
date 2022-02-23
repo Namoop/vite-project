@@ -4,8 +4,7 @@ life = 50
 gold = 1000
 
 path = [
-	[
-		# prettier-ignore
+	[ # prettier-ignore
 		[0, 150],
 		["r", 150],
 		["d", 150],

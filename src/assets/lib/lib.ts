@@ -42,6 +42,16 @@ function spriteToCanvas(
 		((sprite.src.width * sprite.width) / 100) *World.scale,
 		((sprite.src.height * sprite.height) / 100) *World.scale
 	);
+
+	if (World.debugView) {
+		context.moveTo(sprite.poly[0].x*World.scale,sprite.poly[0].y*World.scale)
+		context.beginPath()
+		for (let k=0;k<sprite.poly.length;k++) context.lineTo(sprite.poly[k].x*World.scale,sprite.poly[k].y*World.scale)
+		context.lineTo(sprite.poly[0].x*World.scale,sprite.poly[0].y*World.scale)
+		context.lineWidth = 5
+		context.strokeStyle = "orange"
+		context.stroke()
+	}
 	context.restore();
 }
 function draw(): void {

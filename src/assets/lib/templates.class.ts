@@ -12,10 +12,10 @@ export class SVGSprite extends Sprite {
 		const url = URL.createObjectURL(blob);
 		const image = new Image();
 		image.src = url;
+		super(image);
 		image.addEventListener("load", () => URL.revokeObjectURL(url), {
 			once: true,
 		});
-		super(image);
 		this.svg = svg;
 	}
 

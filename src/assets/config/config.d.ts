@@ -4,6 +4,7 @@ declare module "*/system.toml" {
 			gamespeed: number;
 			scale: number;
 			stop: boolean;
+			debugView: boolean;
 		};
 		mouse: {
 			onHoverDelay: number;

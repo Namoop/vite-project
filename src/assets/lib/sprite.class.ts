@@ -1,5 +1,5 @@
 import { Base } from "./events.class";
-import { World } from "./world.class";
+import { World, Point, Poly } from "./world.class";
 /** An object with a postion, that is drawn to the screen
  * and can be moved around, rotated, hidden, etc
  * @param {CanvasImageSource | String} source
@@ -48,7 +48,23 @@ export class Sprite extends Base {
 	async = {
 		glide: 0,
 	};
-	constructor(src: CanvasImageSource | string) {
+	private _poly: Poly = [new Point(0, 0), new Point(1, 0), new Point(0, 1)];
+	abc = false;
+	get poly() {
+		let p = this._poly;
+		if (!this.abc) console.log(p)
+		p.map(
+			(a) =>
+				new Point((a.x * this.width) / 100, (a.y * this.height) / 100)
+		);
+		
+		if (!this.abc) {console.log(p); console.log(this.width);this.abc = true}
+		return p;
+	}
+	set poly(h) {
+		this._poly = h;
+	}
+	constructor(src: CanvasImageSource | string, hitbox?: Poly) {
 		if (typeof src == "string") {
 			let container = new Image();
 			container.src = src;
@@ -59,6 +75,16 @@ export class Sprite extends Base {
 		this.src = src;
 
 		World.getAll()[this.id] = this;
+
+		if (hitbox) this.poly = hitbox;
+		this.src.addEventListener("load", () => {
+			this.poly = [
+				new Point(-this.src.width / 2, -this.src.height / 2),
+				new Point(-this.src.width / 2, +this.src.height / 2),
+				new Point(+this.src.width / 2, +this.src.height / 2),
+				new Point(+this.src.width / 2, -this.src.height / 2),
+			];
+		});
 	}
 	/** Prevents the sprite from being shown or interacted with */
 	hide() {
@@ -75,7 +101,7 @@ export class Sprite extends Base {
 		this.hidden = !this.hidden;
 		return this;
 	}
-	isHidden () {
+	isHidden() {
 		return this.hidden;
 	}
 	/** Move the position of the sprite
@@ -112,6 +138,7 @@ export class Sprite extends Base {
 	 * @param {number} height | Optional - If left blank will set to same as height
 	 */
 	resize(width: number, height?: number) {
+		this.abc = false
 		if (typeof height == "undefined") this.height = this.width = width;
 		else [this.width, this.height] = [width, height];
 		return this;
