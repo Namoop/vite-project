@@ -156,7 +156,12 @@ export class Sprite extends Base {
 		[this.x, this.y] = [x, y];
 		this.async.glide = 0;
 	}
-	//touching() {} //colliding with
+	/** Returns a boolean which is true if the hitbox (by default a square) of sprite is colliding with the hitbox of the target sprite, or if either is entirely within the other
+	 * @param {Sprite} target
+	 */
+	touching(target: Sprite) {
+		return World.areColliding(this, target)
+	}
 	//touchingAll() {} //colliding with type | sprite.touchingAll(Dot) -> [dot1, dot2]
 
 	/** Point towards target sprite

@@ -34,7 +34,7 @@ function init() {
 let map = maps.interface;
 function laneInit() {
 	map = maps.lane;
-	//new Sprite(laneMap).center(); //background
+	new Sprite(laneMap).center(); //background
 	let towerbtn = new Sprite(redTower).move(660, 100).resize(80);
 	towerbtn.draggable = true;
 	towerbtn.ondragend = () => {

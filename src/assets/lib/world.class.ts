@@ -32,27 +32,13 @@ const World = {
 		callback();
 	},
 	/** Returns true if both sprites' hitboxes are currently colliding */
-	areColliding(a: Sprite, b: Sprite): boolean {
-		let apos = new Point(a.x, a.y)
-		let bpos = new Point(b.x, b.y)
-		//polyactual = poly.map(a=>a.add(apos))
-		
-		//if either are inside of the other, any random point would be inside
-		if (a.poly[0].add(apos).inPoly(b.poly, bpos)) return true;
-		if (b.poly[0].add(bpos).inPoly(a.poly, apos)) return true;
-		
-		//this part checks if any line from poly a
-		//intersects with any line from poly b
-		for (let i = 0; i < a.poly.length; i++)
-			for (let k = 0; k < b.poly.length; k++)
-				if (lineIntersects(
-					...a.poly[i].add(apos).arr(),
-					...(a.poly[i+1] ?? a.poly[0]).add(apos).arr(),
-
-					...b.poly[k].add(bpos).arr(),
-					...(b.poly[k+1] ?? b.poly[0]).add(bpos).arr()
-				)) return true
-		return false;
+	areColliding( first: Sprite, second: Sprite): boolean {
+		let firstpos = new Point(first.x, first.y)
+		let secondpos = new Point(second.x, second.y)
+		let polyA = first.poly.map(k=>k.add(firstpos)) as Poly
+		let polyB = second.poly.map(k=>k.add(secondpos)) as Poly
+		let colliding = polyTouchingPoly(polyA, polyB)
+		return colliding;
 	},
 	frame: 0,
 	nextframe: new Promise(() => {}),
@@ -76,8 +62,7 @@ class Point {
 	arr(): [number, number] {
 		return [this.x, this.y];
 	}
-	inPoly(poly: Poly, offset?: Point) {
-		if (offset) poly = poly.map(b=>b.add(offset)) as Poly
+	inPoly(poly: Poly) {
 		let pt = this,
 			c: boolean,
 			i: number,
@@ -96,28 +81,24 @@ class Point {
 }
 type Poly = { 0: Point; 1: Point; 2: Point } & Point[];
 
-// function polyTouchingPoly (a: Poly, b: Poly) {
-// 	let apos = new Point(a.x, a.y)
-// 	let bpos = new Point(b.x, b.y)
-// 	//polyactual = poly.map(a=>a.add(apos))
+function polyTouchingPoly (a: Poly, b: Poly) {
+	//if either are inside of the other, any random point would be inside
+	if (a[0].inPoly(b)) return true;
+	if (b[0].inPoly(a)) return true;
 	
-// 	//if either are inside of the other, any random point would be inside
-// 	if (a.poly[0].add(apos).inPoly(b.poly, bpos)) return true;
-// 	if (b.poly[0].add(bpos).inPoly(a.poly, apos)) return true;
-	
-// 	//this part checks if any line from poly a
-// 	//intersects with any line from poly b
-// 	for (let i = 0; i < a.poly.length; i++)
-// 		for (let k = 0; k < b.poly.length; k++)
-// 			if (intersects(
-// 				...a.poly[i].add(apos).arr(),
-// 				...(a.poly[i+1] ?? a.poly[0]).add(apos).arr(),
+	//this part checks if any line from poly a
+	//intersects with any line from poly b
+	for (let i = 0; i < a.length; i++)
+		for (let k = 0; k < b.length; k++)
+			if (lineIntersects(
+				...a[i].arr(),
+				...(a[i+1] ?? a[0]).arr(),
 
-// 				...b.poly[k].add(bpos).arr(),
-// 				...(b.poly[k+1] ?? b.poly[0]).add(bpos).arr()
-// 			)) return true
-// 	return false;
-// }
+				...b[k].arr(),
+				...(b[k+1] ?? b[0]).arr()
+			)) return true
+	return false;
+}
 
 /** returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s) */
 function lineIntersects(
