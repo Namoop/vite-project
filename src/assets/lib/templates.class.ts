@@ -1,4 +1,5 @@
 import { Sprite } from "./sprite.class";
+import { World } from "./world.class";
 export class SVGSprite extends Sprite {
 	svg: SVGSVGElement;
 	constructor(svg: SVGSVGElement | string) {
@@ -85,12 +86,27 @@ export class Button extends SVGSprite {
 		if (op.additionalData) svg.innerHTML += op.additionalData;
 		super(svg);
 	}
-	defaultOnBlur(): void {
-		this.resize(100);
+	async defaultOnBlur() {
+		while (this.effects.brightness > 71) {
+			this.effects.brightness -=
+				(this.effects.brightness - (this.hovering ? 70 : 100)) / 20;
+			await World.nextframe;
+		}
 	}
-	defaultOnHover() {
-		this.resize(110);
+	async defaultOnHover() {
+		while (this.effects.brightness <= 100) {
+			this.effects.brightness -=
+				(this.effects.brightness - (this.hovering ? 70 : 100)) / 20;
+			await World.nextframe;
+		}
 	}
+
+	// defaultOnBlur(): void {
+	// 	this.resize(100);
+	// }
+	// defaultOnHover() {
+	// 	this.resize(110);
+	// }
 }
 
 const svgURL = "http://www.w3.org/2000/svg";

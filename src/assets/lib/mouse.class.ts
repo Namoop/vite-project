@@ -8,7 +8,6 @@ cnv.onmousemove = (e) => {
 	[windowMouseX, windowMouseY] = [e.clientX, e.clientY];
 	if (World.hover?.dragging) [World.hover.x, World.hover.y] = Mouse.pos;
 	else if (World.hover?.draggable && Mouse.left) {
-		World.hover.dragging = true;
 		World.hover.ondragstart();
 	}
 };
@@ -30,14 +29,12 @@ cnv.onmouseup = function (e) {
 		if (World.hover?.draggable) {
 			if (!World.hover.dragging) {
 				dragThisEvent = true;
-				World.hover.dragging = true;
 				World.hover?.ondragstart();
 			}
 		}
 		onClickStartSprite?.onclick();
 	}
 	if (World.hover?.dragging && !dragThisEvent) {
-		World.hover.dragging = false;
 		World.hover.ondragend();
 	}
 	clearTimeout(clickCancel);

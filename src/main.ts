@@ -66,7 +66,10 @@ function gameloop() {
 	});
 
 	let dots = World.getEvery(Dot) as Dot[];
-	dots.forEach;
+	dots.forEach((d)=>{
+		if (d.touchingAny(Tower)) d.hide()
+		else d.show()
+	});
 }
 
 class Tower extends Sprite {

@@ -1,4 +1,6 @@
-export class Base {
+export class EventBase {
+	hovering = false
+	dragging = false
 	constructor() {
 		this.userOnHover =
 		this.userOnClick =
@@ -10,6 +12,7 @@ export class Base {
 			() => {};
 	}
 	get onhover(): Function {
+		this.hovering = true
 		return () => {
 			this.defaultOnHover?.();
 			this.userOnHover?.();
@@ -34,6 +37,7 @@ export class Base {
 	protected userOnClick: Function;
 
 	get onblur(): Function {
+		this.hovering = false
 		return () => {
 			this.defaultOnBlur?.();
 			this.userOnBlur?.();
@@ -70,6 +74,7 @@ export class Base {
 	protected userOnMouseUp: Function;
 
 	get ondragstart(): Function {
+		this.dragging = true
 		return () => {
 			this.defaultOnDragStart?.();
 			this.userOnDragStart?.();
@@ -82,6 +87,7 @@ export class Base {
 	protected userOnDragStart: Function;
 
 	get ondragend(): Function {
+		this.dragging = false
 		return () => {
 			this.defaultOnDragEnd?.();
 			this.userOnDragEnd?.();

@@ -1,11 +1,33 @@
-import { Base } from "./events.class";
+import { EventBase } from "./events.class";
 import { World, Point, Poly } from "./world.class";
 /** An object with a postion, that is drawn to the screen
  * and can be moved around, rotated, hidden, etc
  * @param {CanvasImageSource | String} source
  * an htmlImage or a url string to an image
  */
-export class Sprite extends Base {
+export class Sprite extends EventBase {
+	constructor(src: CanvasImageSource | string, hitbox?: Poly) {
+		if (typeof src == "string") {
+			let container = new Image();
+			container.src = src;
+			src = container;
+		}
+		super();
+		while (World.getAll()[this.id]) this.id++;
+		this.src = src;
+
+		World.getAll()[this.id] = this;
+
+		if (hitbox) this.poly = hitbox;
+		this.src.addEventListener("load", () => {
+			this.poly = [
+				new Point(-this.src.width / 2, -this.src.height / 2),
+				new Point(-this.src.width / 2, +this.src.height / 2),
+				new Point(+this.src.width / 2, +this.src.height / 2),
+				new Point(+this.src.width / 2, -this.src.height / 2),
+			];
+		});
+	}
 	src: any;
 	private _x = 0;
 	private _y = 0;
@@ -34,7 +56,6 @@ export class Sprite extends Base {
 	height = 100;
 	id = 0;
 	draggable = false;
-	dragging = false;
 	private hidden = false;
 	effects = {
 		blur: 0,
@@ -50,39 +71,24 @@ export class Sprite extends Base {
 	};
 	private _poly: Poly = [new Point(0, 0), new Point(1, 0), new Point(0, 1)];
 	get poly() {
-		let p = this._poly;
-		p.map(
+		let dilated = this._poly.map(
 			(a) =>
 				new Point((a.x * this.width) / 100, (a.y * this.height) / 100)
 		);
-		
-		return p;
+
+		return dilated as Poly;
 	}
 	set poly(h) {
 		this._poly = h;
 	}
-	constructor(src: CanvasImageSource | string, hitbox?: Poly) {
-		if (typeof src == "string") {
-			let container = new Image();
-			container.src = src;
-			src = container;
-		}
-		super();
-		while (World.getAll()[this.id]) this.id++;
-		this.src = src;
 
-		World.getAll()[this.id] = this;
-
-		if (hitbox) this.poly = hitbox;
-		this.src.addEventListener("load", () => {
-			this.poly = [
-				new Point(-this.src.width / 2, -this.src.height / 2),
-				new Point(-this.src.width / 2, +this.src.height / 2),
-				new Point(+this.src.width / 2, +this.src.height / 2),
-				new Point(+this.src.width / 2, -this.src.height / 2),
-			];
-		});
+	/** Returns the hitbox relative to (0,0). You can also use Sprite.poly to get the hitbox relative to the sprite's position */
+	getHitbox() {
+		let tPoint = new Point(this.x, this.y);
+		let translatedPoly = this.poly.map((a) => a.add(tPoint));
+		return translatedPoly as Poly;
 	}
+
 	/** Prevents the sprite from being shown or interacted with */
 	hide() {
 		this.hidden = true;
@@ -160,7 +166,16 @@ export class Sprite extends Base {
 	 * @param {Sprite} target
 	 */
 	touching(target: Sprite) {
-		return World.areColliding(this, target)
+		return World.areColliding(this, target);
+	}
+	/** Returns true if touching any sprite of the given type
+	 * @param {Function} type e.g. Button, Sprite, etc
+	 * @param {boolean} exact If true will not include extensions: touchingAny(Sprite, true) would not include Button, only basic Sprites
+	 */
+	touchingAny(type: Function, exact?: boolean) {
+		for (let k of World.getEvery(type, exact))
+			if (this.touching(k)) return true;
+		return false;
 	}
 	//touchingAll() {} //colliding with type | sprite.touchingAll(Dot) -> [dot1, dot2]
 

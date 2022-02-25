@@ -1,4 +1,4 @@
-import { World } from "./world.class";
+import { World, Point } from "./world.class";
 import { Sprite } from "./sprite.class";
 import { Button, SVGSprite } from "./templates.class";
 import config from "#config/system.toml";
@@ -81,9 +81,9 @@ function draw(): void {
 }
 
 const offscreencanvas = new OffscreenCanvas(cnv.width, cnv.height);
-const offctx = offscreencanvas.getContext(
-	"2d"
-) as OffscreenCanvasRenderingContext2D;
+// const offctx = offscreencanvas.getContext(
+// 	"2d"
+// ) as OffscreenCanvasRenderingContext2D;
 function checkHover(): void {
 	if (World.frame % config.mouse.onHoverDelay != 0) return;
 	if (World.getAll()[World.hover?.id ?? -1] != World.hover)
@@ -91,13 +91,18 @@ function checkHover(): void {
 	let hoverHold = World.hover,
 		prev = false;
 	for (let i of spriteArr) {
-		offctx.clearRect(0, 0, offscreencanvas.width, offscreencanvas.height);
-		spriteToCanvas(offctx, i);
-		let newpixel: string;
-		newpixel = offctx
-			.getImageData(Mouse.raw.x, Mouse.raw.y, 1, 1)
-			.data.join();
-		let touching = newpixel != "0,0,0,0";
+		//method1: pixel perfect
+		// offctx.clearRect(0, 0, offscreencanvas.width, offscreencanvas.height);
+		// spriteToCanvas(offctx, i);
+		// let newpixel: string;
+		// newpixel = offctx
+		// 	.getImageData(Mouse.raw.x, Mouse.raw.y, 1, 1)
+		// 	.data.join();
+		// let touching = newpixel != "0,0,0,0";
+
+		//method2: hitbox-based
+		let mPoint = new Point(Mouse.x, Mouse.y)
+		let touching = mPoint.inPoly(i.getHitbox())
 
 		if (World.hover == i) {
 			if (!touching) hoverHold = null;

@@ -3,7 +3,7 @@ import config from "../config/system.toml";
 export { World, Point, Poly };
 type SpriteObj = { [key: string]: Sprite };
 let sprites: SpriteObj = {};
-let tempcnv = document.createElement("canvas")
+let tempcnv = document.createElement("canvas");
 /** World object that offers useful data about the current state of the game and other methods*/
 const World = {
 	/** Removes every sprite from the world */
@@ -16,7 +16,7 @@ const World = {
 	},
 	/** Returns an array with every sprite of the specified type
 	 * @param {Function} type e.g. Button, Sprite, etc
-	 * @param {boolean} exact If true will not include extensions: getEvery(Sprite, true) would not include Button
+	 * @param {boolean} exact If true will not include extensions: getEvery(Sprite, true) would not include Button, only basic Sprites
 	 */
 	getEvery(type: Function, exact?: boolean) {
 		let arr = Object.values(sprites);
@@ -32,12 +32,8 @@ const World = {
 		callback();
 	},
 	/** Returns true if both sprites' hitboxes are currently colliding */
-	areColliding( first: Sprite, second: Sprite): boolean {
-		let firstpos = new Point(first.x, first.y)
-		let secondpos = new Point(second.x, second.y)
-		let polyA = first.poly.map(k=>k.add(firstpos)) as Poly
-		let polyB = second.poly.map(k=>k.add(secondpos)) as Poly
-		let colliding = polyTouchingPoly(polyA, polyB)
+	areColliding(first: Sprite, second: Sprite): boolean {
+		let colliding = polyTouchingPoly(first.getHitbox(), second.getHitbox());
 		return colliding;
 	},
 	frame: 0,
@@ -49,6 +45,10 @@ const World = {
 	debugView: config.runOptions.debugView,
 };
 
+/** Has an x and a y value. Comes with usefull functions
+ * @param {number} x
+ * @param {number} y
+ */
 class Point {
 	x: number;
 	y: number;
@@ -56,8 +56,8 @@ class Point {
 		this.x = x;
 		this.y = y;
 	}
-	add(b:Point) {
-		return new Point (this.x+b.x, this.y+b.y)
+	add(b: Point) {
+		return new Point(this.x + b.x, this.y + b.y);
 	}
 	arr(): [number, number] {
 		return [this.x, this.y];
@@ -79,24 +79,28 @@ class Point {
 		return c;
 	}
 }
+/** An array of points, with a minimum length of three */
 type Poly = { 0: Point; 1: Point; 2: Point } & Point[];
 
-function polyTouchingPoly (a: Poly, b: Poly) {
+function polyTouchingPoly(a: Poly, b: Poly) {
 	//if either are inside of the other, any random point would be inside
 	if (a[0].inPoly(b)) return true;
 	if (b[0].inPoly(a)) return true;
-	
+
 	//this part checks if any line from poly a
 	//intersects with any line from poly b
 	for (let i = 0; i < a.length; i++)
 		for (let k = 0; k < b.length; k++)
-			if (lineIntersects(
-				...a[i].arr(),
-				...(a[i+1] ?? a[0]).arr(),
+			if (
+				lineIntersects(
+					...a[i].arr(),
+					...(a[i + 1] ?? a[0]).arr(),
 
-				...b[k].arr(),
-				...(b[k+1] ?? b[0]).arr()
-			)) return true
+					...b[k].arr(),
+					...(b[k + 1] ?? b[0]).arr()
+				)
+			)
+				return true;
 	return false;
 }
 
@@ -111,11 +115,9 @@ function lineIntersects(
 	r: number,
 	s: number
 ) {
-	World.context.moveTo(a*World.scale, b*World.scale)
-	World.context.lineTo(c*World.scale,d*World.scale)
 	let det, gamma, lambda;
 	det = (c - a) * (s - q) - (r - p) * (d - b);
-	let ans = false
+	let ans = false;
 	if (det === 0) {
 		//return false;
 	} else {
@@ -123,5 +125,5 @@ function lineIntersects(
 		gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
 		ans = 0 < lambda && lambda < 1 && 0 < gamma && gamma < 1;
 	}
-	return ans
+	return ans;
 }
