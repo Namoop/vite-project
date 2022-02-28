@@ -50,8 +50,29 @@ const World = {
  * @param {number} y
  */
 class Point {
-	x: number;
-	y: number;
+	_x = 0;
+	_y = 0;
+	width = 100;
+	height = 100;
+	dir = 0;
+	get x() {
+		const radians = this.dir * (Math.PI / 180)
+		const rotated = this._x * Math.cos(radians) - this._y * Math.sin(radians)
+		const dilated = rotated * this.width/100
+		return dilated;
+	}
+	set x(z) {
+		this._x = z;
+	}
+	get y() {
+		const radians = this.dir * (Math.PI / 180)
+		const rotated = this._x * Math.sin(radians) + this._y * Math.cos(radians)
+		const dilated = rotated * this.height/100
+		return dilated;
+	}
+	set y(z) {
+		this._y = z;
+	}
 	constructor(x: number, y: number) {
 		this.x = x;
 		this.y = y;
@@ -77,6 +98,15 @@ class Point {
 						poly[i].x &&
 				(c = !c);
 		return c;
+	}
+	dilate(width: number, height?: number) {
+		this.width = width;
+		this.height = height ?? width;
+		return this;
+	}
+	rotate(degrees: number) {
+		this.dir = degrees
+		return this;
 	}
 }
 /** An array of points, with a minimum length of three */

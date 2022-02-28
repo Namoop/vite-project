@@ -71,12 +71,11 @@ export class Sprite extends EventBase {
 	};
 	private _poly: Poly = [new Point(0, 0), new Point(1, 0), new Point(0, 1)];
 	get poly() {
-		let dilated = this._poly.map(
-			(a) =>
-				new Point((a.x * this.width) / 100, (a.y * this.height) / 100)
+		this._poly.forEach((a) =>
+			a.dilate(this.width, this.height).rotate(this.direction)
 		);
 
-		return dilated as Poly;
+		return this._poly;
 	}
 	set poly(h) {
 		this._poly = h;
