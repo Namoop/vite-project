@@ -14,11 +14,8 @@ cnv.style.border = "3px solid #000000";
 let spriteArr: Sprite[];
 
 function filterString(obj: Sprite) {
-	let dragshadow = obj.dragging
-		? `drop-shadow(${10 * World.scale}px ${10 * World.scale}px ${
-				3 * World.scale
-		  }px)`
-		: "";
+	//prettier-ignore
+	let dragshadow = obj.dragging ? `drop-shadow(${10 * World.scale}px ${10 * World.scale}px ${3 * World.scale}px)` : "";
 	return `blur(${obj.effects.blur / 10}px)
 	brightness(${obj.effects.brightness / 100})
 	grayscale(${obj.effects.grayscale / 100})
@@ -28,62 +25,44 @@ function filterString(obj: Sprite) {
 	${dragshadow}`;
 }
 
-function spriteToCanvas(
-	context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-	sprite: Sprite
-) {
-	context.save();
-	context.filter = filterString(sprite);
-	//context.globalAlpha = sprite.effects.opacity / 100;
-	context.translate(sprite.x * World.scale, sprite.y * World.scale);
-	context.rotate((sprite.direction * Math.PI) / 180);
-	context.drawImage(
-		sprite.src,
-		0 - (sprite.src.width / 2) * (sprite.width / 100) * World.scale,
-		0 - (sprite.src.height / 2) * (sprite.height / 100) * World.scale,
-		((sprite.src.width * sprite.width) / 100) * World.scale,
-		((sprite.src.height * sprite.height) / 100) * World.scale
-	);
-
-	// if (World.debugView) {
-	// 	context.moveTo(sprite.poly[0].x*World.scale,sprite.poly[0].y*World.scale)
-	// 	context.beginPath()
-	// 	for (let k=0;k<sprite.poly.length;k++) context.lineTo(sprite.poly[k].x*World.scale,sprite.poly[k].y*World.scale)
-	// 	context.lineTo(sprite.poly[0].x*World.scale,sprite.poly[0].y*World.scale)
-	// 	context.lineWidth = 5
-	// 	context.strokeStyle = "orange"
-	// 	World.getEvery(Sprite).forEach((s)=>{
-	// 		if (s != sprite)
-	// 			if (World.areColliding(s, sprite))
-	// 				context.strokeStyle = "red"
-	// 	})
-	// 	context.stroke()
-	// }
-	context.restore();
-}
 function draw(): void {
-	for (let i of spriteArr) {
-		spriteToCanvas(ctx, i);
+	for (let sprite of spriteArr) {
+		ctx.save();
+		ctx.filter = filterString(sprite);
+		//ctx.globalAlpha = sprite.effects.opacity / 100;
+		ctx.translate(sprite.x * World.scale, sprite.y * World.scale);
+		ctx.rotate((sprite.direction * Math.PI) / 180);
+		ctx.drawImage(
+			sprite.src,
+			0 - (sprite.src.width / 2) * (sprite.width / 100) * World.scale,
+			0 - (sprite.src.height / 2) * (sprite.height / 100) * World.scale,
+			((sprite.src.width * sprite.width) / 100) * World.scale,
+			((sprite.src.height * sprite.height) / 100) * World.scale
+		);
+
 		if (World.debugView) {
-			ctx.lineWidth = 5;
-			ctx.strokeStyle = "orange";
-			World.getEvery(Sprite).forEach((s) => {
-				World.context.beginPath()
-				if (s != i) {
-					World.areColliding(s, i)
-					if (World.areColliding(s, i)) ctx.strokeStyle = "red";
-					else ctx.strokeStyle = "orange";
-				}
-				ctx.stroke();
-			});
+			ctx.moveTo(
+				sprite.poly[0].x * World.scale,
+				sprite.poly[0].y * World.scale
+			);
+			ctx.beginPath();
+			for (let k = 0; k < sprite.poly.length; k++)
+				ctx.lineTo(
+					sprite.poly[k].x * World.scale,
+					sprite.poly[k].y * World.scale
+				);
+			ctx.lineTo(
+				sprite.poly[0].x * World.scale,
+				sprite.poly[0].y * World.scale
+			);
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = "red";
+			ctx.stroke();
 		}
+		ctx.restore();
 	}
 }
 
-const offscreencanvas = new OffscreenCanvas(cnv.width, cnv.height);
-// const offctx = offscreencanvas.getContext(
-// 	"2d"
-// ) as OffscreenCanvasRenderingContext2D;
 function checkHover(): void {
 	if (World.frame % config.mouse.onHoverDelay != 0) return;
 	if (World.getAll()[World.hover?.id ?? -1] != World.hover)
@@ -91,18 +70,8 @@ function checkHover(): void {
 	let hoverHold = World.hover,
 		prev = false;
 	for (let i of spriteArr) {
-		//method1: pixel perfect
-		// offctx.clearRect(0, 0, offscreencanvas.width, offscreencanvas.height);
-		// spriteToCanvas(offctx, i);
-		// let newpixel: string;
-		// newpixel = offctx
-		// 	.getImageData(Mouse.raw.x, Mouse.raw.y, 1, 1)
-		// 	.data.join();
-		// let touching = newpixel != "0,0,0,0";
-
-		//method2: hitbox-based
-		let mPoint = new Point(Mouse.x, Mouse.y)
-		let touching = mPoint.inPoly(i.getHitbox())
+		let mPoint = new Point(Mouse.x, Mouse.y);
+		let touching = mPoint.inPoly(i.getHitbox());
 
 		if (World.hover == i) {
 			if (!touching) hoverHold = null;
@@ -159,8 +128,8 @@ function loop(func: Function | number): void {
 	//clear and resize canvas
 	// 82475 from: /800 (base width), /100 (scale as percentage), *0.97 (canvas overflow)
 	World.scale = (window.innerWidth * config.runOptions.scale) / 82475;
-	offscreencanvas.width = cnv.width = 800 * World.scale;
-	offscreencanvas.height = cnv.height = 400 * World.scale;
+	cnv.width = 800 * World.scale;
+	cnv.height = 400 * World.scale;
 
 	//run code!
 	run();
