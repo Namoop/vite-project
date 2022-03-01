@@ -1,8 +1,11 @@
 [red]
 src = "../images/bob.png"
-bullet = "regular"
 magazine_size = 2
 pellets = 1
 fireDelay = 3
 reloadTime = 40
 damage = 1
+[red.bullet]
+power = 2
+speed = 5
+src = "<svg width=10 height=10><circle cx=0 cy=0 r=5 fill=white /></svg>"

@@ -3,9 +3,17 @@ window["globals"] = [];
 
 import maps from "#config/maps.toml";
 import dots from "#config/dots.toml";
+import towers from "#config/towers.toml";
 import laneMapString from "#images/dotlane.png";
 import redTower from "#images/bob.png";
-import { beginLoop, preload, Sprite, SVGSprite, Button, World } from "./assets/lib/lib";
+import {
+	beginLoop,
+	preload,
+	Sprite,
+	SVGSprite,
+	Button,
+	World, Point
+} from "./assets/lib/lib";
 const app = document.getElementById("app") as HTMLElement;
 app.appendChild(World.canvas);
 // @ts-ignore
@@ -31,7 +39,7 @@ function init() {
 	};
 }
 
-let map = maps.interface;
+let map: typeof maps.interface;
 function laneInit() {
 	map = maps.lane;
 	new Sprite(laneMap).center(); //background
@@ -66,17 +74,64 @@ function gameloop() {
 	});
 
 	let dots = World.getEvery(Dot) as Dot[];
-	dots.forEach((d)=>{
-		if (d.touchingAny(Tower)) d.hide()
-		else d.show()
+	dots.forEach((d) => {
+		if (d.touchingAny(Tower)) d.hide();
+		else d.show();
 	});
 }
 
 class Tower extends Sprite {
 	dirspeed = 0.2;
+	bullet: typeof towers.interface.bullet;
 	constructor(type: string) {
 		super(type == "red" ? redTower : "");
+		this.bullet = towers[type].bullet;
+	}
+	newBullet (target: Point) {
+		new Bullet(this, target)
+	}
+}
 
+class Bullet extends SVGSprite {
+	spawn = World.frame;
+	link: Tower;
+	target: Point
+	stats: typeof towers.interface.bullet;
+	private xlastmovedframe = World.frame-1;
+	private ylastmovedframe = World.frame-1;
+	get x() {
+		if (this.xlastmovedframe != World.frame) {
+			this.xlastmovedframe = World.frame
+			let radians = Math.atan2(this.target.y - super.y, this.target.x - super.x);
+			World.debuglines = [
+				[new Point(this.link.x, this.link.y), new Point(this.target.x, this.target.y)]
+			]
+			super.x += this.stats.speed*Math.cos(radians)
+		}
+		return super.x;
+	}
+	get y() {
+		if (this.ylastmovedframe != World.frame) {
+			this.ylastmovedframe == World.frame
+			let radians = Math.atan2(this.target.y - super.y, this.target.x - super.x);
+			globals[0] = Math.round(radians * 180/Math.PI)
+			super.y += this.stats.speed*Math.sin(radians)
+		}
+		return super.y;
+	}
+	set x(z) {
+		super.x = z;
+	}
+	set y(z) {
+		super.y = z;
+	}
+	constructor(link: Tower, target: Point) {
+		super(link.bullet.src);
+		this.stats = link.bullet
+		this.link = link;
+		this.x = link.x;
+		this.y = link.y;
+		this.target = target
 	}
 }
 
@@ -94,7 +149,7 @@ class Dot extends SVGSprite {
 			</svg>`
 		);
 		this.conf = c;
-		this.path = path
+		this.path = path;
 		this.speed = c.speed;
 		this.health = c.health;
 	}
@@ -102,7 +157,10 @@ class Dot extends SVGSprite {
 		let fin = Number(this.path[0][0]);
 		let dist = (World.frame - this.spawn) * this.speed;
 		for (let i = 1; dist >= 0; i++) {
-			if (!this.path[i]) {delete World.getAll()[this.id]; break;}
+			if (!this.path[i]) {
+				delete World.getAll()[this.id];
+				break;
+			}
 			let [dir, len] = this.path[i];
 			if (dir == "r") fin += dist < len ? dist : len;
 			if (dir == "l") fin -= dist < len ? dist : len;
@@ -114,7 +172,10 @@ class Dot extends SVGSprite {
 		let fin = this.path[0][1];
 		let dist = (World.frame - this.spawn) * this.speed;
 		for (let i = 1; dist >= 0; i++) {
-			if (!this.path[i]) {delete World.getAll()[this.id]; break;}
+			if (!this.path[i]) {
+				delete World.getAll()[this.id];
+				break;
+			}
 			let [dir, len] = this.path[i];
 			if (dir == "d") fin += dist < len ? dist : len;
 			if (dir == "u") fin -= dist < len ? dist : len;

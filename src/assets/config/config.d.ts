@@ -8,7 +8,7 @@ declare module "*/system.toml" {
 		};
 		mouse: {
 			onHoverDelay: number;
-		}
+		};
 	};
 	export default file;
 }
@@ -16,12 +16,12 @@ declare module "*/system.toml" {
 declare module "*/maps.toml" {
 	const file: {
 		[map: string]: {
-			background: string,
-			life: number,
-			gold: number,
-			path_start: [number, number],
-			path: ["l" | "u" | "d" | "r", number][][]
-		}
+			background: string;
+			life: number;
+			gold: number;
+			path_start: [number, number];
+			path: ["l" | "u" | "d" | "r", number][][];
+		};
 	};
 	export default file;
 }
@@ -29,11 +29,11 @@ declare module "*/maps.toml" {
 declare module "*/dots.toml" {
 	const file: {
 		[dot: string]: {
-			speed: number,
-			health: number,
-			src: string,
+			speed: number;
+			health: number;
+			src: string;
 			srcSize: number;
-		}
+		};
 	};
 	export default file;
 }
@@ -41,13 +41,18 @@ declare module "*/dots.toml" {
 declare module "*/towers.toml" {
 	const file: {
 		[tower: string]: {
-			src: string
-			bullet: string
-			magazine_size: number
-			pellets: number
-			fireDelay: number
-			reloadTime: number
-		}
-	}
+			src: string;
+			bullet: {
+				power: number;
+				size: number;
+				src: string;
+				speed: number;
+			};
+			magazine_size: number;
+			pellets: number;
+			fireDelay: number;
+			reloadTime: number;
+		};
+	};
 	export default file;
 }

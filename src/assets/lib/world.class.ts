@@ -43,6 +43,7 @@ const World = {
 	context: tempcnv.getContext("2d") as CanvasRenderingContext2D,
 	scale: 1,
 	debugView: config.runOptions.debugView,
+	debuglines: [] as [Point, Point][]
 };
 
 /** Has an x and a y value. Comes with usefull functions

@@ -3,7 +3,7 @@ import { Sprite } from "./sprite.class";
 import { Button, SVGSprite } from "./templates.class";
 import config from "#config/system.toml";
 import { Mouse } from "./mouse.class";
-export { Sprite, SVGSprite, Button, World, Mouse, preload, beginLoop };
+export { Sprite, SVGSprite, Button, Point, World, Mouse, preload, beginLoop };
 
 const cnv = World.canvas;
 const ctx = World.context;
@@ -29,7 +29,7 @@ function draw(): void {
 	for (let sprite of spriteArr) {
 		ctx.save();
 		ctx.filter = filterString(sprite);
-		//ctx.globalAlpha = sprite.effects.opacity / 100;
+		ctx.globalAlpha = sprite.effects.opacity / 100;
 		ctx.translate(sprite.x * World.scale, sprite.y * World.scale);
 		ctx.rotate((sprite.direction * Math.PI) / 180);
 		ctx.drawImage(
@@ -60,6 +60,16 @@ function draw(): void {
 			ctx.stroke();
 		}
 		ctx.restore();
+	}
+	{ //draw debug lines
+		ctx.save();
+		for (let i of World.debuglines) {
+			ctx.moveTo(...i[0].dilate(World.scale*100).arr())
+			ctx.lineTo(...i[1].dilate(World.scale*100).arr())
+		}
+		ctx.lineWidth = 3
+		ctx.strokeStyle = "black"
+		ctx.stroke()
 	}
 }
 
@@ -139,7 +149,6 @@ function loop(func: Function | number): void {
 	draw();
 	resolveframe();
 	checkHover();
-	globals[0] = World.hover?.constructor.name as string;
 	(document.getElementById("other") as HTMLElement).innerHTML =
 		globals.join();
 
