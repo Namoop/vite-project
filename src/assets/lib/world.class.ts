@@ -2,13 +2,13 @@ import { Sprite } from "./sprite.class";
 import config from "../config/system.toml";
 export { World, Point, Poly };
 type SpriteObj = { [key: string]: Sprite };
-let sprites: SpriteObj = {};
-let tempcnv = document.createElement("canvas");
+const sprites: SpriteObj = {};
+const tempcnv = document.createElement("canvas");
 /** World object that offers useful data about the current state of the game and other methods*/
 const World = {
 	/** Removes every sprite from the world */
 	deleteAll() {
-		sprites = {};
+		Object.keys(sprites).forEach(key => delete sprites[key])
 	},
 	/** Returns an object with every sprite where the key is the sprite ID */
 	getAll() {
@@ -19,7 +19,7 @@ const World = {
 	 * @param {boolean} exact If true will not include extensions: getEvery(Sprite, true) would not include Button, only basic Sprites
 	 */
 	getEvery(type: Function, exact?: boolean) {
-		let arr = Object.values(sprites);
+		const arr = Object.values(sprites);
 		if (exact) return arr.filter((a) => a.constructor == type);
 		else return arr.filter((a) => a instanceof type);
 	},
@@ -33,7 +33,7 @@ const World = {
 	},
 	/** Returns true if both sprites' hitboxes are currently colliding */
 	areColliding(first: Sprite, second: Sprite): boolean {
-		let colliding = polyTouchingPoly(first.getHitbox(), second.getHitbox());
+		const colliding = polyTouchingPoly(first.getHitbox(), second.getHitbox());
 		return colliding;
 	},
 	frame: 0,
@@ -85,8 +85,8 @@ class Point {
 		return [this.x, this.y];
 	}
 	inPoly(poly: Poly) {
-		let pt = this,
-			c: boolean,
+		const pt = this
+		let c: boolean,
 			i: number,
 			l: number,
 			j: number;
@@ -146,8 +146,8 @@ function lineIntersects(
 	r: number,
 	s: number
 ) {
-	let det, gamma, lambda;
-	det = (c - a) * (s - q) - (r - p) * (d - b);
+	let gamma, lambda;
+	const det = (c - a) * (s - q) - (r - p) * (d - b);
 	let ans = false;
 	if (det === 0) {
 		//return false;

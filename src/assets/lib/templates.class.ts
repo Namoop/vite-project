@@ -4,7 +4,7 @@ export class SVGSprite extends Sprite {
 	svg: SVGSVGElement;
 	constructor(svg: SVGSVGElement | string) {
 		if (typeof svg == "string") {
-			let container = document.createElement("div");
+			const container = document.createElement("div");
 			container.innerHTML = svg;
 			svg = container.firstChild as SVGSVGElement;
 		}
@@ -113,5 +113,5 @@ const svgURL = "http://www.w3.org/2000/svg";
 const newSVG = (type: string) => document.createElementNS(svgURL, type);
 const setatts = (el: any, vals: object) => {
 	// @ts-ignore
-	for (let i of Object.keys(vals)) el.setAttribute(i, vals[i]);
+	for (const i of Object.keys(vals)) el.setAttribute(i, vals[i]);
 };

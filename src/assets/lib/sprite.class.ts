@@ -8,7 +8,7 @@ import { World, Point, Poly } from "./world.class";
 export class Sprite extends EventBase {
 	constructor(src: CanvasImageSource | string, hitbox?: Poly) {
 		if (typeof src == "string") {
-			let container = new Image();
+			const container = new Image();
 			container.src = src;
 			src = container;
 		}
@@ -83,8 +83,8 @@ export class Sprite extends EventBase {
 
 	/** Returns the hitbox relative to (0,0). You can also use Sprite.poly to get the hitbox relative to the sprite's position */
 	getHitbox() {
-		let tPoint = new Point(this.x, this.y);
-		let translatedPoly = this.poly.map((a) => a.add(tPoint));
+		const tPoint = new Point(this.x, this.y);
+		const translatedPoly = this.poly.map((a) => a.add(tPoint));
 		return translatedPoly as Poly;
 	}
 
@@ -150,11 +150,11 @@ export class Sprite extends EventBase {
 	 * @param {number} y
 	 */
 	async glide(x: number, y: number, speed: number) {
-		let asyncID = ++this.async.glide;
+		const asyncID = ++this.async.glide;
 		while (Math.hypot(x - this.x, y - this.y) > 1) {
 			if (asyncID != this.async.glide) return;
-			let newX = this.x + (x - this.x) / (speed * 10);
-			let newY = this.y + (y - this.y) / (speed * 10);
+			const newX = this.x + (x - this.x) / (speed * 10);
+			const newY = this.y + (y - this.y) / (speed * 10);
 			this.move(newX, newY);
 			await World.nextframe;
 		}
@@ -172,17 +172,18 @@ export class Sprite extends EventBase {
 	 * @param {boolean} exact If true will not include extensions: touchingAny(Sprite, true) would not include Button, only basic Sprites
 	 */
 	touchingAny(type: Function, exact?: boolean) {
-		for (let k of World.getEvery(type, exact))
+		for (const k of World.getEvery(type, exact))
 			if (this.touching(k)) return true;
 		return false;
 	}
 	//touchingAll() {} //colliding with type | sprite.touchingAll(Dot) -> [dot1, dot2]
 
 	/** Point towards target sprite
-	 * @param {Sprite} target The sprite to orientate towards
+	 * @param {Sprite} target The sprite to orientate towards | OR
+	 * @param {{x: number, y: number}} target An object with an x and y
 	 */
-	pointTowards(target: Sprite) {
-		let radians = Math.atan2(target.y - this.y, target.x - this.x);
+	pointTowards(target: Sprite | {x: number, y: number}) {
+		const radians = Math.atan2(target.y - this.y, target.x - this.x);
 		this.direction = (radians * 180) / Math.PI;
 		return this;
 	}

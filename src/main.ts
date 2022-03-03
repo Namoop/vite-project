@@ -21,14 +21,14 @@ globals.world = World;
 
 const [laneMap] = preload(laneMapString);
 
-//let bob: Sprite, button: Sprite;
+//const bob: Sprite, button: Sprite;
 function init() {
-	let background = `<svg width=800 height=400 style=background-color:#5e5e5e>
+	const background = `<svg width=800 height=400 style=background-color:#5e5e5e>
 	<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
 	</svg>`;
 	new SVGSprite(background).move(400, 200); //background
 
-	let lane = new Button("Dot Lane", {
+	const lane = new Button("Dot Lane", {
 		width: 100,
 		height: 30,
 		textSize: 20,
@@ -43,14 +43,14 @@ let map: typeof maps.interface;
 function laneInit() {
 	map = maps.lane;
 	new Sprite(laneMap).center(); //background
-	let towerbtn = new Sprite(redTower).move(660, 100).resize(80);
+	const towerbtn = new Sprite(redTower).move(660, 100).resize(80);
 	towerbtn.draggable = true;
 	towerbtn.ondragend = () => {
 		new Tower("red").moveTo(towerbtn).resize(80);
 		towerbtn.move(660, 100);
 	};
 
-	let nextwavebtn = new Button(" ▶", {
+	const nextwavebtn = new Button(" ▶", {
 		width: 30,
 		height: 30,
 		stroke: "none",
@@ -66,22 +66,22 @@ function laneInit() {
 }
 
 function gameloop() {
-	let towers = World.getEvery(Tower) as Tower[];
+	const towers = World.getEvery(Tower) as Tower[];
 	towers.forEach(t => {
 		if (t.isIdle()) t.rotate(t.dirspeed);
 
 		if (Math.random() > 0.999) t.dirspeed = (Math.random() * 0.2 - 0.1) * 3;
 	});
 
-	let dots = World.getEvery(Dot) as Dot[];
+	const dots = World.getEvery(Dot) as Dot[];
 	dots.forEach(d => {
 		if (d.touchingAny(Bullet)) delete World.getAll()[d.id];
 		else d.show();
 	});
 
-	let bullets = World.getEvery(Bullet) as Bullet[];
+	const bullets = World.getEvery(Bullet) as Bullet[];
 	bullets.forEach(b => {
-		let radians = Math.atan2(b.target.y - b.y, b.target.x - b.x);
+		const radians = Math.atan2(b.target.y - b.y, b.target.x - b.x);
 		if (Math.hypot(b.target.x-b.x, b.target.y-b.y) <= b.stats.speed) b.targetEdge(radians)
 		else b.move(b.x+b.stats.speed*Math.cos(radians), b.y+b.stats.speed*Math.sin(radians));
 
@@ -96,7 +96,7 @@ class Tower extends Sprite {
 		super(type == "red" ? redTower : "");
 		this.bullet = towers[type].bullet;
 	}
-	newBullet (target: Point) {
+	newBulconst (target: Point) {
 		this.pointTowards(target)
 		this._idlenum = World.frame;
 		new Bullet(this, target)
@@ -132,7 +132,7 @@ class Dot extends SVGSprite {
 	conf;
 	path;
 	constructor(type: string, path: typeof map.path[0]) {
-		let c = dots[type];
+		const c = dots[type];
 		super(
 			`<svg width=${c.srcSize * 2} height=${c.srcSize * 2}>
 				${c.src.replaceAll("size", String(c.srcSize))}
@@ -144,14 +144,14 @@ class Dot extends SVGSprite {
 		this.health = c.health;
 	}
 	get x() {
-		let fin = Number(this.path[0][0]);
-		let dist = (World.frame - this.spawn) * this.speed;
+		let fin = Number(this.path[0][0]),
+			dist = (World.frame - this.spawn) * this.speed;
 		for (let i = 1; dist >= 0; i++) {
 			if (!this.path[i]) {
 				delete World.getAll()[this.id];
 				break;
 			}
-			let [dir, len] = this.path[i];
+			const [dir, len] = this.path[i];
 			if (dir == "r") fin += dist < len ? dist : len;
 			if (dir == "l") fin -= dist < len ? dist : len;
 			dist -= len;
@@ -159,14 +159,14 @@ class Dot extends SVGSprite {
 		return fin;
 	}
 	get y() {
-		let fin = this.path[0][1];
-		let dist = (World.frame - this.spawn) * this.speed;
+		let fin = this.path[0][1],
+			dist = (World.frame - this.spawn) * this.speed;
 		for (let i = 1; dist >= 0; i++) {
 			if (!this.path[i]) {
 				delete World.getAll()[this.id];
 				break;
 			}
-			let [dir, len] = this.path[i];
+			const [dir, len] = this.path[i];
 			if (dir == "d") fin += dist < len ? dist : len;
 			if (dir == "u") fin -= dist < len ? dist : len;
 			dist -= len;

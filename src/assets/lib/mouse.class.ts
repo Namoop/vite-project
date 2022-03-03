@@ -2,7 +2,7 @@ import { World } from "./world.class";
 import { Sprite } from "./sprite.class";
 export {Mouse}
 let windowMouseX: number, windowMouseY: number;
-let cnv = World.canvas as HTMLCanvasElement
+const cnv = World.canvas as HTMLCanvasElement
 cnv.onmousemove = (e) => {
 	if (World.hover?.draggable) onClickStartSprite = null;
 	[windowMouseX, windowMouseY] = [e.clientX, e.clientY];
@@ -20,8 +20,7 @@ cnv.onmousemove = (e) => {
 // 	]); //consider tap and place?
 
 const windowMouseDownArray = [false, false, false];
-let onClickStartSprite: Sprite | null;
-let clickCancel: number;
+let onClickStartSprite: Sprite | null, clickCancel: number;
 cnv.onmouseup = function (e) {
 	windowMouseDownArray[e.button] = false;
 	let dragThisEvent = false;
@@ -61,26 +60,26 @@ const Mouse = {
 	/** The position of the mouse, before scale transformations. Used internally. */
 	raw: {
 		get x() {
-			let data = windowMouseX - cnv.getBoundingClientRect().x;
-			if (isNaN(data)) data = 0;
+			const data = windowMouseX - cnv.getBoundingClientRect().x;
+			if (isNaN(data)) return 0;
 			return data;
 		},
 		get y() {
-			let data = windowMouseY - cnv.getBoundingClientRect().y;
-			if (isNaN(data)) data = 0;
+			const data = windowMouseY - cnv.getBoundingClientRect().y;
+			if (isNaN(data)) return 0;
 			return data;
 		},
 	},
 	/** X Position of mouse pointer, relative to canvas (0-800) */
 	get x() {
-		let relative = this.raw.x / (World.scale as number);
-		let rounded = Math.round(relative * 100) / 100;
+		const relative = this.raw.x / (World.scale as number);
+		const rounded = Math.round(relative * 100) / 100;
 		return rounded;
 	},
 	/** Y Position of mouse pointer, relative to canvas (0-400) */
 	get y() {
-		let relative = this.raw.y / (World.scale as number);
-		let rounded = Math.round(relative * 100) / 100;
+		const relative = this.raw.y / (World.scale as number);
+		const rounded = Math.round(relative * 100) / 100;
 		return rounded;
 	},
 	/** Returns the mouse x and y as an array */

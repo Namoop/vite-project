@@ -15,7 +15,7 @@ let spriteArr: Sprite[];
 
 function filterString(obj: Sprite) {
 	//prettier-ignore
-	let dragshadow = obj.dragging ? `drop-shadow(${10 * World.scale}px ${10 * World.scale}px ${3 * World.scale}px)` : "";
+	const dragshadow = obj.dragging ? `drop-shadow(${10 * World.scale}px ${10 * World.scale}px ${3 * World.scale}px)` : "";
 	return `blur(${obj.effects.blur / 10}px)
 	brightness(${obj.effects.brightness / 100})
 	grayscale(${obj.effects.grayscale / 100})
@@ -26,7 +26,7 @@ function filterString(obj: Sprite) {
 }
 
 function draw(): void {
-	for (let sprite of spriteArr) {
+	for (const sprite of spriteArr) {
 		ctx.save();
 		ctx.filter = filterString(sprite);
 		ctx.globalAlpha = sprite.effects.opacity / 100;
@@ -63,7 +63,7 @@ function draw(): void {
 	}
 	{ //draw debug lines
 		ctx.save();
-		for (let i of World.debuglines) {
+		for (const i of World.debuglines) {
 			ctx.moveTo(...i[0].dilate(World.scale*100).arr())
 			ctx.lineTo(...i[1].dilate(World.scale*100).arr())
 		}
@@ -79,9 +79,9 @@ function checkHover(): void {
 		World.hover = null;
 	let hoverHold = World.hover,
 		prev = false;
-	for (let i of spriteArr) {
-		let mPoint = new Point(Mouse.x, Mouse.y);
-		let touching = mPoint.inPoly(i.getHitbox());
+	for (const i of spriteArr) {
+		const mPoint = new Point(Mouse.x, Mouse.y);
+		const touching = mPoint.inPoly(i.getHitbox());
 
 		if (World.hover == i) {
 			if (!touching) hoverHold = null;
@@ -112,7 +112,7 @@ window.onkeydown = window.onkeyup = function (e) {
 };
 
 let resolveframe: Function, run: Function;
-let fps: number[] = [];
+const fps: number[] = [];
 World.nextframe = new Promise((r) => (resolveframe = r));
 
 let looping = false;
@@ -129,9 +129,9 @@ function loop(func: Function | number): void {
 	if (typeof func == "function") run = func;
 	World.frame++;
 	fps.push(Date.now());
-	let dg = document.getElementById("dg") as HTMLElement;
+	const dg = document.getElementById("dg") as HTMLElement;
 	dg.innerText = `fps: ${fps.length}`;
-	let mDOM = document.getElementById("mouse") as HTMLElement;
+	const mDOM = document.getElementById("mouse") as HTMLElement;
 	mDOM.innerHTML = Mouse.x + " &#9; " + Mouse.y;
 	while (Date.now() - fps[0] > 980) fps.shift();
 
@@ -170,9 +170,9 @@ function loop(func: Function | number): void {
  * @param {string} ImageURL any number...
  */
 function preload(...args: string[]) {
-	let arr = [];
-	for (let i of args) {
-		let container = new Image();
+	const arr = [];
+	for (const i of args) {
+		const container = new Image();
 		container.src = i;
 		arr.push(container);
 	}

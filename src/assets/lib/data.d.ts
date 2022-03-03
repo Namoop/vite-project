@@ -1,4 +1,4 @@
-declare let globals: any[];
+declare const globals: any[];
 
 interface OffscreenCanvas extends EventTarget {
 	width: number;
