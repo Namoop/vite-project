@@ -8,11 +8,34 @@ const tempcnv = document.createElement("canvas");
 const World = {
 	/** Removes every sprite from the world */
 	deleteAll() {
-		Object.keys(sprites).forEach(key => delete sprites[key])
+		Object.keys(sprites).forEach((key) => delete sprites[key]);
+	},
+	/** Remove the specified sprite from existence
+	 * @param {Sprite} target Target sprite to delete
+	 */
+	delete(target: Sprite) {
+		delete sprites[target.id];
 	},
 	/** Returns an object with every sprite where the key is the sprite ID */
 	getAll() {
 		return sprites;
+	},
+	gameBounds: {
+		top: 0,
+		bottom: 400,
+		right: 800,
+		left: 0,
+	},
+	/** Returns a boolean that is true if the given sprite or point is out of the viewable screen, or the bounds specified with (World.gameBounds = {right: 600, top:0...})
+	 * @param {Sprite | Point} target Can be a point or a sprite
+	 */
+	OutOfBounds(target: Sprite | Point) {
+		return (
+			target.y < this.gameBounds.top ||
+			target.y > this.gameBounds.bottom ||
+			target.x < this.gameBounds.left ||
+			target.x > this.gameBounds.right
+		);
 	},
 	/** Returns an array with every sprite of the specified type
 	 * @param {Function} type e.g. Button, Sprite, etc
@@ -27,13 +50,16 @@ const World = {
 	 * @param {number} frames How many frames to wait - most useful to wait one frame when code internally is not executed in the preffered order
 	 * @param {Function} callback Callback function after waiting frames
 	 */
-	async inFrames(frames: number, callback: Function) {
+	async inFrames(frames: number, callback?: Function) {
 		for (let n = 0; n < frames; n++) await World.nextframe;
-		callback();
+		if (callback) callback();
 	},
 	/** Returns true if both sprites' hitboxes are currently colliding */
 	areColliding(first: Sprite, second: Sprite): boolean {
-		const colliding = polyTouchingPoly(first.getHitbox(), second.getHitbox());
+		const colliding = polyTouchingPoly(
+			first.getHitbox(),
+			second.getHitbox()
+		);
 		return colliding;
 	},
 	frame: 0,
@@ -43,7 +69,7 @@ const World = {
 	context: tempcnv.getContext("2d") as CanvasRenderingContext2D,
 	scale: 1,
 	debugView: config.runOptions.debugView,
-	debuglines: [] as [Point, Point][]
+	debuglines: [] as [Point, Point][],
 };
 
 /** Has an x and a y value. Comes with usefull functions
@@ -57,18 +83,20 @@ class Point {
 	height = 100;
 	dir = 0;
 	get x() {
-		const radians = this.dir * (Math.PI / 180)
-		const rotated = this._x * Math.cos(radians) - this._y * Math.sin(radians)
-		const dilated = rotated * this.width/100
+		const radians = this.dir * (Math.PI / 180);
+		const rotated =
+			this._x * Math.cos(radians) - this._y * Math.sin(radians);
+		const dilated = (rotated * this.width) / 100;
 		return dilated;
 	}
 	set x(z) {
 		this._x = z;
 	}
 	get y() {
-		const radians = this.dir * (Math.PI / 180)
-		const rotated = this._x * Math.sin(radians) + this._y * Math.cos(radians)
-		const dilated = rotated * this.height/100
+		const radians = this.dir * (Math.PI / 180);
+		const rotated =
+			this._x * Math.sin(radians) + this._y * Math.cos(radians);
+		const dilated = (rotated * this.height) / 100;
 		return dilated;
 	}
 	set y(z) {
@@ -85,11 +113,8 @@ class Point {
 		return [this.x, this.y];
 	}
 	inPoly(poly: Poly) {
-		const pt = this
-		let c: boolean,
-			i: number,
-			l: number,
-			j: number;
+		const pt = this;
+		let c: boolean, i: number, l: number, j: number;
 		for (c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
 			((poly[i].y <= pt.y && pt.y < poly[j].y) ||
 				(poly[j].y <= pt.y && pt.y < poly[i].y)) &&
@@ -106,7 +131,7 @@ class Point {
 		return this;
 	}
 	rotate(degrees: number) {
-		this.dir = degrees
+		this.dir = degrees;
 		return this;
 	}
 }
