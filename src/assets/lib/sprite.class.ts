@@ -176,7 +176,16 @@ export class Sprite extends EventBase {
 			if (this.touching(k)) return true;
 		return false;
 	}
-	//touchingAll() {} //colliding with type | sprite.touchingAll(Dot) -> [dot1, dot2]
+	/** Returns an array with every sprite on top of this one.
+	 * @param {Function} type Optional parameter to specify only one type of sprite
+	 * @param {boolean} exact Optional parameter if passing a type to not include inherited sprites (eg passing (Sprite, true) does not include Button)
+	 */
+	allCollisions(type?: Function, exact?: boolean) {
+		const ret = []
+		for (const k of World.getEvery(type ?? Sprite, exact))
+			if (this.touching(k)) ret.push(k)
+		return ret
+	}
 
 	/** Point towards target sprite
 	 * @param {Sprite} target The sprite to orientate towards | OR

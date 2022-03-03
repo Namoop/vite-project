@@ -52,6 +52,7 @@ declare module "*/towers.toml" {
 			pellets: number;
 			fireDelay: number;
 			reloadTime: number;
+			range: number;
 		};
 	};
 	export default file;
