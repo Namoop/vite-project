@@ -67,28 +67,42 @@ function laneInit() {
 
 function gameloop() {
 	let towers = World.getEvery(Tower) as Tower[];
-	towers.forEach((t) => {
-		t.rotate(t.dirspeed);
+	towers.forEach(t => {
+		if (t.isIdle()) t.rotate(t.dirspeed);
 
 		if (Math.random() > 0.999) t.dirspeed = (Math.random() * 0.2 - 0.1) * 3;
 	});
 
 	let dots = World.getEvery(Dot) as Dot[];
-	dots.forEach((d) => {
-		if (d.touchingAny(Tower)) d.hide();
+	dots.forEach(d => {
+		if (d.touchingAny(Bullet)) delete World.getAll()[d.id];
 		else d.show();
 	});
+
+	let bullets = World.getEvery(Bullet) as Bullet[];
+	bullets.forEach(b => {
+		let radians = Math.atan2(b.target.y - b.y, b.target.x - b.x);
+		if (Math.hypot(b.target.x-b.x, b.target.y-b.y) <= b.stats.speed) b.targetEdge(radians)
+		else b.move(b.x+b.stats.speed*Math.cos(radians), b.y+b.stats.speed*Math.sin(radians));
+
+	})
 }
 
 class Tower extends Sprite {
 	dirspeed = 0.2;
 	bullet: typeof towers.interface.bullet;
+	private _idlenum = 0;
 	constructor(type: string) {
 		super(type == "red" ? redTower : "");
 		this.bullet = towers[type].bullet;
 	}
 	newBullet (target: Point) {
+		this.pointTowards(target)
+		this._idlenum = World.frame;
 		new Bullet(this, target)
+	}
+	isIdle() {
+		return World.frame - this._idlenum > 200
 	}
 }
 
@@ -97,34 +111,6 @@ class Bullet extends SVGSprite {
 	link: Tower;
 	target: Point
 	stats: typeof towers.interface.bullet;
-	private xlastmovedframe = World.frame-1;
-	private ylastmovedframe = World.frame-1;
-	get x() {
-		if (this.xlastmovedframe != World.frame) {
-			this.xlastmovedframe = World.frame
-			let radians = Math.atan2(this.target.y - super.y, this.target.x - super.x);
-			World.debuglines = [
-				[new Point(this.link.x, this.link.y), new Point(this.target.x, this.target.y)]
-			]
-			super.x += this.stats.speed*Math.cos(radians)
-		}
-		return super.x;
-	}
-	get y() {
-		if (this.ylastmovedframe != World.frame) {
-			this.ylastmovedframe == World.frame
-			let radians = Math.atan2(this.target.y - super.y, this.target.x - super.x);
-			globals[0] = Math.round(radians * 180/Math.PI)
-			super.y += this.stats.speed*Math.sin(radians)
-		}
-		return super.y;
-	}
-	set x(z) {
-		super.x = z;
-	}
-	set y(z) {
-		super.y = z;
-	}
 	constructor(link: Tower, target: Point) {
 		super(link.bullet.src);
 		this.stats = link.bullet
@@ -132,6 +118,10 @@ class Bullet extends SVGSprite {
 		this.x = link.x;
 		this.y = link.y;
 		this.target = target
+	}
+	targetEdge(angle: number) {
+		this.target.x += 500*Math.cos(angle)
+		this.target.y += 500*Math.sin(angle)
 	}
 }
 

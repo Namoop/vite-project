@@ -5,7 +5,8 @@ pellets = 1
 fireDelay = 3
 reloadTime = 40
 damage = 1
+targetrange = 150
 [red.bullet]
 power = 2
 speed = 5
-src = "<svg width=10 height=10><circle cx=0 cy=0 r=5 fill=white /></svg>"
+src = "<svg width=6 height=6><circle cx=3 cy=3 r=3 fill=white /></svg>"
