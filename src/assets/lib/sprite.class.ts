@@ -28,23 +28,28 @@ export class Sprite extends EventBase {
 			];
 		});
 	}
+	/** internal property for drawing to screen */
 	src: any;
 	private _x = 0;
 	private _y = 0;
+	/** the horizontal coordinate of the sprite */
 	get x() {
 		return this._x;
 	}
 	set x(z) {
 		this._x = z;
 	}
+	/** the vertical coordinate of the sprite */
 	get y() {
 		return this._y;
 	}
 	set y(z) {
 		this._y = z;
 	}
+	/** orientation of the sprite in degrees */
 	direction = 0;
 	private _zIndex = 0n;
+	/** drawing layer of the sprite (e.g. background should be 0) | use BigInt (0n, 2n) */
 	get zIndex() {
 		if (this.dragging) return 999n;
 		return this._zIndex;
@@ -52,11 +57,16 @@ export class Sprite extends EventBase {
 	set zIndex(x) {
 		this._zIndex = x;
 	}
+	/** horizontal stretch as a percentage 0-100, of the sprite */
 	width = 100;
+	/** vertical stretch as a percentage 0-100, of the sprite */
 	height = 100;
+	/** id in World.getAll() object. If this sprite is deleted another sprite may use the same id */
 	id = 0;
+	/** boolean if the player can click and drag this sprite somewhere else */
 	draggable = false;
 	private hidden = false;
+	/** visual effects on the sprite */
 	effects = {
 		blur: 0,
 		brightness: 100,
@@ -66,10 +76,11 @@ export class Sprite extends EventBase {
 		invert: 0,
 		saturate: 100,
 	};
-	async = {
+	protected async = {
 		glide: 0,
 	};
 	private _poly: Poly = [new Point(0, 0), new Point(1, 0), new Point(0, 1)];
+	/** The hitbox as an array of points, each relative to the center of the sprite. Accounts for resizing and rotating */
 	get poly() {
 		this._poly.forEach((a) =>
 			a.dilate(this.width, this.height).rotate(this.direction)
