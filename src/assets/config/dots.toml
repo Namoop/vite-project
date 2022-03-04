@@ -1,3 +1,5 @@
+spawndelay = 50 #in frames
+
 [red]
 speed = 1
 health = 1

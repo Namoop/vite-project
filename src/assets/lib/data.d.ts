@@ -1,33 +1,16 @@
 declare const globals: any[];
 
-interface OffscreenCanvas extends EventTarget {
-	width: number;
-	height: number;
-	getContext(
-		contextId: "2d",
-		contextAttributes?: CanvasRenderingContext2DSettings
-	): OffscreenCanvasRenderingContext2D | null;
+declare module "*/system.toml" {
+	const file: {
+		runOptions: {
+			gamespeed: number;
+			scale: number;
+			stop: boolean;
+			debugView: boolean;
+		};
+		mouse: {
+			onHoverDelay: number;
+		};
+	};
+	export default file;
 }
-interface OffscreenCanvasRenderingContext2D
-	extends CanvasState,
-		CanvasTransform,
-		CanvasCompositing,
-		CanvasImageSmoothing,
-		CanvasFillStrokeStyles,
-		CanvasShadowStyles,
-		CanvasFilters,
-		CanvasRect,
-		CanvasDrawPath,
-		CanvasText,
-		CanvasDrawImage,
-		CanvasImageData,
-		CanvasPathDrawingStyles,
-		CanvasTextDrawingStyles,
-		CanvasPath {
-	readonly canvas: OffscreenCanvas;
-}
-
-declare var OffscreenCanvas: {
-	prototype: OffscreenCanvas;
-	new (width: number, height: number): OffscreenCanvas;
-};

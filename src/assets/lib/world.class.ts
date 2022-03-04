@@ -1,5 +1,5 @@
 import { Sprite } from "./sprite.class";
-import config from "../config/system.toml";
+import config from "#lib/system.toml";
 export { World, Point, Poly };
 type SpriteObj = { [key: string]: Sprite };
 const sprites: SpriteObj = {};
@@ -20,6 +20,13 @@ const World = {
 	getAll() {
 		return sprites;
 	},
+	/** Returns the sprite with the specified ID
+	 * @param {string} id The id to search for
+	 */
+	getById(id: string) {
+		return sprites[id]
+	},
+	/** An object detailing the bounds for the World.OutOfBounds() function */
 	gameBounds: {
 		top: 0,
 		bottom: 400,

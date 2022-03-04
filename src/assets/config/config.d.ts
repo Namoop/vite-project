@@ -1,18 +1,3 @@
-declare module "*/system.toml" {
-	const file: {
-		runOptions: {
-			gamespeed: number;
-			scale: number;
-			stop: boolean;
-			debugView: boolean;
-		};
-		mouse: {
-			onHoverDelay: number;
-		};
-	};
-	export default file;
-}
-
 declare module "*/maps.toml" {
 	const file: {
 		[map: string]: {
@@ -29,6 +14,8 @@ declare module "*/maps.toml" {
 
 declare module "*/dots.toml" {
 	const file: {
+		// @ts-ignore index-signature things
+		spawndelay: number;
 		[dot: string]: {
 			speed: number;
 			health: number;

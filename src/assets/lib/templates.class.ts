@@ -1,8 +1,12 @@
-import { Sprite } from "./sprite.class";
+import { Sprite, spriteOptions } from "./sprite.class";
 import { World } from "./world.class";
+// @ts-ignore
+interface svgOptions extends spriteOptions {
+	src: SVGSVGElement | string
+}
 export class SVGSprite extends Sprite {
 	svg: SVGSVGElement;
-	constructor(svg: SVGSVGElement | string) {
+	constructor({src: svg, id}: svgOptions) {
 		if (typeof svg == "string") {
 			const container = document.createElement("div");
 			container.innerHTML = svg;
@@ -13,7 +17,7 @@ export class SVGSprite extends Sprite {
 		const url = URL.createObjectURL(blob);
 		const image = new Image();
 		image.src = url;
-		super(image);
+		super({src: image, id: id});
 		image.addEventListener("load", () => URL.revokeObjectURL(url), {
 			once: true,
 		});
@@ -32,7 +36,8 @@ export class SVGSprite extends Sprite {
 	}
 }
 
-interface buttonOptions {
+interface buttonOptions extends Omit<svgOptions, "src"> {
+	text?: string;
 	width?: number;
 	svgWidth?: number;
 	svgHeight?: number;
@@ -48,7 +53,7 @@ interface buttonOptions {
 	additionalData?: string;
 }
 export class Button extends SVGSprite {
-	constructor(text: string, op: buttonOptions = {}) {
+	constructor(op: buttonOptions = {}) {
 		const w = op.width ?? 70;
 		const h = op.height ?? (op.width ?? 70) / 3.5;
 		const sw = op.strokewidth ?? 2;
@@ -70,7 +75,7 @@ export class Button extends SVGSprite {
 			"stroke-width": sw,
 		});
 		const txt = newSVG("text");
-		txt.innerHTML = text;
+		txt.innerHTML = op.text ?? "";
 		setatts(txt, {
 			fill: op.textColor ?? "white",
 			x: w / 2,
@@ -84,19 +89,26 @@ export class Button extends SVGSprite {
 		svg.appendChild(rect);
 		svg.appendChild(txt);
 		if (op.additionalData) svg.innerHTML += op.additionalData;
-		super(svg);
+		super({src: svg, id: op.id});
 	}
+	private blurring = false
 	async defaultOnBlur() {
+		if (this.blurring) return;
+		this.blurring = true
 		while (this.effects.brightness > 71) {
 			this.effects.brightness -=
 				(this.effects.brightness - (this.hovering ? 70 : 100)) / 20;
+			if (!this.blurring) return;
 			await World.nextframe;
 		}
 	}
 	async defaultOnHover() {
+		if (!this.blurring) return;
+		this.blurring = false
 		while (this.effects.brightness <= 100) {
 			this.effects.brightness -=
 				(this.effects.brightness - (this.hovering ? 70 : 100)) / 20;
+			if (this.blurring) return;
 			await World.nextframe;
 		}
 	}

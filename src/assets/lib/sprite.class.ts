@@ -1,19 +1,24 @@
 import { EventBase } from "./events.class";
 import { World, Point, Poly } from "./world.class";
-/** An object with a postion, that is drawn to the screen
- * and can be moved around, rotated, hidden, etc
- * @param {CanvasImageSource | String} source
+export type spriteOptions = {
+	src: CanvasImageSource | string;
+	hitbox?: Poly;
+	id?: string;
+};
+/** A base sprite. Use .move(x, y) or .rotate(degrees) to interact. Check collision with .touching(sprite) and much more.
+ * @param {spriteOptions} options
  * an htmlImage or a url string to an image
  */
 export class Sprite extends EventBase {
-	constructor(src: CanvasImageSource | string, hitbox?: Poly) {
+	constructor({ src, hitbox, id }: spriteOptions) {
+		super();
 		if (typeof src == "string") {
 			const container = new Image();
 			container.src = src;
 			src = container;
 		}
-		super();
-		while (World.getAll()[this.id]) this.id++;
+		if (id) this.id = id;
+		else while (World.getAll()[this.id]) (this.id as number)++;
 		this.src = src;
 
 		World.getAll()[this.id] = this;
@@ -62,7 +67,7 @@ export class Sprite extends EventBase {
 	/** vertical stretch as a percentage 0-100, of the sprite */
 	height = 100;
 	/** id in World.getAll() object. If this sprite is deleted another sprite may use the same id */
-	id = 0;
+	id = 0 as number | string;
 	/** boolean if the player can click and drag this sprite somewhere else */
 	draggable = false;
 	private hidden = false;
@@ -192,17 +197,17 @@ export class Sprite extends EventBase {
 	 * @param {boolean} exact Optional parameter if passing a type to not include inherited sprites (eg passing (Sprite, true) does not include Button)
 	 */
 	allCollisions(type?: Function, exact?: boolean) {
-		const ret = []
+		const ret = [];
 		for (const k of World.getEvery(type ?? Sprite, exact))
-			if (this.touching(k)) ret.push(k)
-		return ret
+			if (this.touching(k)) ret.push(k);
+		return ret;
 	}
 
 	/** Point towards target sprite
 	 * @param {Sprite} target The sprite to orientate towards | OR
 	 * @param {{x: number, y: number}} target An object with an x and y
 	 */
-	pointTowards(target: Sprite | {x: number, y: number}) {
+	pointTowards(target: Sprite | { x: number; y: number }) {
 		const radians = Math.atan2(target.y - this.y, target.x - this.x);
 		this.direction = (radians * 180) / Math.PI;
 		return this;

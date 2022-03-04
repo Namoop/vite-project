@@ -1,7 +1,7 @@
 import { World, Point } from "./world.class";
 import { Sprite } from "./sprite.class";
 import { Button, SVGSprite } from "./templates.class";
-import config from "#config/system.toml";
+import config from "#lib/system.toml";
 import { Mouse } from "./mouse.class";
 export { Sprite, SVGSprite, Button, Point, World, Mouse, preload, beginLoop };
 

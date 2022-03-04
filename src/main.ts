@@ -27,39 +27,44 @@ function init() {
 	const background = `<svg width=800 height=400 style=background-color:#5e5e5e>
 	<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
 	</svg>`;
-	new SVGSprite(background).move(400, 200); //background
+	new SVGSprite({src: background}).move(400, 200); //background
 
-	const lane = new Button("Dot Lane", {
+	const lane = new Button({
+		text: "Dot Lane",
 		width: 100,
 		height: 30,
 		textSize: 20,
 	}).move(100, 180);
 	lane.onclick = () => {
 		World.deleteAll();
+		generalSetup();
 		laneInit();
 	};
 }
 
-let map: typeof maps.interface;
-function laneInit() {
-	map = maps.lane;
-	new Sprite(laneMap).center(); //background
-	const towerbtn = new Sprite(redTower).move(660, 100).resize(80);
-	towerbtn.draggable = true;
-	towerbtn.ondragend = () => {
-		new Tower("red").moveTo(towerbtn).resize(80);
-		towerbtn.move(660, 100);
-	};
-
-	const nextwavebtn = new Button(" ▶", {
+function generalSetup () {
+	new Button({
+		text: " ▶",
 		width: 30,
 		height: 30,
 		stroke: "none",
 		textColor: "blue",
 		fill: "orange",
 		textSize: 20,
-	}).move(20, 50);
-	nextwavebtn.onclick = () => {};
+		id: "wavebtn",
+	}).move(20, 50).onclick = () => {};
+}
+
+let map: typeof maps.interface;
+function laneInit() {
+	map = maps.lane;
+	new Sprite({src: laneMap}).center(); //background
+	const towerbtn = new Sprite({src: redTower}).move(660, 100).resize(80);
+	towerbtn.draggable = true;
+	towerbtn.ondragend = () => {
+		new Tower("red").moveTo(towerbtn).resize(80);
+		towerbtn.move(660, 100);
+	};
 
 	spawnWaves(map.waves)
 	beginLoop(gameloop);
@@ -116,7 +121,7 @@ class Tower extends Sprite {
 	magazineSize: number;
 	pellets: number;
 	constructor(type: string) {
-		super(type == "red" ? redTower : "");
+		super({src: type == "red" ? redTower : ""});
 		({
 			range: this.range,
 			reloadTime: this.reloadTime,
@@ -148,7 +153,7 @@ class Bullet extends SVGSprite {
 	target: Point;
 	stats: typeof towerconfig.interface.bullet;
 	constructor(link: Tower, target: Point) {
-		super(link.bullet.src);
+		super({src: link.bullet.src});
 		this.stats = link.bullet;
 		this.link = link;
 		this.x = link.x;
@@ -169,11 +174,11 @@ class Dot extends SVGSprite {
 	path;
 	constructor(type: string, path: typeof map.path[0]) {
 		const c = dotconfig[type];
-		super(
+		super({src: 
 			`<svg width=${c.srcSize * 2} height=${c.srcSize * 2}>
 				${c.src.replaceAll("size", String(c.srcSize))}
 			</svg>`
-		);
+		});
 		this.conf = c;
 		this.path = path;
 		this.speed = c.speed;
@@ -236,16 +241,15 @@ async function spawnWaves (waves: typeof maps.int.waves) {
 		"yellow"
 	]
 	for (let wave of waves) {
+		await new Promise(r=>World.getById("wavebtn").onclick=r)
 		let maxlen = wave.reduce((a, v)=>(Math.max(a,v.length)), 0)
 		for (let i = 0; i < maxlen; i++) { //loop through each index
 			for (let p = 0; p < wave.length; p++) { //loop through each path and create the balloon
 				// @ts-ignore wave[p][i] is a string
 				if (Number(wave[p][i])) new Dot(types[wave[p][i]], map.path[p])
 			}
-			await World.inFrames(50)
+			await World.inFrames(dotconfig.spawndelay)
 		}
-		//while (World.getEvery(Dot)[0]) {}
-		await World.inFrames(10)
 	}
 			//new Dot("red", map.path[0]);
 }
