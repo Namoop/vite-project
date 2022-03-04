@@ -21,6 +21,7 @@ declare module "*/maps.toml" {
 			gold: number;
 			path_start: [number, number];
 			path: ["l" | "u" | "d" | "r", number][][];
+			waves: string[][]
 		};
 	};
 	export default file;

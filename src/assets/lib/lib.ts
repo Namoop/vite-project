@@ -116,6 +116,9 @@ const fps: number[] = [];
 World.nextframe = new Promise((r) => (resolveframe = r));
 
 let looping = false;
+/** Used to start the game engine, or redefine a function to loop
+ * @param {Function} func A function that will be run once per frame
+ */
 function beginLoop(func: Function) {
 	if (looping) {
 		run = func;

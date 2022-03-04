@@ -61,8 +61,7 @@ function laneInit() {
 	}).move(20, 50);
 	nextwavebtn.onclick = () => {};
 
-	new Dot("red", map.path[0]);
-
+	spawnWaves(map.waves)
 	beginLoop(gameloop);
 }
 
@@ -76,7 +75,7 @@ function gameloop() {
 			d.damage(d.allCollisions(Bullet)[0] as Bullet);
 		else d.show();
 	});
-	if (Math.random() > 0.99) new Dot("red", map.path[0]);
+	//if (Math.random() > 0.99) new Dot("red", map.path[0]);
 
 	towers.forEach((t) => {
 		if (t.idle) t.rotate(t.dirspeed);
@@ -86,8 +85,8 @@ function gameloop() {
 			.filter((d) => Math.hypot(t.x - d.x, t.y - d.y) <= t.range)
 			.sort(
 				(a, b) =>
-					(World.frame - a.spawn) * a.speed -
-					(World.frame - b.spawn) * b.speed
+					(World.frame - b.spawn) * b.speed -
+					(World.frame - a.spawn) * a.speed
 			);
 		if (t.idle && inRange[0]) {
 			t.fire(inRange);
@@ -226,6 +225,29 @@ class Dot extends SVGSprite {
 			//spawn link
 		}
 	}
+}
+
+async function spawnWaves (waves: typeof maps.int.waves) {
+	let types = [
+		,
+		"red",
+		"blue",
+		"green",
+		"yellow"
+	]
+	for (let wave of waves) {
+		let maxlen = wave.reduce((a, v)=>(Math.max(a,v.length)), 0)
+		for (let i = 0; i < maxlen; i++) { //loop through each index
+			for (let p = 0; p < wave.length; p++) { //loop through each path and create the balloon
+				// @ts-ignore wave[p][i] is a string
+				if (Number(wave[p][i])) new Dot(types[wave[p][i]], map.path[p])
+			}
+			await World.inFrames(50)
+		}
+		//while (World.getEvery(Dot)[0]) {}
+		await World.inFrames(10)
+	}
+			//new Dot("red", map.path[0]);
 }
 
 init();

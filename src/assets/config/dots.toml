@@ -1,5 +1,23 @@
 [red]
 speed = 1
-health = 2
+health = 1
 src = """<circle cx=size cy=size r=size fill="red"/>"""
 srcSize = 15
+
+[blue]
+speed = 1.4
+health = 2
+src = """<circle cx=size cy=size r=size fill="blue"/>"""
+srcSize = 16
+
+[green]
+speed = 1.8
+health = 3
+src = """<circle cx=size cy=size r=size fill="green"/>"""
+srcSize = 17
+
+[yellow]
+speed = 3.2
+health = 4
+src = """<circle cx=size cy=size r=size fill="yellow"/>"""
+srcSize = 18
