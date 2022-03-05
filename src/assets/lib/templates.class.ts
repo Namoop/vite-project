@@ -1,12 +1,46 @@
 import { Sprite, spriteOptions } from "./sprite.class";
-import { World } from "./world.class";
+import { World, Point } from "./world.class";
+export interface imageOptions extends spriteOptions {
+	src: HTMLImageElement | string;
+}
+/** A base sprite that is an image. Use .move(x, y) or .rotate(degrees) to interact. Check collision with .touching(sprite) and much more.
+ * @param {spriteOptions} options specify source image and optionally hitbox or id.
+ */
+export class IMGSprite extends Sprite {
+	drawType = "img"
+	src: HTMLImageElement;
+	constructor(op: imageOptions) {
+		if (typeof op.src == "string") {
+			const container = new Image();
+			container.src = op.src;
+			op.src = container;
+		}
+		super(op);
+		this.src = op.src
+
+		const setPoly = () => {
+			this.poly = [
+				new Point(-this.src.width / 2, -this.src.height / 2),
+				new Point(-this.src.width / 2, +this.src.height / 2),
+				new Point(+this.src.width / 2, +this.src.height / 2),
+				new Point(+this.src.width / 2, -this.src.height / 2),
+			];
+		};
+		if (!op.hitbox) {
+			if ((op.src as HTMLImageElement).complete) setPoly();
+			else op.src.addEventListener("load", setPoly);
+		}
+	}
+}
+
 // @ts-ignore
 interface svgOptions extends spriteOptions {
 	src: SVGSVGElement | string
 }
-export class SVGSprite extends Sprite {
+export class SVGSprite extends IMGSprite {
 	svg: SVGSVGElement;
-	constructor({src: svg, id}: svgOptions) {
+	constructor(op: svgOptions) {
+		let svg = op.src
 		if (typeof svg == "string") {
 			const container = document.createElement("div");
 			container.innerHTML = svg;
@@ -17,7 +51,8 @@ export class SVGSprite extends Sprite {
 		const url = URL.createObjectURL(blob);
 		const image = new Image();
 		image.src = url;
-		super({src: image, id: id});
+		(op as imageOptions).src = image
+		super(op as imageOptions);
 		image.addEventListener("load", () => URL.revokeObjectURL(url), {
 			once: true,
 		});
@@ -51,6 +86,7 @@ interface buttonOptions extends Omit<svgOptions, "src"> {
 	textSize?: number;
 	textColor?: string;
 	additionalData?: string;
+	noDarken?: boolean;
 }
 export class Button extends SVGSprite {
 	constructor(op: buttonOptions = {}) {
@@ -89,11 +125,14 @@ export class Button extends SVGSprite {
 		svg.appendChild(rect);
 		svg.appendChild(txt);
 		if (op.additionalData) svg.innerHTML += op.additionalData;
-		super({src: svg, id: op.id});
+		(op as svgOptions).src = svg
+		super(op as svgOptions);
+		this.noDarken = op.noDarken ?? false
 	}
-	private blurring = false
+	private blurring = true
+	private noDarken: boolean
 	async defaultOnBlur() {
-		if (this.blurring) return;
+		if (this.blurring || this.noDarken) return;
 		this.blurring = true
 		while (this.effects.brightness > 71) {
 			this.effects.brightness -=
@@ -101,6 +140,7 @@ export class Button extends SVGSprite {
 			if (!this.blurring) return;
 			await World.nextframe;
 		}
+		this.blurring = false
 	}
 	async defaultOnHover() {
 		if (!this.blurring) return;
@@ -109,16 +149,11 @@ export class Button extends SVGSprite {
 			this.effects.brightness -=
 				(this.effects.brightness - (this.hovering ? 70 : 100)) / 20;
 			if (this.blurring) return;
-			await World.nextframe;
+			await
+			 World.nextframe;
 		}
+		this.blurring = true
 	}
-
-	// defaultOnBlur(): void {
-	// 	this.resize(100);
-	// }
-	// defaultOnHover() {
-	// 	this.resize(110);
-	// }
 }
 
 const svgURL = "http://www.w3.org/2000/svg";

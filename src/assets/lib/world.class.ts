@@ -79,11 +79,15 @@ const World = {
 	debuglines: [] as [Point, Point][],
 };
 
-/** Has an x and a y value. Comes with usefull functions
+/** Has an x and a y value. Comes with useful methods
  * @param {number} x
  * @param {number} y
  */
 class Point {
+	*[Symbol.iterator]() {
+		yield this._x
+		return this._y
+	}
 	_x = 0;
 	_y = 0;
 	width = 100;
@@ -116,9 +120,9 @@ class Point {
 	add(b: Point) {
 		return new Point(this.x + b.x, this.y + b.y);
 	}
-	arr(): [number, number] {
-		return [this.x, this.y];
-	}
+	// arr(): [number, number] {
+	// 	return [this.x, this.y];
+	// }
 	inPoly(poly: Poly) {
 		const pt = this;
 		let c: boolean, i: number, l: number, j: number;
@@ -156,11 +160,12 @@ function polyTouchingPoly(a: Poly, b: Poly) {
 		for (let k = 0; k < b.length; k++)
 			if (
 				lineIntersects(
-					...a[i].arr(),
-					...(a[i + 1] ?? a[0]).arr(),
+					//@ts-ignore inpossible to infer tuple type
+					...a[i],
+					...(a[i + 1] ?? a[0]),
 
-					...b[k].arr(),
-					...(b[k + 1] ?? b[0]).arr()
+					...b[k],
+					...(b[k + 1] ?? b[0])
 				)
 			)
 				return true;

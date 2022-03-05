@@ -1,40 +1,20 @@
 import { EventBase } from "./events.class";
 import { World, Point, Poly } from "./world.class";
 export type spriteOptions = {
-	src: CanvasImageSource | string;
 	hitbox?: Poly;
 	id?: string;
 };
 /** A base sprite. Use .move(x, y) or .rotate(degrees) to interact. Check collision with .touching(sprite) and much more.
- * @param {spriteOptions} options
- * an htmlImage or a url string to an image
+ * @param {spriteOptions} options optionally specify hitbox or id
  */
 export class Sprite extends EventBase {
-	constructor({ src, hitbox, id }: spriteOptions) {
+	constructor({ hitbox, id }: spriteOptions) {
 		super();
-		if (typeof src == "string") {
-			const container = new Image();
-			container.src = src;
-			src = container;
-		}
+		if (hitbox) this.poly = hitbox;
 		if (id) this.id = id;
 		else while (World.getAll()[this.id]) (this.id as number)++;
-		this.src = src;
-
 		World.getAll()[this.id] = this;
-
-		if (hitbox) this.poly = hitbox;
-		this.src.addEventListener("load", () => {
-			this.poly = [
-				new Point(-this.src.width / 2, -this.src.height / 2),
-				new Point(-this.src.width / 2, +this.src.height / 2),
-				new Point(+this.src.width / 2, +this.src.height / 2),
-				new Point(+this.src.width / 2, -this.src.height / 2),
-			];
-		});
 	}
-	/** internal property for drawing to screen */
-	src: any;
 	private _x = 0;
 	private _y = 0;
 	/** the horizontal coordinate of the sprite */
@@ -70,6 +50,8 @@ export class Sprite extends EventBase {
 	id = 0 as number | string;
 	/** boolean if the player can click and drag this sprite somewhere else */
 	draggable = false;
+	drawType = "none"
+	src: any
 	private hidden = false;
 	/** visual effects on the sprite */
 	effects = {

@@ -5,11 +5,12 @@ import maps from "#config/maps.toml";
 import dotconfig from "#config/dots.toml";
 import towerconfig from "#config/towers.toml";
 import laneMapString from "#images/dotlane.png";
-import redTower from "#images/bob.png";
+import redTowerSrc from "#images/bob.png";
 import {
 	beginLoop,
 	preload,
 	Sprite,
+	IMGSprite,
 	SVGSprite,
 	Button,
 	World,
@@ -20,7 +21,7 @@ app.appendChild(World.canvas);
 // @ts-ignore
 globals.world = World;
 
-const [laneMap] = preload(laneMapString);
+const [laneMap, redTower] = preload(laneMapString, redTowerSrc);
 
 //const bob: Sprite, button: Sprite;
 function init() {
@@ -45,21 +46,21 @@ function init() {
 function generalSetup () {
 	new Button({
 		text: " ▶",
-		width: 30,
-		height: 30,
+		width: 40,
+		height: 40,
 		stroke: "none",
 		textColor: "blue",
 		fill: "orange",
-		textSize: 20,
+		textSize: 25,
 		id: "wavebtn",
-	}).move(20, 50).onclick = () => {};
+	}).move(30, 50)
 }
 
 let map: typeof maps.interface;
 function laneInit() {
 	map = maps.lane;
-	new Sprite({src: laneMap}).center(); //background
-	const towerbtn = new Sprite({src: redTower}).move(660, 100).resize(80);
+	new IMGSprite({src: laneMap}).center(); //background
+	const towerbtn = new IMGSprite({src: redTower}).move(660, 100).resize(80);
 	towerbtn.draggable = true;
 	towerbtn.ondragend = () => {
 		new Tower("red").moveTo(towerbtn).resize(80);
@@ -80,7 +81,6 @@ function gameloop() {
 			d.damage(d.allCollisions(Bullet)[0] as Bullet);
 		else d.show();
 	});
-	//if (Math.random() > 0.99) new Dot("red", map.path[0]);
 
 	towers.forEach((t) => {
 		if (t.idle) t.rotate(t.dirspeed);
@@ -111,7 +111,7 @@ function gameloop() {
 	});
 }
 
-class Tower extends Sprite {
+class Tower extends IMGSprite {
 	dirspeed = 0.2;
 	bullet: typeof towerconfig.interface.bullet;
 	idle = true;
@@ -251,7 +251,13 @@ async function spawnWaves (waves: typeof maps.int.waves) {
 			await World.inFrames(dotconfig.spawndelay)
 		}
 	}
-			//new Dot("red", map.path[0]);
+	while (true) {
+		await new Promise(r=>World.getById("wavebtn").onclick=r)
+		for (let i = 0; i<12; i++) {
+			if (Math.random() > 0.99) new Dot("red", map.path[0]);
+			await World.nextframe
+		}
+	}
 }
 
 init();
