@@ -1,9 +1,20 @@
 import { World, Point } from "./world.class";
 import { Sprite } from "./sprite.class";
-import { Button, SVGSprite, IMGSprite } from "./templates.class";
+import { Button, SVGSprite, IMGSprite, TXTSprite } from "./templates.class";
 import config from "#lib/system.toml";
 import { Mouse } from "./mouse.class";
-export { IMGSprite, Sprite, SVGSprite, Button, Point, World, Mouse, preload, beginLoop };
+export {
+	IMGSprite,
+	TXTSprite,
+	Sprite,
+	SVGSprite,
+	Button,
+	Point,
+	World,
+	Mouse,
+	preload,
+	beginLoop,
+};
 
 const cnv = World.canvas;
 const ctx = World.context;
@@ -32,19 +43,7 @@ function draw(): void {
 		ctx.globalAlpha = sprite.effects.opacity / 100;
 		ctx.translate(sprite.x * World.scale, sprite.y * World.scale);
 		ctx.rotate((sprite.direction * Math.PI) / 180);
-		if (sprite.drawType = "img") {
-			ctx.drawImage(
-				sprite.src,
-				0 - (sprite.src.width / 2) * (sprite.width / 100) * World.scale,
-				0 -
-					(sprite.src.height / 2) *
-						(sprite.height / 100) *
-						World.scale,
-				((sprite.src.width * sprite.width) / 100) * World.scale,
-				((sprite.src.height * sprite.height) / 100) * World.scale
-			);
-		}
-
+		sprite.render(ctx)
 		if (World.debugView) {
 			ctx.moveTo(
 				sprite.poly[0].x * World.scale,
@@ -70,8 +69,8 @@ function draw(): void {
 		//draw debug lines
 		ctx.save();
 		for (const i of World.debuglines) {
-			ctx.moveTo(...i[0].dilate(World.scale * 100).arr());
-			ctx.lineTo(...i[1].dilate(World.scale * 100).arr());
+			ctx.moveTo(...i[0].dilate(World.scale * 100).a);
+			ctx.lineTo(...i[1].dilate(World.scale * 100).a);
 		}
 		ctx.lineWidth = 3;
 		ctx.strokeStyle = "black";
