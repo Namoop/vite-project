@@ -7,7 +7,7 @@ export type spriteOptions = {
 /** A base sprite. Use .move(x, y) or .rotate(degrees) to interact. Check collision with .touching(sprite) and much more.
  * @param {spriteOptions} options optionally specify hitbox or id
  */
-export class Sprite extends EventBase {
+export abstract class Sprite extends EventBase {
 	constructor({ hitbox, id }: spriteOptions) {
 		super();
 		if (hitbox) this.poly = hitbox;
@@ -50,8 +50,8 @@ export class Sprite extends EventBase {
 	id = 0 as number | string;
 	/** boolean if the player can click and drag this sprite somewhere else */
 	draggable = false;
-	drawType = "none"
-	src: any
+	/** Method for rendering a sprite - to be defined by the template used */
+	abstract render(ctx: CanvasRenderingContext2D): void;
 	private hidden = false;
 	/** visual effects on the sprite */
 	effects = {
@@ -195,9 +195,9 @@ export class Sprite extends EventBase {
 		return this;
 	}
 
-	/** Overrides any property or function on any sprite - USE SPARINGLY AND CAREFULLY */
+	/** Overrides any property or function on any sprite | NOT RECCOMENDED FOR RELEASE */
 	static Override(spr: Sprite, prop: string, newvalue: any): void {
-		// @ts-ignore
+		// @ts-ignore Overriding value no matter what it is
 		spr[prop] = newvalue;
 	}
 }
