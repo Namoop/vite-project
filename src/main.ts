@@ -1,6 +1,3 @@
-// @ts-ignore
-window["globals"] = [];
-
 import maps from "#config/maps.toml";
 import dotconfig from "#config/dots.toml";
 import towerconfig from "#config/towers.toml";
@@ -9,17 +6,17 @@ import redTowerSrc from "#images/bob.png";
 import {
 	beginLoop,
 	preload,
-	Sprite,
 	IMGSprite,
 	SVGSprite,
 	Button,
 	World,
 	Point,
 } from "./assets/lib/lib";
+import { TXTSprite } from "./assets/lib/templates.class";
 const app = document.getElementById("app") as HTMLElement;
 app.appendChild(World.canvas);
-// @ts-ignore
-globals.world = World;
+//@ts-ignore
+(window.globals = []).world = World;
 
 const [laneMap, redTower] = preload(laneMapString, redTowerSrc);
 
@@ -28,7 +25,12 @@ function init() {
 	const background = `<svg width=800 height=400 style=background-color:#5e5e5e>
 	<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
 	</svg>`;
-	new SVGSprite({src: background}).move(400, 200); //background
+	new SVGSprite({ src: background }).move(400, 200); //background
+	new TXTSprite({
+		text: "TexttextLoop",
+		color: "white",
+		size: 50,
+	}).move(100, 210);
 
 	const lane = new Button({
 		text: "Dot Lane",
@@ -43,7 +45,7 @@ function init() {
 	};
 }
 
-function generalSetup () {
+function generalSetup() {
 	new Button({
 		text: " ▶",
 		width: 40,
@@ -53,21 +55,21 @@ function generalSetup () {
 		fill: "orange",
 		textSize: 25,
 		id: "wavebtn",
-	}).move(30, 50)
+	}).move(30, 50);
 }
 
 let map: typeof maps.interface;
 function laneInit() {
 	map = maps.lane;
-	new IMGSprite({src: laneMap}).center(); //background
-	const towerbtn = new IMGSprite({src: redTower}).move(660, 100).resize(80);
+	new IMGSprite({ src: laneMap }).center(); //background
+	const towerbtn = new IMGSprite({ src: redTower }).move(660, 100).resize(80);
 	towerbtn.draggable = true;
 	towerbtn.ondragend = () => {
 		new Tower("red").moveTo(towerbtn).resize(80);
 		towerbtn.move(660, 100);
 	};
 
-	spawnWaves(map.waves)
+	spawnWaves(map.waves);
 	beginLoop(gameloop);
 }
 
@@ -121,7 +123,7 @@ class Tower extends IMGSprite {
 	magazineSize: number;
 	pellets: number;
 	constructor(type: string) {
-		super({src: type == "red" ? redTower : ""});
+		super({ src: type == "red" ? redTower : "" });
 		({
 			range: this.range,
 			reloadTime: this.reloadTime,
@@ -143,7 +145,7 @@ class Tower extends IMGSprite {
 			await World.inFrames(this.fireDelay);
 		}
 		await World.inFrames(this.reloadTime);
-		this.idle = true
+		this.idle = true;
 	}
 }
 
@@ -153,7 +155,7 @@ class Bullet extends SVGSprite {
 	target: Point;
 	stats: typeof towerconfig.interface.bullet;
 	constructor(link: Tower, target: Point) {
-		super({src: link.bullet.src});
+		super({ src: link.bullet.src });
 		this.stats = link.bullet;
 		this.link = link;
 		this.x = link.x;
@@ -174,10 +176,10 @@ class Dot extends SVGSprite {
 	path;
 	constructor(type: string, path: typeof map.path[0]) {
 		const c = dotconfig[type];
-		super({src: 
-			`<svg width=${c.srcSize * 2} height=${c.srcSize * 2}>
+		super({
+			src: `<svg width=${c.srcSize * 2} height=${c.srcSize * 2}>
 				${c.src.replaceAll("size", String(c.srcSize))}
-			</svg>`
+			</svg>`,
 		});
 		this.conf = c;
 		this.path = path;
@@ -232,30 +234,27 @@ class Dot extends SVGSprite {
 	}
 }
 
-async function spawnWaves (waves: typeof maps.int.waves) {
-	let types = [
-		,
-		"red",
-		"blue",
-		"green",
-		"yellow"
-	]
+async function spawnWaves(waves: typeof maps.int.waves) {
+	let types = ["", "red", "blue", "green", "yellow"];
 	for (let wave of waves) {
-		await new Promise(r=>World.getById("wavebtn").onclick=r)
-		let maxlen = wave.reduce((a, v)=>(Math.max(a,v.length)), 0)
-		for (let i = 0; i < maxlen; i++) { //loop through each index
-			for (let p = 0; p < wave.length; p++) { //loop through each path and create the balloon
-				// @ts-ignore wave[p][i] is a string
-				if (Number(wave[p][i])) new Dot(types[wave[p][i]], map.path[p])
+		await new Promise((r) => (World.getById("wavebtn").onclick = r));
+		let maxlen = wave.reduce((a, v) => Math.max(a, v.length), 0);
+		for (let i = 0; i < maxlen; i++) {
+			//loop through each index
+			for (let p = 0; p < wave.length; p++) {
+				//loop through each path and create the balloon
+				console.log(wave[p][i]);
+				const type = types[Number(wave[p][i])];
+				if (type) new Dot(type, map.path[p]);
 			}
-			await World.inFrames(dotconfig.spawndelay)
+			await World.inFrames(dotconfig.spawndelay);
 		}
 	}
 	while (true) {
-		await new Promise(r=>World.getById("wavebtn").onclick=r)
-		for (let i = 0; i<12; i++) {
+		await new Promise((r) => (World.getById("wavebtn").onclick = r));
+		for (let i = 0; i < 12; i++) {
 			if (Math.random() > 0.99) new Dot("red", map.path[0]);
-			await World.nextframe
+			await World.nextframe;
 		}
 	}
 }
