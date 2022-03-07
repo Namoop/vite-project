@@ -93,6 +93,12 @@ class Point {
 	width = 100;
 	height = 100;
 	dir = 0;
+	/** Get the point as an array */
+	get a() {
+		type PointLike = [number, number]
+		return [this.x, this.y] as PointLike;
+	}
+	/** Horizontal position of the point */
 	get x() {
 		const radians = this.dir * (Math.PI / 180);
 		const rotated =
@@ -103,6 +109,7 @@ class Point {
 	set x(z) {
 		this._x = z;
 	}
+	/** Vertical position of the point */
 	get y() {
 		const radians = this.dir * (Math.PI / 180);
 		const rotated =
@@ -117,12 +124,11 @@ class Point {
 		this.x = x;
 		this.y = y;
 	}
+	/** Add a point to this point - the x and y combine */
 	add(b: Point) {
 		return new Point(this.x + b.x, this.y + b.y);
 	}
-	// arr(): [number, number] {
-	// 	return [this.x, this.y];
-	// }
+	/** Check if the point exists inside of the given polygon */
 	inPoly(poly: Poly) {
 		const pt = this;
 		let c: boolean, i: number, l: number, j: number;
@@ -136,11 +142,13 @@ class Point {
 				(c = !c);
 		return c;
 	}
+	/** Resize the position of the point relative to the origin - more useful when resizing a group of points to resize a shape */
 	dilate(width: number, height?: number) {
 		this.width = width;
 		this.height = height ?? width;
 		return this;
 	}
+	/** Rotate a point around the origin - useful when rotating a group of points to rotate a shape */
 	rotate(degrees: number) {
 		this.dir = degrees;
 		return this;
@@ -160,12 +168,11 @@ function polyTouchingPoly(a: Poly, b: Poly) {
 		for (let k = 0; k < b.length; k++)
 			if (
 				lineIntersects(
-					//@ts-ignore inpossible to infer tuple type
-					...a[i],
-					...(a[i + 1] ?? a[0]),
+					...a[i].a,
+					...(a[i + 1] ?? a[0]).a,
 
-					...b[k],
-					...(b[k + 1] ?? b[0])
+					...b[k].a,
+					...(b[k + 1] ?? b[0]).a
 				)
 			)
 				return true;
