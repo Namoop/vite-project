@@ -31,7 +31,7 @@ cnv.onmouseup = function (e) {
 				World.hover?.ondragstart();
 			}
 		}
-		onClickStartSprite?.onclick();
+		onClickStartSprite?.onclick(e.button);
 	}
 	if (World.hover?.dragging && !dragThisEvent) {
 		World.hover.ondragend();

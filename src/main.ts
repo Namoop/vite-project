@@ -8,11 +8,11 @@ import {
 	preload,
 	IMGSprite,
 	SVGSprite,
+	TXTSprite,
 	Button,
 	World,
 	Point,
 } from "./assets/lib/lib";
-import { TXTSprite } from "./assets/lib/templates.class";
 const app = document.getElementById("app") as HTMLElement;
 app.appendChild(World.canvas);
 //@ts-ignore
@@ -26,11 +26,6 @@ function init() {
 	<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
 	</svg>`;
 	new SVGSprite({ src: background }).move(400, 200); //background
-	new TXTSprite({
-		text: "TexttextLoop",
-		color: "white",
-		size: 50,
-	}).move(100, 210);
 
 	const lane = new Button({
 		text: "Dot Lane",
@@ -55,7 +50,10 @@ function generalSetup() {
 		fill: "orange",
 		textSize: 25,
 		id: "wavebtn",
-	}).move(30, 50);
+	}).move(30, 50).onclick = (e: number) => {
+		//if right click change mode to autoplay
+		//if left click play next wave / pause
+	};
 }
 
 let map: typeof maps.interface;
@@ -243,7 +241,6 @@ async function spawnWaves(waves: typeof maps.int.waves) {
 			//loop through each index
 			for (let p = 0; p < wave.length; p++) {
 				//loop through each path and create the balloon
-				console.log(wave[p][i]);
 				const type = types[Number(wave[p][i])];
 				if (type) new Dot(type, map.path[p]);
 			}

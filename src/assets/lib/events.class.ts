@@ -1,4 +1,4 @@
-export class EventBase {
+export abstract class EventBase {
 	hovering = false
 	dragging = false
 	constructor() {
@@ -25,9 +25,9 @@ export class EventBase {
 	protected userOnHover: Function;
 
 	get onclick(): Function {
-		return () => {
+		return (e: MouseEvent) => {
 			this.defaultOnClick?.();
-			this.userOnClick?.();
+			this.userOnClick?.(e);
 		};
 	}
 	set onclick(x) {
