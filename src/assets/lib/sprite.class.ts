@@ -1,5 +1,6 @@
 import { EventBase } from "./events.class";
-import { World, Point, Poly } from "./world.class";
+import { Point, Poly} from "./point.class"
+import { World } from "./world.class";
 export type spriteOptions = {
 	hitbox?: Poly;
 	id?: string;

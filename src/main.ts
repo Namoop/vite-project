@@ -151,6 +151,7 @@ class Tower extends IMGSprite {
 	fireDelay: number;
 	magazineSize: number;
 	pellets: number;
+	spread = 0;
 	constructor(type: string) {
 		super({ src: twrs[type] });
 		({
@@ -160,6 +161,7 @@ class Tower extends IMGSprite {
 			magazine_size: this.magazineSize,
 			pellets: this.pellets,
 			bullet: this.bullet,
+			spread: this.spread
 		} = config.tower[type]);
 	}
 	newBullet(target: Point) {
@@ -169,7 +171,7 @@ class Tower extends IMGSprite {
 	async fire(inRange: Dot[]) {
 		this.idle = false;
 		for (let i = 0; i < this.magazineSize; i++) {
-			this.newBullet(new Point(inRange[0].x, inRange[0].y));
+			this.newBullet(new Point(inRange[0].x + this.spread*(Math.random()-0.5), inRange[0].y + this.spread*(Math.random()-0.5)));
 			// TODO pellets
 			await World.inFrames(this.fireDelay);
 		}
@@ -194,6 +196,7 @@ class Bullet extends SVGSprite {
 	targetEdge(angle: number) {
 		this.target.x += 500 * Math.cos(angle);
 		this.target.y += 500 * Math.sin(angle);
+		if (World.OutOfBounds(this)) World.delete(this);
 	}
 }
 

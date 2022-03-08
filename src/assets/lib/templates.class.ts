@@ -1,5 +1,6 @@
 import { Sprite, spriteOptions } from "./sprite.class";
-import { World, Point } from "./world.class";
+import { World } from "./world.class";
+import { Point } from "./point.class"
 
 interface textOptions extends spriteOptions {
 	text: string;

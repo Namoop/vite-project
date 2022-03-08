@@ -1,5 +1,5 @@
 import { Sprite } from "./sprite.class";
-import { Point, Poly} from "./point.class"
+import { Point } from "./point.class"
 import config from "#lib/system.toml";
 export { World };
 type SpriteObj = { [key: string]: Sprite };
@@ -80,4 +80,3 @@ const World = {
 	debugView: config.runOptions.debugView,
 	debuglines: [] as [Point, Point][],
 };
-
