@@ -1,15 +1,10 @@
-import maps from "#config/maps.toml";
-import dotconfig from "#config/dots.toml";
-import towerconfig from "#config/towers.toml";
-import laneMapString from "#images/dotlane.png";
-import redTowerSrc from "#images/bob.png";
-import { images } from "./assets/images/exports";
+import { towerimages, mapimages, config } from "./assets/exports";
 import {
 	beginLoop,
 	preload,
 	IMGSprite,
 	SVGSprite,
-	TXTSprite,
+	//TXTSprite,
 	Button,
 	World,
 	Point,
@@ -19,9 +14,10 @@ app.appendChild(World.canvas);
 //@ts-ignore
 (window.globals = []).world = World;
 
-const [laneMap] = preload(laneMapString);
+const [laneMap] = preload(mapimages.lane);
 
 //const bob: Sprite, button: Sprite;
+init();
 function init() {
 	const background = `<svg width=800 height=400 style=background-color:#5e5e5e>
 	<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
@@ -72,9 +68,9 @@ function generalSetup() {
 	console.log(World.getAll());
 }
 
-let map: typeof maps.interface;
+let map: typeof config.maps.interface;
 function laneInit() {
-	map = maps.lane;
+	map = config.maps.lane;
 	new IMGSprite({ src: laneMap }).center(); //background
 	new TowerBtn("red", new Point(660, 100));
 	new TowerBtn("blue", new Point(660, 150));
@@ -127,10 +123,10 @@ function gameloop() {
 }
 
 const twrs: { [str: string]: HTMLImageElement } = {
-	red: preload(images.red)[0],
-	blue: preload(images.blue)[0],
-	aqua: preload(images.aqua)[0],
-	pink: preload(images.pink)[0],
+	red: preload(towerimages.red)[0],
+	blue: preload(towerimages.blue)[0],
+	aqua: preload(towerimages.aqua)[0],
+	pink: preload(towerimages.pink)[0],
 };
 
 class TowerBtn extends IMGSprite {
@@ -147,7 +143,7 @@ class TowerBtn extends IMGSprite {
 
 class Tower extends IMGSprite {
 	dirspeed = 0.2;
-	bullet: typeof towerconfig.interface.bullet;
+	bullet: typeof config.tower.interface.bullet;
 	idle = true;
 	range: number;
 	reloadTime: number;
@@ -163,7 +159,7 @@ class Tower extends IMGSprite {
 			magazine_size: this.magazineSize,
 			pellets: this.pellets,
 			bullet: this.bullet,
-		} = towerconfig[type]);
+		} = config.tower[type]);
 	}
 	newBullet(target: Point) {
 		this.pointTowards(target);
@@ -185,7 +181,7 @@ class Bullet extends SVGSprite {
 	spawn = World.frame;
 	link: Tower;
 	target: Point;
-	stats: typeof towerconfig.interface.bullet;
+	stats: typeof config.tower.interface.bullet;
 	constructor(link: Tower, target: Point) {
 		super({ src: link.bullet.src });
 		this.stats = link.bullet;
@@ -209,7 +205,7 @@ class Dot extends SVGSprite {
 	conf;
 	path;
 	constructor(type: string, path: typeof map.path[0]) {
-		const c = dotconfig[type];
+		const c = config.dot[type];
 		super({
 			src: `<svg width=${c.srcSize * 2} height=${c.srcSize * 2}>
 				${c.src.replaceAll("size", String(c.srcSize))}
@@ -263,7 +259,7 @@ class Dot extends SVGSprite {
 	}
 }
 
-async function spawnWaves(waves: typeof maps.int.waves) {
+async function spawnWaves(waves: typeof config.maps.int.waves) {
 	const types = ["", "red", "blue", "green", "yellow"];
 	const wavebtn = World.getById("wavebtn") as Button;
 	for (let wave of waves) {
@@ -278,7 +274,7 @@ async function spawnWaves(waves: typeof maps.int.waves) {
 				const type = types[Number(wave[p][i])];
 				if (type) new Dot(type, map.path[p]);
 			}
-			await World.inFrames(dotconfig.spawndelay);
+			await World.inFrames(config.dot.spawndelay);
 		}
 	}
 	while (true) {
@@ -295,6 +291,3 @@ async function spawnWaves(waves: typeof maps.int.waves) {
 		}
 	}
 }
-
-init();
-beginLoop(() => {});

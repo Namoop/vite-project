@@ -44,7 +44,7 @@ function draw(): void {
 		ctx.translate(sprite.x * World.scale, sprite.y * World.scale);
 		ctx.rotate((sprite.direction * Math.PI) / 180);
 		if (sprite.mirrored) ctx.scale(-1, 1);
-		sprite.render(ctx)
+		sprite.render(ctx);
 		if (World.debugView) {
 			ctx.moveTo(
 				sprite.poly[0].x * World.scale,
@@ -120,18 +120,12 @@ window.onkeydown = window.onkeyup = function (e) {
 let resolveframe: Function, run: Function;
 const fps: number[] = [];
 World.nextframe = new Promise((r) => (resolveframe = r));
-
-let looping = false;
-/** Used to start the game engine, or redefine a function to loop
+loop(() => {});
+/** Used define a function to loop. Will replace the previous function.
  * @param {Function} func A function that will be run once per frame
  */
 function beginLoop(func: Function) {
-	if (looping) {
-		run = func;
-	} else {
-		loop(func);
-		looping = true;
-	}
+	run = func;
 }
 function loop(func: Function | number): void {
 	//manage internals
@@ -158,8 +152,10 @@ function loop(func: Function | number): void {
 	draw();
 	resolveframe();
 	checkHover();
+	
 	(document.getElementById("other") as HTMLElement).innerHTML =
-		globals.join();
+	//@ts-ignore globals isn't real
+		window?.globals?.join(); 
 
 	//prepare for next frame
 	World.nextframe = new Promise((r) => (resolveframe = r));
@@ -172,7 +168,7 @@ function loop(func: Function | number): void {
 				config.runOptions.gamespeed,
 				loop
 			);
-	} else looping = false;
+	}
 }
 
 /** Converts image url's into images - should be called at beggining of script
