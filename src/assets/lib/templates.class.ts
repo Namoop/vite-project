@@ -205,10 +205,12 @@ export class Button extends SVGSprite {
 	disable () {
 		this._disabled = true
 		this.effects.brightness = 50
+		return this;
 	}
 	enable () {
 		this._disabled = false
 		this.effects.brightness = 100
+		return this;
 	}
 	get onclick() {
 		if (this.disabled) return ()=>{}

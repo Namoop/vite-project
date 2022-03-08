@@ -3,6 +3,7 @@ import dotconfig from "#config/dots.toml";
 import towerconfig from "#config/towers.toml";
 import laneMapString from "#images/dotlane.png";
 import redTowerSrc from "#images/bob.png";
+import { images } from "./assets/images/exports";
 import {
 	beginLoop,
 	preload,
@@ -18,7 +19,7 @@ app.appendChild(World.canvas);
 //@ts-ignore
 (window.globals = []).world = World;
 
-const [laneMap, redTower] = preload(laneMapString, redTowerSrc);
+const [laneMap] = preload(laneMapString);
 
 //const bob: Sprite, button: Sprite;
 function init() {
@@ -51,7 +52,9 @@ function generalSetup() {
 		fill: "orange",
 		textSize: 25,
 		id: "wavebtn",
-	}).move(30, 50);
+	})
+		.move(30, 50)
+		.disable();
 	new Button({
 		text: "🟡  ",
 		width: 60,
@@ -64,7 +67,7 @@ function generalSetup() {
 	}).move(100, 50).onclick = function () {
 		this.mirrored = !this.mirrored;
 		autoplay = !autoplay;
-		if (autoplay) World.getById("wavebtn").onclick()
+		if (autoplay) World.getById("wavebtn").onclick();
 	};
 	console.log(World.getAll());
 }
@@ -73,12 +76,10 @@ let map: typeof maps.interface;
 function laneInit() {
 	map = maps.lane;
 	new IMGSprite({ src: laneMap }).center(); //background
-	const towerbtn = new IMGSprite({ src: redTower }).move(660, 100).resize(80);
-	towerbtn.draggable = true;
-	towerbtn.ondragend = () => {
-		new Tower("red").moveTo(towerbtn).resize(80);
-		towerbtn.move(660, 100);
-	};
+	new TowerBtn("red", new Point(660, 100));
+	new TowerBtn("blue", new Point(660, 150));
+	new TowerBtn("aqua", new Point(660, 200));
+	new TowerBtn("pink", new Point(750, 150));
 
 	spawnWaves(map.waves);
 	beginLoop(gameloop);
@@ -125,6 +126,25 @@ function gameloop() {
 	});
 }
 
+const twrs: { [str: string]: HTMLImageElement } = {
+	red: preload(images.red)[0],
+	blue: preload(images.blue)[0],
+	aqua: preload(images.aqua)[0],
+	pink: preload(images.pink)[0],
+};
+
+class TowerBtn extends IMGSprite {
+	constructor(target: string, pos: Point) {
+		super({ src: twrs[target] });
+		this.move(...pos.a).resize(40);
+		this.draggable = true;
+		this.ondragend = () => {
+			new Tower(target).moveTo(this).resize(40);
+			this.move(...pos.a);
+		};
+	}
+}
+
 class Tower extends IMGSprite {
 	dirspeed = 0.2;
 	bullet: typeof towerconfig.interface.bullet;
@@ -135,7 +155,7 @@ class Tower extends IMGSprite {
 	magazineSize: number;
 	pellets: number;
 	constructor(type: string) {
-		super({ src: type == "red" ? redTower : "" });
+		super({ src: twrs[type] });
 		({
 			range: this.range,
 			reloadTime: this.reloadTime,
@@ -250,7 +270,6 @@ async function spawnWaves(waves: typeof maps.int.waves) {
 		await World.inFrames(200, () => wavebtn.enable());
 		if (!autoplay) await new Promise((r) => (wavebtn.onclick = r));
 		wavebtn.disable();
-		//except if autoplay
 		let maxlen = wave.reduce((a, v) => Math.max(a, v.length), 0);
 		for (let i = 0; i < maxlen; i++) {
 			//loop through each index
@@ -263,9 +282,15 @@ async function spawnWaves(waves: typeof maps.int.waves) {
 		}
 	}
 	while (true) {
-		await new Promise((r) => (World.getById("wavebtn").onclick = r));
-		for (let i = 0; i < 12; i++) {
-			if (Math.random() > 0.99) new Dot("red", map.path[0]);
+		await World.inFrames(200, () => wavebtn.enable());
+		if (!autoplay) await new Promise((r) => (wavebtn.onclick = r));
+		wavebtn.disable();
+		for (let i = 0; i < 12; ) {
+			if (Math.random() > 0.99)
+				new Dot(
+					types[Math.floor(Math.random() * (types.length - 1)) + 1],
+					map.path[++i * 0]
+				);
 			await World.nextframe;
 		}
 	}

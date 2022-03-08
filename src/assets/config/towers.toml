@@ -1,11 +1,53 @@
 [red]
 src = "../images/bob.png"
-magazine_size = 2
+magazine_size = 3
 pellets = 1
-fireDelay = 10
-reloadTime = 30
-range = 150
+spread = 0.2 ## not yet implemented
+fireDelay = 3
+reloadTime = 50
+range = 200
+#price
 [red.bullet]
-power = 2
+power = 1
 speed = 8
 src = "<svg width=6 height=6><circle cx=3 cy=3 r=3 fill=white /></svg>"
+
+[blue]
+src = "../images/cannon.png"
+magazine_size = 1
+pellets = 1
+spread = 0.2 ## not yet implemented
+fireDelay = 10 ##can remove?
+reloadTime = 200
+range = 165
+[blue.bullet]
+power = 10
+speed = 17
+src = "<svg width=12 height=12><circle cx=6 cy=6 r=6 fill=black /></svg>"
+
+[aqua]
+src = "../images/wizard.png"
+magazine_size = 1
+pellets = 1
+spread = 0.2 ## not yet implemented
+fireDelay = 20
+reloadTime = 40
+range = 170
+tail = 3 ##
+[aqua.bullet]
+power = 2
+speed = 12
+src = "<svg width=6 height=6><circle cx=3 cy=3 r=3 fill=aqua /></svg>"
+
+[pink]
+src = "../images/speedy.png"
+magazine_size = 1
+pellets = 1
+spread = 0.75 ## not yet implemented
+fireDelay = 1
+reloadTime = 7
+range = 75
+[pink.bullet]
+power = 1
+speed = 23
+src = "<svg width=3 height=3><circle cx=2 cy=2 r=2 fill=orange /></svg>"

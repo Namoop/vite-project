@@ -1,4 +1,4 @@
-spawndelay = 50 #in frames
+spawndelay = 25 #in frames
 
 [red]
 speed = 1
