@@ -9,6 +9,7 @@ import {
 	World,
 	Point,
 } from "./assets/lib/lib";
+
 const app = document.getElementById("app") as HTMLElement;
 app.appendChild(World.canvas);
 //@ts-ignore
@@ -16,11 +17,11 @@ app.appendChild(World.canvas);
 
 const [laneMap] = preload(mapimages.lane);
 
-//const bob: Sprite, button: Sprite;
 init();
 function init() {
-	const background = `<svg width=800 height=400 style=background-color:#5e5e5e>
-	<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
+	const background = `<svg
+	  width=800 height=400 style=background-color:#5e5e5e>
+		<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
 	</svg>`;
 	new SVGSprite({ src: background }).move(400, 200); //background
 

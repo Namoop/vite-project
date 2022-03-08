@@ -1,8 +1,9 @@
-import { World, Point } from "./world.class";
+import { World } from "./world.class";
 import { Sprite } from "./sprite.class";
 import { Button, SVGSprite, IMGSprite, TXTSprite } from "./templates.class";
 import config from "#lib/system.toml";
 import { Mouse } from "./mouse.class";
+import { Point } from "./point.class"
 export {
 	IMGSprite,
 	TXTSprite,
