@@ -78,6 +78,8 @@ export abstract class Sprite extends EventBase {
 	set poly(h) {
 		this._poly = h;
 	}
+	/** if false, ifTouching() checks will always return false */
+	collision = true;
 
 	/** Returns the hitbox relative to (0,0). You can also use Sprite.poly to get the hitbox relative to the sprite's position */
 	getHitbox() {

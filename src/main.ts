@@ -41,6 +41,11 @@ function init() {
 }
 
 function generalSetup() {
+	const waveInfo = {
+		nextWave: 0,
+		i: 0,
+		autoplay: false,
+	};
 	new Button({
 		text: " ▶",
 		width: 40,
@@ -53,6 +58,21 @@ function generalSetup() {
 	}).move(30, 50).onclick = (e: number) => {
 		//if right click change mode to autoplay
 		//if left click play next wave / pause
+		//if (e) waveInfo.autoplay = true;
+	};
+	new Button({
+		text: " ▶",
+		width: 40,
+		height: 40,
+		stroke: "none",
+		textColor: "blue",
+		fill: "orange",
+		textSize: 25,
+		id: "wavebtn",
+	}).move(30, 50).onclick = (e: number) => {
+		//if right click change mode to autoplay
+		//if left click play next wave / pause
+		if (e) waveInfo.autoplay = true;
 	};
 }
 
@@ -168,8 +188,10 @@ class Bullet extends SVGSprite {
 
 class Dot extends SVGSprite {
 	spawn = World.frame;
+	private onDeathDist = 0;
 	speed: number;
 	health: number;
+	onDeath: string[];
 	conf;
 	path;
 	constructor(type: string, path: typeof map.path[0]) {
@@ -183,10 +205,14 @@ class Dot extends SVGSprite {
 		this.path = path;
 		this.speed = c.speed;
 		this.health = c.health;
+		this.onDeath = c.onDeath;
+	}
+	get dist() {
+		return (World.frame - this.spawn) * this.speed + this.onDeathDist;
 	}
 	get x() {
 		let fin = Number(this.path[0][0]),
-			dist = (World.frame - this.spawn) * this.speed;
+			dist = this.dist;
 		for (let i = 1; dist >= 0; i++) {
 			if (!this.path[i]) {
 				World.delete(this);
@@ -201,7 +227,7 @@ class Dot extends SVGSprite {
 	}
 	get y() {
 		let fin = this.path[0][1],
-			dist = (World.frame - this.spawn) * this.speed;
+			dist = this.dist;
 		for (let i = 1; dist >= 0; i++) {
 			if (!this.path[i]) {
 				World.delete(this);
@@ -217,17 +243,18 @@ class Dot extends SVGSprite {
 	damage(b: Bullet) {
 		if (b.stats.power > this.health) {
 			b.stats.power -= this.health;
-			World.delete(this);
-			//spawn link
+			World.delete(this); //add animation with .collision false?
+			for (let o = 0; o < this.onDeath.length; o++)
+				new Dot(this.onDeath[0], this.path).onDeathDist = this.dist-o*35; //
 		} else if (this.health > b.stats.power) {
 			this.health -= b.stats.power;
 			World.delete(b);
-			//spawn link
 		} else {
 			//must be equal
 			World.delete(b);
 			World.delete(this);
-			//spawn link
+			for (let o = 0; o < this.onDeath.length; o++)
+				new Dot(this.onDeath[0], this.path).onDeathDist = this.dist-o*35;
 		}
 	}
 }
@@ -236,6 +263,7 @@ async function spawnWaves(waves: typeof maps.int.waves) {
 	let types = ["", "red", "blue", "green", "yellow"];
 	for (let wave of waves) {
 		await new Promise((r) => (World.getById("wavebtn").onclick = r));
+		//except if autoplay
 		let maxlen = wave.reduce((a, v) => Math.max(a, v.length), 0);
 		for (let i = 0; i < maxlen; i++) {
 			//loop through each index

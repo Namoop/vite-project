@@ -21,6 +21,7 @@ declare module "*/dots.toml" {
 			health: number;
 			src: string;
 			srcSize: number;
+			onDeath: string[];
 		};
 	};
 	export default file;

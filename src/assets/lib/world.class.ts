@@ -63,6 +63,7 @@ const World = {
 	},
 	/** Returns true if both sprites' hitboxes are currently colliding */
 	areColliding(first: Sprite, second: Sprite): boolean {
+		if (!(first.collision && second.collision)) return false;
 		const colliding = polyTouchingPoly(
 			first.getHitbox(),
 			second.getHitbox()
