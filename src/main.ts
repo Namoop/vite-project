@@ -66,7 +66,6 @@ function generalSetup() {
 		autoplay = !autoplay;
 		if (autoplay) World.getById("wavebtn").onclick();
 	};
-	console.log(World.getAll());
 }
 
 let map: typeof config.maps.interface;
@@ -249,10 +248,11 @@ class Dot extends SVGSprite {
 			for (let o = 0; o < this.onDeath.length; o++)
 				new Dot(this.onDeath[0], this.path).onDeathDist =
 					this.dist - o * 35; //
-		} else if (this.health > b.stats.power) {
+		} else if (this.health < b.stats.power) {
 			this.health -= b.stats.power;
 			World.delete(b);
 		} else {
+			console.log(b.stats.power) //TODO: FIX CONTINIOUS SHOT
 			//must be equal
 			World.delete(b);
 			World.delete(this);

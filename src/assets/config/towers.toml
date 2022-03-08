@@ -18,12 +18,12 @@ magazine_size = 1
 pellets = 1
 spread = 0.2 ## not yet implemented
 fireDelay = 10 ##can remove?
-reloadTime = 200
+reloadTime = 180
 range = 165
 [blue.bullet]
 power = 10
-speed = 17
-src = "<svg width=12 height=12><circle cx=6 cy=6 r=6 fill=black /></svg>"
+speed = 5
+src = "<svg width=16 height=16><circle cx=8 cy=8 r=8 fill=black /></svg>"
 
 [aqua]
 src = "../images/wizard.png"
