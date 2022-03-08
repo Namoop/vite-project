@@ -40,12 +40,8 @@ function init() {
 	};
 }
 
+let autoplay = false;
 function generalSetup() {
-	const waveInfo = {
-		nextWave: 0,
-		i: 0,
-		autoplay: false,
-	};
 	new Button({
 		text: " ▶",
 		width: 40,
@@ -55,25 +51,22 @@ function generalSetup() {
 		fill: "orange",
 		textSize: 25,
 		id: "wavebtn",
-	}).move(30, 50).onclick = (e: number) => {
-		//if right click change mode to autoplay
-		//if left click play next wave / pause
-		//if (e) waveInfo.autoplay = true;
-	};
+	}).move(30, 50);
 	new Button({
-		text: " ▶",
-		width: 40,
-		height: 40,
+		text: "🟡  ",
+		width: 60,
+		height: 30,
 		stroke: "none",
-		textColor: "blue",
-		fill: "orange",
+		fill: "blue",
 		textSize: 25,
-		id: "wavebtn",
-	}).move(30, 50).onclick = (e: number) => {
-		//if right click change mode to autoplay
-		//if left click play next wave / pause
-		if (e) waveInfo.autoplay = true;
+		id: "autoplay",
+		noDarken: true,
+	}).move(100, 50).onclick = function () {
+		this.mirrored = !this.mirrored;
+		autoplay = !autoplay;
+		if (autoplay) World.getById("wavebtn").onclick()
 	};
+	console.log(World.getAll());
 }
 
 let map: typeof maps.interface;
@@ -100,6 +93,7 @@ function gameloop() {
 		if (d.touchingAny(Bullet))
 			d.damage(d.allCollisions(Bullet)[0] as Bullet);
 		else d.show();
+		d.move(...Dot.distToXY(d));
 	});
 
 	towers.forEach((t) => {
@@ -210,42 +204,31 @@ class Dot extends SVGSprite {
 	get dist() {
 		return (World.frame - this.spawn) * this.speed + this.onDeathDist;
 	}
-	get x() {
-		let fin = Number(this.path[0][0]),
-			dist = this.dist;
+	static distToXY(dot: Dot) {
+		let finX = Number(dot.path[0][0]),
+			finY = dot.path[0][1],
+			dist = dot.dist;
 		for (let i = 1; dist >= 0; i++) {
-			if (!this.path[i]) {
-				World.delete(this);
+			if (!dot.path[i]) {
+				World.delete(dot);
 				break;
 			}
-			const [dir, len] = this.path[i];
-			if (dir == "r") fin += dist < len ? dist : len;
-			if (dir == "l") fin -= dist < len ? dist : len;
+			const [dir, len] = dot.path[i];
+			if (dir == "r") finX += dist < len ? dist : len;
+			if (dir == "l") finX -= dist < len ? dist : len;
+			if (dir == "d") finY += dist < len ? dist : len;
+			if (dir == "u") finY -= dist < len ? dist : len;
 			dist -= len;
 		}
-		return fin;
-	}
-	get y() {
-		let fin = this.path[0][1],
-			dist = this.dist;
-		for (let i = 1; dist >= 0; i++) {
-			if (!this.path[i]) {
-				World.delete(this);
-				break;
-			}
-			const [dir, len] = this.path[i];
-			if (dir == "d") fin += dist < len ? dist : len;
-			if (dir == "u") fin -= dist < len ? dist : len;
-			dist -= len;
-		}
-		return fin;
+		return [finX, finY] as [number, number];
 	}
 	damage(b: Bullet) {
 		if (b.stats.power > this.health) {
 			b.stats.power -= this.health;
 			World.delete(this); //add animation with .collision false?
 			for (let o = 0; o < this.onDeath.length; o++)
-				new Dot(this.onDeath[0], this.path).onDeathDist = this.dist-o*35; //
+				new Dot(this.onDeath[0], this.path).onDeathDist =
+					this.dist - o * 35; //
 		} else if (this.health > b.stats.power) {
 			this.health -= b.stats.power;
 			World.delete(b);
@@ -254,15 +237,19 @@ class Dot extends SVGSprite {
 			World.delete(b);
 			World.delete(this);
 			for (let o = 0; o < this.onDeath.length; o++)
-				new Dot(this.onDeath[0], this.path).onDeathDist = this.dist-o*35;
+				new Dot(this.onDeath[0], this.path).onDeathDist =
+					this.dist - o * 35;
 		}
 	}
 }
 
 async function spawnWaves(waves: typeof maps.int.waves) {
-	let types = ["", "red", "blue", "green", "yellow"];
+	const types = ["", "red", "blue", "green", "yellow"];
+	const wavebtn = World.getById("wavebtn") as Button;
 	for (let wave of waves) {
-		await new Promise((r) => (World.getById("wavebtn").onclick = r));
+		await World.inFrames(200, () => wavebtn.enable());
+		if (!autoplay) await new Promise((r) => (wavebtn.onclick = r));
+		wavebtn.disable();
 		//except if autoplay
 		let maxlen = wave.reduce((a, v) => Math.max(a, v.length), 0);
 		for (let i = 0; i < maxlen; i++) {

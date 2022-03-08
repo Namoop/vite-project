@@ -43,6 +43,7 @@ function draw(): void {
 		ctx.globalAlpha = sprite.effects.opacity / 100;
 		ctx.translate(sprite.x * World.scale, sprite.y * World.scale);
 		ctx.rotate((sprite.direction * Math.PI) / 180);
+		if (sprite.mirrored) ctx.scale(-1, 1);
 		sprite.render(ctx)
 		if (World.debugView) {
 			ctx.moveTo(

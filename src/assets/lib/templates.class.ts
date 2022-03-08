@@ -200,8 +200,25 @@ export class Button extends SVGSprite {
 	}
 	private blurring = true;
 	private noDarken: boolean;
+	private _disabled = false;
+	get disabled () {return this._disabled}
+	disable () {
+		this._disabled = true
+		this.effects.brightness = 50
+	}
+	enable () {
+		this._disabled = false
+		this.effects.brightness = 100
+	}
+	get onclick() {
+		if (this.disabled) return ()=>{}
+		else return super.onclick
+	}
+	set onclick (z) {
+		super.onclick = z
+	}
 	async defaultOnBlur() {
-		if (this.blurring || this.noDarken) return;
+		if (this.blurring || this.noDarken || !this.disabled) return;
 		this.blurring = true;
 		while (this.effects.brightness > 71) {
 			this.effects.brightness -=
@@ -212,12 +229,12 @@ export class Button extends SVGSprite {
 		this.blurring = false;
 	}
 	async defaultOnHover() {
-		if (!this.blurring) return;
+		if (!this.blurring || this.noDarken) return;
 		this.blurring = false;
 		while (this.effects.brightness <= 100) {
 			this.effects.brightness -=
 				(this.effects.brightness - (this.hovering ? 70 : 100)) / 20;
-			if (this.blurring) return;
+			if (this.blurring || this.disabled) return;
 			await World.nextframe;
 		}
 		this.blurring = true;

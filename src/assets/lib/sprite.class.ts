@@ -42,6 +42,8 @@ export abstract class Sprite extends EventBase {
 	set zIndex(x) {
 		this._zIndex = x;
 	}
+	/** If the sprite should be rendered mirrored */
+	mirrored = false;
 	/** horizontal stretch as a percentage 0-100, of the sprite */
 	width = 100;
 	/** vertical stretch as a percentage 0-100, of the sprite */
