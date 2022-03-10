@@ -9,8 +9,18 @@ export class Point {
 		yield this._x
 		return this._y
 	}
-	_x = 0;
-	_y = 0;
+	__x = 0 as number | (()=>number);
+	__y = 0 as number | (()=>number);
+	get _x ():number {
+		if (typeof this.__x == "function") return this.__x()
+		else return this.__x
+	}
+	get _y ():number {
+		if (typeof this.__y == "function") return this.__y()
+		else return this.__y
+	}
+	set _x(z: number | (()=>number)) {this.__x = z}
+	set _y(z: number | (()=>number)) {this.__y = z}
 	width = 100;
 	height = 100;
 	dir = 0;
@@ -20,28 +30,28 @@ export class Point {
 		return [this.x, this.y] as PointLike;
 	}
 	/** Horizontal position of the point */
-	get x() {
+	get x():number {
 		const radians = this.dir * (Math.PI / 180);
 		const rotated =
 			this._x * Math.cos(radians) - this._y * Math.sin(radians);
 		const dilated = (rotated * this.width) / 100;
 		return dilated;
 	}
-	set x(z) {
+	set x(z: number | (()=>number)) {
 		this._x = z;
 	}
 	/** Vertical position of the point */
-	get y() {
+	get y():number {
 		const radians = this.dir * (Math.PI / 180);
 		const rotated =
 			this._x * Math.sin(radians) + this._y * Math.cos(radians);
 		const dilated = (rotated * this.height) / 100;
 		return dilated;
 	}
-	set y(z) {
+	set y(z: number | (()=>number)) {
 		this._y = z;
 	}
-	constructor(x: number, y: number) {
+	constructor(x: number | (()=>number), y: number | (()=>number)) {
 		this.x = x;
 		this.y = y;
 	}

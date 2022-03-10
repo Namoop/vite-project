@@ -42,6 +42,7 @@ declare module "*/towers.toml" {
 			fireDelay: number;
 			reloadTime: number;
 			range: number;
+			price: number;
 			spread: number;
 		};
 	};

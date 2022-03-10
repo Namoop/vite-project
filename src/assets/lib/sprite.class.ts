@@ -1,12 +1,12 @@
 import { EventBase } from "./events.class";
-import { Point, Poly} from "./point.class"
+import { Point, Poly } from "./point.class";
 import { World } from "./world.class";
 export type spriteOptions = {
 	hitbox?: Poly;
 	id?: string;
 };
 /** A base sprite. Use .move(x, y) or .rotate(degrees) to interact. Check collision with .touching(sprite) and much more.
- * @param {spriteOptions} options optionally specify hitbox or id
+ * @param {spriteOptions} options optionally specify hitbox, id, or a sprite to link
  */
 export abstract class Sprite extends EventBase {
 	constructor({ hitbox, id }: spriteOptions) {
@@ -16,32 +16,105 @@ export abstract class Sprite extends EventBase {
 		else while (World.getAll()[this.id]) (this.id as number)++;
 		World.getAll()[this.id] = this;
 	}
+	get trueX() {
+		return (this._link?.x ?? 0) + this.x;
+	}
+	get trueY() {
+		return (this._link?.y ?? 0) + this.y;
+	}
+	get trueDirection() {
+		return (this._link?.direction ?? 0) + this.direction;
+	}
+	private _link?: Sprite;
+	/** Attach this sprite to another. While linked both the
+	 * position and direction will be relative to the parent.
+	 * The sprite will automatically move with the parent.
+	 * The position of this sprite will not change when linked,
+	 * but will update to be relative to the parent.
+	 * @param {Sprite} parent The sprite to be linked to
+	 */
+	link(parent: Sprite) {
+		this._link = parent;
+		this._x -= parent.x
+		this._y -= parent.y;
+		this.direction -= parent.direction
+		return this;
+	}
+	/** Unlink the sprite from its parent. Its x, y, and
+	 * direction will set themselves relative to (0,0)
+	 * and the sprite will move independently from now on.
+	 */
+	unlink() {
+		this._x = this.trueX;
+		this._y = this.trueY;
+		this.direction = this.trueDirection;
+		this._link = undefined;
+		return this;
+	}
 	private _x = 0;
 	private _y = 0;
 	/** the horizontal coordinate of the sprite */
-	get x() {
+	get x(): number {
 		return this._x;
 	}
 	set x(z) {
 		this._x = z;
 	}
 	/** the vertical coordinate of the sprite */
-	get y() {
+	get y(): number {
 		return this._y;
 	}
 	set y(z) {
 		this._y = z;
 	}
 	/** orientation of the sprite in degrees */
-	direction = 0;
-	private _zIndex = 0n;
+	direction = 0
+	private _zIndex = 0;
 	/** drawing layer of the sprite (e.g. background should be 0) | use BigInt (0n, 2n) */
 	get zIndex() {
-		if (this.dragging) return 999n;
+		if (this.dragging) return 999;
 		return this._zIndex;
 	}
-	set zIndex(x) {
-		this._zIndex = x;
+	/** Set the layer of the sprite. Use a number to set the exact layer or use a shortcut:
+	 *
+	 * "back" = backmost layer
+	 *
+	 * "front" = frontmost layer
+	 *
+	 * "forward" = up one layer
+	 *
+	 * "backward" = back one layer
+	 */
+	goToLayer(z: number | "back" | "front" | "forward" | "backward") {
+		try {
+			BigInt(z);
+		} catch {
+			throw new Error(
+				"Input to goToLayer() should be an integer (no decimal points)"
+			);
+		}
+		switch (z) {
+			case "back":
+				this._zIndex = 0;
+				break;
+			case "front":
+				const max = Math.max(
+					...World.getEvery(Sprite).map((s) => s.zIndex)
+				);
+				this._zIndex = max + 1;
+				break;
+			case "forward":
+				this._zIndex++;
+				break;
+			case "backward":
+				this._zIndex--;
+				break;
+			default:
+				//must be number
+				this._zIndex = z;
+				break;
+		}
+		return this;
 	}
 	/** If the sprite should be rendered mirrored */
 	mirrored = false;
@@ -94,6 +167,7 @@ export abstract class Sprite extends EventBase {
 	/** Prevents the sprite from being shown or interacted with */
 	hide() {
 		this.hidden = true;
+		World.hover = null;
 		return this;
 	}
 	/** Allow the sprite to be visible and interacted with */
@@ -104,6 +178,7 @@ export abstract class Sprite extends EventBase {
 	/** Toggle the sprite being hidden or not - prevent or restore visibility and interactivity  */
 	toggleHiddenState() {
 		this.hidden = !this.hidden;
+		if (this.hidden) World.hover = null;
 		return this;
 	}
 	isHidden() {

@@ -4,7 +4,7 @@ import {
 	preload,
 	IMGSprite,
 	SVGSprite,
-	//TXTSprite,
+	TXTSprite,
 	Button,
 	World,
 	Point,
@@ -66,6 +66,13 @@ function generalSetup() {
 		autoplay = !autoplay;
 		if (autoplay) World.getById("wavebtn").onclick();
 	};
+	new SVGSprite({
+		src: `<svg width=100 height=100><circle cx=50 cy=50 r=50 /></svg>`,
+		id: "towerrange",
+	})
+		.move(100, 100)
+		.hide()
+		.goToLayer(2).effects.opacity = 40;
 }
 
 let map: typeof config.maps.interface;
@@ -73,15 +80,16 @@ function laneInit() {
 	map = config.maps.lane;
 	new IMGSprite({ src: laneMap }).center(); //background
 	new TowerBtn("red", new Point(660, 100));
-	new TowerBtn("blue", new Point(660, 150));
-	new TowerBtn("aqua", new Point(660, 200));
-	new TowerBtn("pink", new Point(750, 150));
+	new TowerBtn("blue", new Point(660, 175));
+	new TowerBtn("aqua", new Point(660, 250));
+	new TowerBtn("pink", new Point(750, 100));
 
 	spawnWaves(map.waves);
 	beginLoop(gameloop);
 }
 
 function gameloop() {
+	globals[0] = World.hover?.id ?? "";
 	const dots = World.getEvery(Dot) as Dot[];
 	const bullets = World.getEvery(Bullet) as Bullet[];
 	const towers = World.getEvery(Tower) as Tower[];
@@ -98,7 +106,10 @@ function gameloop() {
 		if (Math.random() > 0.999) t.dirspeed = (Math.random() * 0.2 - 0.1) * 3;
 
 		let inRange = dots
-			.filter((d) => Math.hypot(t.x - d.x, t.y - d.y) <= t.range)
+			.filter(
+				(d) =>
+					Math.hypot(t.x - d.x, t.y - d.y) <= t.range + d.conf.srcSize
+			)
 			.sort(
 				(a, b) =>
 					(World.frame - b.spawn) * b.speed -
@@ -108,6 +119,9 @@ function gameloop() {
 			t.fire(inRange);
 		}
 	});
+
+	const wizbullets = bullets.filter((v) => v.parent.type == "aqua");
+	wizbullets.forEach(() => {});
 
 	bullets.forEach((b) => {
 		const radians = Math.atan2(b.target.y - b.y, b.target.x - b.x);
@@ -130,11 +144,33 @@ const twrs: { [str: string]: HTMLImageElement } = {
 };
 
 class TowerBtn extends IMGSprite {
+	text: TXTSprite;
 	constructor(target: string, pos: Point) {
 		super({ src: twrs[target] });
 		this.move(...pos.a).resize(40);
 		this.draggable = true;
+		this.text = new TXTSprite({
+			text: "$" + config.tower[target].price,
+			color: "gold",
+			size: 12,
+		})
+			.link(this)
+			.move(0, 30);
+		World.inFrames(1, () => this.text.unlink());
+		this.ondragstart = () => {
+			(async () => {
+				const range = World.getById("towerrange");
+				range.show();
+				range.resize(config.tower[target].range * 2);
+				while (this.dragging) {
+					range.moveTo(this);
+					await World.nextframe;
+				}
+				range.hide();
+			})();
+		};
 		this.ondragend = () => {
+			//check if valid
 			new Tower(target).moveTo(this).resize(40);
 			this.move(...pos.a);
 		};
@@ -151,8 +187,11 @@ class Tower extends IMGSprite {
 	magazineSize: number;
 	pellets: number;
 	spread = 0;
+	type: string;
 	constructor(type: string) {
 		super({ src: twrs[type] });
+		this.type = type;
+		this.goToLayer(3);
 		({
 			range: this.range,
 			reloadTime: this.reloadTime,
@@ -160,7 +199,7 @@ class Tower extends IMGSprite {
 			magazine_size: this.magazineSize,
 			pellets: this.pellets,
 			bullet: this.bullet,
-			spread: this.spread
+			spread: this.spread,
 		} = config.tower[type]);
 	}
 	newBullet(target: Point) {
@@ -170,31 +209,47 @@ class Tower extends IMGSprite {
 	async fire(inRange: Dot[]) {
 		this.idle = false;
 		for (let i = 0; i < this.magazineSize; i++) {
-			this.newBullet(new Point(inRange[0].x + this.spread*(Math.random()-0.5), inRange[0].y + this.spread*(Math.random()-0.5)));
-			// TODO pellets
+			let target = new Point(
+				inRange[0].x + this.spread * (Math.random() - 0.5),
+				inRange[0].y + this.spread * (Math.random() - 0.5)
+			);
+			if (this.type == "aqua")
+				target = new Point(
+					() => inRange[0].x,
+					() => inRange[0].y
+				); //targetting
+			this.newBullet(target);
+			// TODO: pellets
+
 			await World.inFrames(this.fireDelay);
 		}
 		await World.inFrames(this.reloadTime);
 		this.idle = true;
 	}
+	protected defaultOnClick(): void {
+		World.getById("towerrange")
+			.moveTo(this)
+			.resize(this.range * 2)
+			.toggleHiddenState();
+	}
 }
 
 class Bullet extends SVGSprite {
 	spawn = World.frame;
-	link: Tower;
+	parent: Tower;
 	target: Point;
 	stats: typeof config.tower.interface.bullet;
-	constructor(link: Tower, target: Point) {
-		super({ src: link.bullet.src });
-		this.stats = link.bullet;
-		this.link = link;
-		this.x = link.x;
-		this.y = link.y;
+	constructor(parent: Tower, target: Point) {
+		super({ src: parent.bullet.src });
+		this.stats = { ...parent.bullet };
+		this.parent = parent;
+		this.x = parent.x;
+		this.y = parent.y;
 		this.target = target;
 	}
 	targetEdge(angle: number) {
-		this.target.x += 500 * Math.cos(angle);
-		this.target.y += 500 * Math.sin(angle);
+		this.target.x = this.target.x + 500 * Math.cos(angle);
+		this.target.y = this.target.y + 500 * Math.sin(angle);
 		if (World.OutOfBounds(this)) World.delete(this);
 	}
 }
@@ -252,7 +307,7 @@ class Dot extends SVGSprite {
 			this.health -= b.stats.power;
 			World.delete(b);
 		} else {
-			console.log(b.stats.power) //TODO: FIX CONTINIOUS SHOT
+			//TODO: FIX CONTINIOUS SHOT
 			//must be equal
 			World.delete(b);
 			World.delete(this);
