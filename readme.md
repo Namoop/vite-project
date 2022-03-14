@@ -21,7 +21,7 @@ npm install
 npm run dev
 ```
 
-You can now open localhost:3000 to view the project
+You can now open localhost:3000 to view the project (main.ts)
 
 ## Other things
 

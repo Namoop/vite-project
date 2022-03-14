@@ -1,3 +1,4 @@
+/// <reference types="./lib"/>
 import { World } from "./world.class";
 import { Sprite } from "./sprite.class";
 import { Button, SVGSprite, IMGSprite, TXTSprite } from "./templates.class";
