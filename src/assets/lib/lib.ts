@@ -1,6 +1,6 @@
 /// <reference types="./lib"/>
 import { World } from "./world.class";
-import { Sprite } from "./entity.class";
+import { Entity } from "./entity.class";
 import { Button, SVGSprite, IMGSprite, TXTSprite } from "./templates.class";
 import config from "./system.toml";
 import { Mouse } from "./mouse.class";
@@ -8,7 +8,7 @@ import { Point } from "./point.class";
 export {
 	IMGSprite,
 	TXTSprite,
-	Sprite,
+	Entity,
 	SVGSprite,
 	Button,
 	Point,
@@ -24,10 +24,10 @@ cnv.oncontextmenu = function () {
 	return false;
 };
 cnv.style.border = "3px solid #000000";
-let spriteArr: Sprite[];
+let spriteArr: Entity[];
 
 //prettier-ignore
-const getFilterString = (obj: Sprite) =>
+const getFilterString = (obj: Entity) =>
 	`blur(${obj.effects.blur / 10}px)
 	brightness(${obj.effects.brightness / 100})
 	grayscale(${obj.effects.grayscale / 100})
