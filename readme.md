@@ -1,10 +1,10 @@
-# Dots Defense Towers
+# DTEngine
 
 From-scratch typescript game library
 
-Built for my own purposes but anybody can use it
+Built for my own purposes but free to use
 
-Will be used for ts remake of https://uselesspie.itch.io/ddt
+Test project is a ts remake of https://uselesspie.itch.io/ddt
 
 Packager: Vite
 
@@ -25,17 +25,23 @@ You can now open localhost:3000 to view the project
 
 ## Other things
 
-### Added:
+### Features:
 
--   sprite objects
+-   collision
+-	positioning
+-	transforming
+-	async code
+-	templates (button, svg)
 -   image loading
--   config loading
+-   config loading from toml file
+-	mouse input (clicks, hovering)
 
-### Coming soon:
 
--   basic sprite extensions (button, map)
--   background
--   fix image position by scale
+### WIP:
+
+-   basic sprite templats (button, map)
+	more gui elements (viewbox w/ scroll)
+-   
 
 ### Considering:
 

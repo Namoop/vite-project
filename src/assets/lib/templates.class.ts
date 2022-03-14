@@ -3,15 +3,23 @@ import { World } from "./world.class";
 import { Point } from "./point.class"
 
 interface textOptions extends spriteOptions {
-	text: string;
+	text: string | (()=>string|number);
 	font?: string;
 	size?: number;
 	color?: string;
 	align?: "center" | "left" | "right";
 }
+type getstr = ()=>string|number
 export class TXTSprite extends Sprite {
 	drawType = "txt";
-	text: string;
+	txtfunc:getstr = ()=>"";
+	get text ():string|number {
+		return this.txtfunc()
+	}
+	set text (z: string|number | getstr) {
+		if (typeof z == "string" || typeof z == "number") this.txtfunc = ()=>z
+		else this.txtfunc = z
+	}
 	font: string;
 	size: number;
 	color: string;
@@ -20,7 +28,7 @@ export class TXTSprite extends Sprite {
 	theight = 10;
 	constructor(op: textOptions) {
 		super(op);
-		this.text = op.text;
+		this.text = op.text
 		this.font = op.font ?? "arial";
 		this.size = op.size ?? 24;
 		this.align = op.align ?? "center";
@@ -28,7 +36,7 @@ export class TXTSprite extends Sprite {
 		this.resetPoly();
 	}
 	resetPoly() {
-		const measure = World.context.measureText(this.text);
+		const measure = World.context.measureText(this.text+"");
 		this.twidth = (measure.width * this.size) / 8;
 		this.theight = this.size;
 		const center =
@@ -52,7 +60,7 @@ export class TXTSprite extends Sprite {
 		ctx.fillStyle = this.color;
 		ctx.stroke;
 		ctx.fillText(
-			this.text,
+			this.text+"",
 			(this.width / 100) * World.scale,
 			(this.theight / 2) * (this.height / 100) * World.scale
 		);

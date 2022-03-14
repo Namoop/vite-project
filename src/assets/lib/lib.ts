@@ -1,9 +1,9 @@
 import { World } from "./world.class";
 import { Sprite } from "./sprite.class";
 import { Button, SVGSprite, IMGSprite, TXTSprite } from "./templates.class";
-import config from "#lib/system.toml";
+import config from "./system.toml";
 import { Mouse } from "./mouse.class";
-import { Point } from "./point.class"
+import { Point } from "./point.class";
 export {
 	IMGSprite,
 	TXTSprite,
@@ -25,22 +25,20 @@ cnv.oncontextmenu = function () {
 cnv.style.border = "3px solid #000000";
 let spriteArr: Sprite[];
 
-function filterString(obj: Sprite) {
-	//prettier-ignore
-	const dragshadow = obj.dragging ? `drop-shadow(${10 * World.scale}px ${10 * World.scale}px ${3 * World.scale}px)` : "";
-	return `blur(${obj.effects.blur / 10}px)
+//prettier-ignore
+const getFilterString = (obj: Sprite) =>
+	`blur(${obj.effects.blur / 10}px)
 	brightness(${obj.effects.brightness / 100})
 	grayscale(${obj.effects.grayscale / 100})
 	hue-rotate(${obj.effects.hue}deg)
 	invert(${obj.effects.invert / 100})
 	saturate(${obj.effects.saturate / 100})
-	${dragshadow}`;
-}
+	${obj.dragging ? `drop-shadow(${10 * World.scale}px ${10 * World.scale}px ${3 * World.scale}px)` : ""}`;
 
 function draw(): void {
 	for (const sprite of spriteArr) {
 		ctx.save();
-		ctx.filter = filterString(sprite);
+		ctx.filter = getFilterString(sprite);
 		ctx.globalAlpha = sprite.effects.opacity / 100;
 		ctx.translate(sprite.trueX * World.scale, sprite.trueY * World.scale);
 		ctx.rotate((sprite.trueDirection * Math.PI) / 180);
@@ -48,21 +46,14 @@ function draw(): void {
 
 		sprite.render(ctx);
 
+		//draw hitboxes
+		//prettier-ignore
 		if (World.debugView) {
-			ctx.moveTo(
-				sprite.poly[0].x * World.scale,
-				sprite.poly[0].y * World.scale
-			);
+			ctx.moveTo( sprite.poly[0].x * World.scale, sprite.poly[0].y * World.scale );
 			ctx.beginPath();
 			for (let k = 0; k < sprite.poly.length; k++)
-				ctx.lineTo(
-					sprite.poly[k].x * World.scale,
-					sprite.poly[k].y * World.scale
-				);
-			ctx.lineTo(
-				sprite.poly[0].x * World.scale,
-				sprite.poly[0].y * World.scale
-			);
+				ctx.lineTo( sprite.poly[k].x * World.scale, sprite.poly[k].y * World.scale );
+			ctx.lineTo( sprite.poly[0].x * World.scale, sprite.poly[0].y * World.scale );
 			ctx.lineWidth = 2;
 			ctx.strokeStyle = "red";
 			ctx.stroke();
@@ -155,10 +146,10 @@ function loop(func: Function | number): void {
 	draw();
 	resolveframe();
 	checkHover();
-	
+
 	(document.getElementById("other") as HTMLElement).innerHTML =
-	//@ts-ignore globals isn't real
-		window?.globals?.join(); 
+		//@ts-ignore globals isn't real
+		window?.globals?.join();
 
 	//prepare for next frame
 	World.nextframe = new Promise((r) => (resolveframe = r));

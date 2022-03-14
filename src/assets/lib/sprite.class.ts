@@ -35,9 +35,9 @@ export abstract class Sprite extends EventBase {
 	 */
 	link(parent: Sprite) {
 		this._link = parent;
-		this._x -= parent.x
+		this._x -= parent.x;
 		this._y -= parent.y;
-		this.direction -= parent.direction
+		this.direction -= parent.direction;
 		return this;
 	}
 	/** Unlink the sprite from its parent. Its x, y, and
@@ -68,7 +68,7 @@ export abstract class Sprite extends EventBase {
 		this._y = z;
 	}
 	/** orientation of the sprite in degrees */
-	direction = 0
+	direction = 0;
 	private _zIndex = 0;
 	/** drawing layer of the sprite (e.g. background should be 0) | use BigInt (0n, 2n) */
 	get zIndex() {
@@ -200,6 +200,32 @@ export abstract class Sprite extends EventBase {
 	moveTo(target: Sprite) {
 		this.move(target.x, target.y);
 		return this;
+	}
+	/** Returns a number describing the distance to another sprite
+	 * @param {Sprite} target
+	 */
+	distanceTo(target: Sprite) {
+		return Math.hypot(this.x - target.x, this.y - target.y);
+	}
+	/** Returns an array with the closest sprites to this one.
+	 * Each sprite in the array will be the same distance away,
+	 * there will likely only be one item.
+	 * @param {number} maxDist The maximum distance to search (in a circle)
+	 * @param {Function} type The type of sprite to search (eg button, svgsprite...)
+	 * @param {exact} exactType Should it exclude inherited sprites of the type
+	 */
+	nearest(maxDist: number = 1000, type: Function = Sprite, exact?: boolean) {
+		let furthest: Sprite[] = [];
+		let dist = 0;
+		for (const k of World.getEvery(type, exact)) {
+			if (this.distanceTo(k) > maxDist) continue;
+			if (this.distanceTo(k) == dist) furthest.push(k);
+			else if (this.distanceTo(k) > dist) {
+				furthest = [k];
+				dist = this.distanceTo(k);
+			}
+		}
+		return furthest;
 	}
 	/** Move the sprite to the center of the screen. Alias to move(400,200)*/
 	center() {

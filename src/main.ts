@@ -16,9 +16,15 @@ app.appendChild(World.canvas);
 (window.globals = []).world = World;
 
 const [laneMap] = preload(mapimages.lane);
+let gold = 0,
+	health = 0;
 
+//@ts-ignore
+globals[3] = () => init();
 init();
 function init() {
+	World.deleteAll();
+	//stop async
 	const background = `<svg
 	  width=800 height=400 style=background-color:#5e5e5e>
 		<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
@@ -73,22 +79,32 @@ function generalSetup() {
 		.move(100, 100)
 		.hide()
 		.goToLayer(2).effects.opacity = 40;
+	gold = 1000;
+	health = 50;
+	new TXTSprite({
+		text: ()=>gold,
+		color: "gold",
+		size: 24,
+		align: "left"
+	}).move(630,45).goToLayer(1)
 }
 
 let map: typeof config.maps.interface;
 function laneInit() {
+	World.gameBounds.right = 600;
 	map = config.maps.lane;
 	new IMGSprite({ src: laneMap }).center(); //background
-	new TowerBtn("red", new Point(660, 100));
-	new TowerBtn("blue", new Point(660, 175));
-	new TowerBtn("aqua", new Point(660, 250));
-	new TowerBtn("pink", new Point(750, 100));
+	new TowerBtn("red", 660, 100);
+	new TowerBtn("blue", 660, 175);
+	new TowerBtn("aqua", 660, 250);
+	new TowerBtn("pink", 750, 100);
 
 	spawnWaves(map.waves);
 	beginLoop(gameloop);
 }
 
 function gameloop() {
+	//@ts-ignore
 	globals[0] = World.hover?.id ?? "";
 	const dots = World.getEvery(Dot) as Dot[];
 	const bullets = World.getEvery(Bullet) as Bullet[];
@@ -136,6 +152,8 @@ function gameloop() {
 	});
 }
 
+
+
 const twrs: { [str: string]: HTMLImageElement } = {
 	red: preload(towerimages.red)[0],
 	blue: preload(towerimages.blue)[0],
@@ -145,9 +163,9 @@ const twrs: { [str: string]: HTMLImageElement } = {
 
 class TowerBtn extends IMGSprite {
 	text: TXTSprite;
-	constructor(target: string, pos: Point) {
+	constructor(target: string, x: number, y: number) {
 		super({ src: twrs[target] });
-		this.move(...pos.a).resize(40);
+		this.move(x, y).resize(40);
 		this.draggable = true;
 		this.text = new TXTSprite({
 			text: "$" + config.tower[target].price,
@@ -157,7 +175,7 @@ class TowerBtn extends IMGSprite {
 			.link(this)
 			.move(0, 30);
 		World.inFrames(1, () => this.text.unlink());
-		this.ondragstart = () => {
+		this.ondragstart = () =>
 			(async () => {
 				const range = World.getById("towerrange");
 				range.show();
@@ -168,11 +186,13 @@ class TowerBtn extends IMGSprite {
 				}
 				range.hide();
 			})();
-		};
+
 		this.ondragend = () => {
-			//check if valid
-			new Tower(target).moveTo(this).resize(40);
-			this.move(...pos.a);
+			if (gold > config.tower[target].price)
+				if (!World.OutOfBounds(this))
+					if (!this.nearest(40, Tower)[0])
+						new Tower(target).moveTo(this).resize(40);
+			this.move(x, y);
 		};
 	}
 }
@@ -188,6 +208,7 @@ class Tower extends IMGSprite {
 	pellets: number;
 	spread = 0;
 	type: string;
+	value: number;
 	constructor(type: string) {
 		super({ src: twrs[type] });
 		this.type = type;
@@ -200,7 +221,9 @@ class Tower extends IMGSprite {
 			pellets: this.pellets,
 			bullet: this.bullet,
 			spread: this.spread,
+			price: this.value,
 		} = config.tower[type]);
+		gold -= this.value;
 	}
 	newBullet(target: Point) {
 		this.pointTowards(target);
@@ -285,6 +308,7 @@ class Dot extends SVGSprite {
 		for (let i = 1; dist >= 0; i++) {
 			if (!dot.path[i]) {
 				World.delete(dot);
+				health--
 				break;
 			}
 			const [dir, len] = dot.path[i];
