@@ -1,6 +1,6 @@
 /// <reference types="./lib"/>
 import { World } from "./world.class";
-import { Sprite } from "./sprite.class";
+import { Sprite } from "./entity.class";
 import { Button, SVGSprite, IMGSprite, TXTSprite } from "./templates.class";
 import config from "./system.toml";
 import { Mouse } from "./mouse.class";

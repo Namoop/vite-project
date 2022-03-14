@@ -1,4 +1,4 @@
-import { Entity } from "./sprite.class";
+import { Entity } from "./entity.class";
 import { Point } from "./point.class"
 import config from "#lib/system.toml";
 export { World };

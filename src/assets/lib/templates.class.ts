@@ -1,4 +1,4 @@
-import { Entity, entityOptions } from "./sprite.class";
+import { Entity, entityOptions } from "./entity.class";
 import { World } from "./world.class";
 import { Point } from "./point.class"
 
