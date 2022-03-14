@@ -1,26 +1,27 @@
 import { Entity, entityOptions } from "./entity.class";
 import { World } from "./world.class";
-import { Point } from "./point.class"
+import { Point } from "./point.class";
 
 interface textOptions extends entityOptions {
-	text: string | (()=>string|number);
+	text: string | (() => string | number);
 	font?: string;
 	size?: number;
 	color?: string;
 	align?: "center" | "left" | "right";
 	formatNumber?: boolean;
 }
-type getstr = ()=>string|number
+type getstr = () => string | number;
 export class TXTSprite extends Entity {
 	drawType = "txt";
-	txtfunc:getstr = ()=>"";
-	get text ():string|number {
-		if (this.formatNumber) return formatNum(this.txtfunc() as number)
-		return this.txtfunc()
+	txtfunc: getstr = () => "";
+	get text(): string | number {
+		if (this.formatNumber) return formatNum(this.txtfunc() as number);
+		return this.txtfunc();
 	}
-	set text (z: string|number | getstr) {
-		if (typeof z == "string" || typeof z == "number") this.txtfunc = ()=>z
-		else this.txtfunc = z
+	set text(z: string | number | getstr) {
+		if (typeof z == "string" || typeof z == "number")
+			this.txtfunc = () => z;
+		else this.txtfunc = z;
 	}
 	font: string;
 	size: number;
@@ -31,7 +32,7 @@ export class TXTSprite extends Entity {
 	formatNumber: boolean;
 	constructor(op: textOptions) {
 		super(op);
-		this.text = op.text
+		this.text = op.text;
 		this.font = op.font ?? "arial";
 		this.size = op.size ?? 24;
 		this.align = op.align ?? "center";
@@ -40,7 +41,7 @@ export class TXTSprite extends Entity {
 		this.resetPoly();
 	}
 	resetPoly() {
-		const measure = World.context.measureText(this.text+"");
+		const measure = World.context.measureText(this.text + "");
 		this.twidth = (measure.width * this.size) / 8;
 		this.theight = this.size;
 		const center =
@@ -64,7 +65,7 @@ export class TXTSprite extends Entity {
 		ctx.fillStyle = this.color;
 		ctx.stroke;
 		ctx.fillText(
-			this.text+"",
+			this.text + "",
 			(this.width / 100) * World.scale,
 			(this.theight / 2) * (this.height / 100) * World.scale
 		);
@@ -102,14 +103,11 @@ export class IMGSprite extends Entity {
 			else op.src.addEventListener("load", setPoly);
 		}
 	}
-	render (ctx: CanvasRenderingContext2D) {
+	render(ctx: CanvasRenderingContext2D) {
 		ctx.drawImage(
 			this.src,
 			0 - (this.src.width / 2) * (this.width / 100) * World.scale,
-			0 -
-				(this.src.height / 2) *
-					(this.height / 100) *
-					World.scale,
+			0 - (this.src.height / 2) * (this.height / 100) * World.scale,
 			((this.src.width * this.width) / 100) * World.scale,
 			((this.src.height * this.height) / 100) * World.scale
 		);
@@ -214,23 +212,25 @@ export class Button extends SVGSprite {
 	private blurring = true;
 	private noDarken: boolean;
 	private _disabled = false;
-	get disabled () {return this._disabled}
-	disable () {
-		this._disabled = true
-		this.effects.brightness = 50
+	get disabled() {
+		return this._disabled;
+	}
+	disable() {
+		this._disabled = true;
+		this.effects.brightness = 50;
 		return this;
 	}
-	enable () {
-		this._disabled = false
-		this.effects.brightness = 100
+	enable() {
+		this._disabled = false;
+		this.effects.brightness = 100;
 		return this;
 	}
 	get onclick() {
-		if (this.disabled) return ()=>{}
-		else return super.onclick
+		if (this.disabled) return () => {};
+		else return super.onclick;
 	}
-	set onclick (z) {
-		super.onclick = z
+	set onclick(z) {
+		super.onclick = z;
 	}
 	async defaultOnBlur() {
 		if (this.blurring || this.noDarken || !this.disabled) return;
@@ -271,3 +271,27 @@ const formatNum = (n: number) => {
 	if (n < 1e12) return round(n / 1e9, 9) + "b";
 	return "∞";
 };
+
+interface viewboxOptions extends entityOptions {
+	width: number;
+	height: number;
+}
+export class ViewBox extends Entity {
+	//need to create hole in bg ?? !!clearcanvas in the zone? only draw pixel if in zone?
+	pixelwidth: number;
+	pixelheight: number;
+	constructor(op: viewboxOptions) {
+		super(op);
+		this.pixelheight = op.height;
+		this.pixelwidth = op.width;
+	}
+	render(ctx: CanvasRenderingContext2D) {
+		ctx.fillStyle = "orange";
+		ctx.fillRect(
+			0 - (this.pixelwidth / 2) * (this.width / 100) * World.scale,
+			0 - (this.pixelheight / 2) * (this.width / 100) * World.scale,
+			((this.pixelwidth * this.width) / 100) * World.scale,
+			((this.pixelheight * this.height) / 100) * World.scale
+		);
+	}
+}

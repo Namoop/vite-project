@@ -8,6 +8,7 @@ import {
 	Button,
 	World,
 	Point,
+	ViewBox
 } from "./assets/lib/lib";
 
 const app = document.getElementById("app") as HTMLElement;
@@ -36,11 +37,17 @@ function init() {
 		height: 30,
 		textSize: 20,
 	}).move(100, 180);
+
 	lane.onclick = () => {
 		World.deleteAll();
 		generalSetup();
 		laneInit();
 	};
+
+	new ViewBox({
+		width: 100,
+		height: 100
+	}).move(100,10)
 }
 
 let autoplay = false;
@@ -57,6 +64,7 @@ function generalSetup() {
 	})
 		.move(30, 50)
 		.disable();
+
 	new Button({
 		text: "🟡  ",
 		width: 60,
@@ -71,6 +79,7 @@ function generalSetup() {
 		autoplay = !autoplay;
 		if (autoplay) World.getById("wavebtn").onclick();
 	};
+
 	new SVGSprite({
 		src: `<svg width=100 height=100><circle cx=50 cy=50 r=50 /></svg>`,
 		id: "towerrange",
@@ -78,8 +87,10 @@ function generalSetup() {
 		.move(100, 100)
 		.hide()
 		.goToLayer(1).effects.opacity = 40;
+
 	gold = 1000;
 	health = 50;
+
 	new TXTSprite({
 		text: ()=>gold,
 		color: "gold",

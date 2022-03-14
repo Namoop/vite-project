@@ -1,7 +1,7 @@
 /// <reference types="./lib"/>
 import { World } from "./world.class";
 import { Entity } from "./entity.class";
-import { Button, SVGSprite, IMGSprite, TXTSprite } from "./templates.class";
+import { Button, SVGSprite, IMGSprite, TXTSprite, ViewBox } from "./templates.class";
 import config from "./system.toml";
 import { Mouse } from "./mouse.class";
 import { Point } from "./point.class";
@@ -12,6 +12,7 @@ export {
 	SVGSprite,
 	Button,
 	Point,
+	ViewBox,
 	World,
 	Mouse,
 	preload,
@@ -43,7 +44,7 @@ function draw(): void {
 		ctx.globalAlpha = sprite.effects.opacity / 100;
 		ctx.translate(sprite.trueX * World.scale, sprite.trueY * World.scale);
 		ctx.rotate((sprite.trueDirection * Math.PI) / 180);
-		if (sprite.mirrored) ctx.scale(-1, 1);
+		ctx.scale(sprite.mirrored ? 1/-World.scale : 1, 1/World.scale);
 
 		sprite.render(ctx);
 

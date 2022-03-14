@@ -17,15 +17,23 @@ export abstract class Entity extends EventBase {
 		World.getAll()[this.id] = this;
 	}
 	get trueX() {
-		return (this._link?.x ?? 0) + this.x;
+		return (
+			(this._link?.x ?? 0) + this.x + (this._link ? this.linkOffset.x : 0)
+		);
 	}
 	get trueY() {
-		return (this._link?.y ?? 0) + this.y;
+		return (
+			(this._link?.y ?? 0) + this.y + (this._link ? this.linkOffset.y : 0)
+		);
 	}
 	get trueDirection() {
 		return (this._link?.direction ?? 0) + this.direction;
 	}
 	private _link?: Entity;
+	protected linkOffset = {
+		x: 0,
+		y: 0,
+	};
 	/** Attach this sprite to another. While linked both the
 	 * position and direction will be relative to the parent.
 	 * The sprite will automatically move with the parent.
@@ -50,6 +58,9 @@ export abstract class Entity extends EventBase {
 		this.direction = this.trueDirection;
 		this._link = undefined;
 		return this;
+	}
+	getChildren() {
+		return World.getEvery(Entity).filter((e)=>e._link = this)
 	}
 	private _x = 0;
 	private _y = 0;
