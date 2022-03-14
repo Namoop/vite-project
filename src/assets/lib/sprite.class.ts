@@ -1,15 +1,15 @@
 import { EventBase } from "./events.class";
 import { Point, Poly } from "./point.class";
 import { World } from "./world.class";
-export type spriteOptions = {
+export type entityOptions = {
 	hitbox?: Poly;
 	id?: string;
 };
 /** A base sprite. Use .move(x, y) or .rotate(degrees) to interact. Check collision with .touching(sprite) and much more.
  * @param {spriteOptions} options optionally specify hitbox, id, or a sprite to link
  */
-export abstract class Sprite extends EventBase {
-	constructor({ hitbox, id }: spriteOptions) {
+export abstract class Entity extends EventBase {
+	constructor({ hitbox, id }: entityOptions) {
 		super();
 		if (hitbox) this.poly = hitbox;
 		if (id) this.id = id;
@@ -25,15 +25,15 @@ export abstract class Sprite extends EventBase {
 	get trueDirection() {
 		return (this._link?.direction ?? 0) + this.direction;
 	}
-	private _link?: Sprite;
+	private _link?: Entity;
 	/** Attach this sprite to another. While linked both the
 	 * position and direction will be relative to the parent.
 	 * The sprite will automatically move with the parent.
 	 * The position of this sprite will not change when linked,
 	 * but will update to be relative to the parent.
-	 * @param {Sprite} parent The sprite to be linked to
+	 * @param {Entity} parent The sprite to be linked to
 	 */
-	link(parent: Sprite) {
+	link(parent: Entity) {
 		this._link = parent;
 		this._x -= parent.x;
 		this._y -= parent.y;
@@ -99,7 +99,7 @@ export abstract class Sprite extends EventBase {
 				break;
 			case "front":
 				const max = Math.max(
-					...World.getEvery(Sprite).map((s) => s.zIndex)
+					...World.getEvery(Entity).map((s) => s.zIndex)
 				);
 				this._zIndex = max + 1;
 				break;
@@ -197,14 +197,14 @@ export abstract class Sprite extends EventBase {
 	/** Go directly to another sprite
 	 * @param {Sprite} target
 	 */
-	moveTo(target: Sprite) {
+	moveTo(target: Entity) {
 		this.move(target.x, target.y);
 		return this;
 	}
 	/** Returns a number describing the distance to another sprite
 	 * @param {Sprite} target
 	 */
-	distanceTo(target: Sprite) {
+	distanceTo(target: Entity) {
 		return Math.hypot(this.x - target.x, this.y - target.y);
 	}
 	/** Returns an array with the closest sprites to this one.
@@ -214,8 +214,8 @@ export abstract class Sprite extends EventBase {
 	 * @param {Function} type The type of sprite to search (eg button, svgsprite...)
 	 * @param {exact} exactType Should it exclude inherited sprites of the type
 	 */
-	nearest(maxDist: number = 1000, type: Function = Sprite, exact?: boolean) {
-		let furthest: Sprite[] = [];
+	nearest(maxDist: number = 1000, type: Function = Entity, exact?: boolean) {
+		let furthest: Entity[] = [];
 		let dist = 0;
 		for (const k of World.getEvery(type, exact)) {
 			if (this.distanceTo(k) > maxDist) continue;
@@ -268,7 +268,7 @@ export abstract class Sprite extends EventBase {
 	/** Returns a boolean which is true if the hitbox (by default a square) of sprite is colliding with the hitbox of the target sprite, or if either is entirely within the other
 	 * @param {Sprite} target
 	 */
-	touching(target: Sprite) {
+	touching(target: Entity) {
 		return World.areColliding(this, target);
 	}
 	/** Returns true if touching any sprite of the given type
@@ -286,7 +286,7 @@ export abstract class Sprite extends EventBase {
 	 */
 	allCollisions(type?: Function, exact?: boolean) {
 		const ret = [];
-		for (const k of World.getEvery(type ?? Sprite, exact))
+		for (const k of World.getEvery(type ?? Entity, exact))
 			if (this.touching(k)) ret.push(k);
 		return ret;
 	}
@@ -295,14 +295,14 @@ export abstract class Sprite extends EventBase {
 	 * @param {Sprite} target The sprite to orientate towards | OR
 	 * @param {{x: number, y: number}} target An object with an x and y
 	 */
-	pointTowards(target: Sprite | { x: number; y: number }) {
+	pointTowards(target: Entity | { x: number; y: number }) {
 		const radians = Math.atan2(target.y - this.y, target.x - this.x);
 		this.direction = (radians * 180) / Math.PI;
 		return this;
 	}
 
 	/** Overrides any property or function on any sprite | NOT RECCOMENDED FOR RELEASE */
-	static Override(spr: Sprite, prop: string, newvalue: any): void {
+	static Override(spr: Entity, prop: string, newvalue: any): void {
 		// @ts-ignore Overriding value no matter what it is
 		spr[prop] = newvalue;
 	}

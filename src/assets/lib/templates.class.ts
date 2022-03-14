@@ -1,19 +1,21 @@
-import { Sprite, spriteOptions } from "./sprite.class";
+import { Entity, entityOptions } from "./sprite.class";
 import { World } from "./world.class";
 import { Point } from "./point.class"
 
-interface textOptions extends spriteOptions {
+interface textOptions extends entityOptions {
 	text: string | (()=>string|number);
 	font?: string;
 	size?: number;
 	color?: string;
 	align?: "center" | "left" | "right";
+	formatNumber?: boolean;
 }
 type getstr = ()=>string|number
-export class TXTSprite extends Sprite {
+export class TXTSprite extends Entity {
 	drawType = "txt";
 	txtfunc:getstr = ()=>"";
 	get text ():string|number {
+		if (this.formatNumber) return formatNum(this.txtfunc() as number)
 		return this.txtfunc()
 	}
 	set text (z: string|number | getstr) {
@@ -26,6 +28,7 @@ export class TXTSprite extends Sprite {
 	align: "center" | "left" | "right";
 	twidth = 10;
 	theight = 10;
+	formatNumber: boolean;
 	constructor(op: textOptions) {
 		super(op);
 		this.text = op.text
@@ -33,6 +36,7 @@ export class TXTSprite extends Sprite {
 		this.size = op.size ?? 24;
 		this.align = op.align ?? "center";
 		this.color = op.color ?? "black";
+		this.formatNumber = op.formatNumber ?? false;
 		this.resetPoly();
 	}
 	resetPoly() {
@@ -67,13 +71,13 @@ export class TXTSprite extends Sprite {
 	}
 }
 
-interface imageOptions extends spriteOptions {
+interface imageOptions extends entityOptions {
 	src: HTMLImageElement | string;
 }
 /** A base sprite that draws an image. Use .move(x, y) or .rotate(degrees) to interact. Check collision with .touching(sprite) and much more.
- * @param {spriteOptions} options specify source image and optionally hitbox or id.
+ * @param {entityOptions} options specify source image and optionally hitbox or id.
  */
-export class IMGSprite extends Sprite {
+export class IMGSprite extends Entity {
 	drawType = "img";
 	src: HTMLImageElement;
 	constructor(op: imageOptions) {
@@ -112,7 +116,7 @@ export class IMGSprite extends Sprite {
 	}
 }
 
-interface svgOptions extends spriteOptions {
+interface svgOptions extends entityOptions {
 	src: SVGSVGElement | string;
 }
 export class SVGSprite extends IMGSprite {
@@ -257,4 +261,13 @@ const newSVG = (type: string) => document.createElementNS(svgURL, type);
 const setatts = (el: any, vals: object) => {
 	// @ts-ignore Overriding value
 	for (const i of Object.keys(vals)) el.setAttribute(i, vals[i]);
+};
+const formatNum = (n: number) => {
+	const round = (r: number, d: number) =>
+		Math.round(r * Math.pow(10, d)) / Math.pow(10, d);
+	if (n < 1e4) return n + "";
+	if (n < 1e6) return round(n / 1e3, 3) + "k";
+	if (n < 1e9) return round(n / 1e6, 6) + "m";
+	if (n < 1e12) return round(n / 1e9, 9) + "b";
+	return "∞";
 };

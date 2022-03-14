@@ -1,5 +1,5 @@
 import { World } from "./world.class";
-import { Sprite } from "./sprite.class";
+import { Entity } from "./sprite.class";
 export {Mouse}
 let windowMouseX: number, windowMouseY: number;
 const cnv = World.canvas as HTMLCanvasElement
@@ -20,7 +20,7 @@ cnv.onmousemove = (e) => {
 // 	]); //consider tap and place?
 
 const windowMouseDownArray = [false, false, false];
-let onClickStartSprite: Sprite | null, clickCancel: number;
+let onClickStartSprite: Entity | null, clickCancel: number;
 cnv.onmouseup = function (e) {
 	windowMouseDownArray[e.button] = false;
 	let dragThisEvent = false;

@@ -1,8 +1,8 @@
-import { Sprite } from "./sprite.class";
+import { Entity } from "./sprite.class";
 import { Point } from "./point.class"
 import config from "#lib/system.toml";
 export { World };
-type SpriteObj = { [key: string]: Sprite };
+type SpriteObj = { [key: string]: Entity };
 const sprites: SpriteObj = {};
 const tempcnv = document.createElement("canvas");
 /** World object that offers useful data about the current state of the game and other methods*/
@@ -14,7 +14,7 @@ const World = {
 	/** Remove the specified sprite from existence
 	 * @param {Sprite} target Target sprite to delete
 	 */
-	delete(target: Sprite) {
+	delete(target: Entity) {
 		delete sprites[target.id];
 	},
 	/** Returns an object with every sprite where the key is the sprite ID */
@@ -37,7 +37,7 @@ const World = {
 	/** Returns a boolean that is true if the given sprite or point is out of the viewable screen, or the bounds specified with (World.gameBounds = {right: 600, top:0...})
 	 * @param {Sprite | Point} target Can be a point or a sprite
 	 */
-	OutOfBounds(target: Sprite | Point) {
+	OutOfBounds(target: Entity | Point) {
 		return (
 			target.y < this.gameBounds.top ||
 			target.y > this.gameBounds.bottom ||
@@ -63,7 +63,7 @@ const World = {
 		if (callback) callback();
 	},
 	/** Returns true if both sprites' hitboxes are currently colliding */
-	areColliding(first: Sprite, second: Sprite): boolean {
+	areColliding(first: Entity, second: Entity): boolean {
 		if (!(first.collision && second.collision)) return false;
 		const colliding = Point.polyTouchingPoly(
 			first.getHitbox(),
@@ -73,7 +73,7 @@ const World = {
 	},
 	frame: 0,
 	nextframe: new Promise(() => {}),
-	hover: null as null | Sprite,
+	hover: null as null | Entity,
 	canvas: tempcnv,
 	context: tempcnv.getContext("2d") as CanvasRenderingContext2D,
 	scale: 1,

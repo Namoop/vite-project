@@ -17,10 +17,9 @@ app.appendChild(World.canvas);
 
 const [laneMap] = preload(mapimages.lane);
 let gold = 0,
-	health = 0;
+	health = 0,
+	wave = 1;
 
-//@ts-ignore
-globals[3] = () => init();
 init();
 function init() {
 	World.deleteAll();
@@ -78,22 +77,31 @@ function generalSetup() {
 	})
 		.move(100, 100)
 		.hide()
-		.goToLayer(2).effects.opacity = 40;
+		.goToLayer(1).effects.opacity = 40;
 	gold = 1000;
 	health = 50;
 	new TXTSprite({
 		text: ()=>gold,
 		color: "gold",
 		size: 24,
-		align: "left"
-	}).move(630,45).goToLayer(1)
+		align: "left",
+		formatNumber: true
+	}).move(630, 45);
+
+	new TXTSprite({
+		text: () => health,
+		color: "red",
+		size: 24,
+		align: "left",
+		formatNumber: true
+	}).move(730, 45);
 }
 
 let map: typeof config.maps.interface;
 function laneInit() {
 	World.gameBounds.right = 600;
 	map = config.maps.lane;
-	new IMGSprite({ src: laneMap }).center(); //background
+	new IMGSprite({ src: laneMap }).center().goToLayer(-1); //background
 	new TowerBtn("red", 660, 100);
 	new TowerBtn("blue", 660, 175);
 	new TowerBtn("aqua", 660, 250);
@@ -137,12 +145,20 @@ function gameloop() {
 	});
 
 	const wizbullets = bullets.filter((v) => v.parent.type == "aqua");
-	wizbullets.forEach(() => {});
+	globals[1] = wizbullets;
+	wizbullets.forEach((wb) => {
+		if (wb.target) return;
+		const tar = dots.sort((a, b) => b.dist - a.dist)[0];
+		wb.target = new Point(tar.x, tar.y);
+	});
 
 	bullets.forEach((b) => {
-		const radians = Math.atan2(b.target.y - b.y, b.target.x - b.x);
+		let radians = Math.atan2(b.target.y - b.y, b.target.x - b.x);
 		if (Math.hypot(b.target.x - b.x, b.target.y - b.y) <= b.stats.speed)
 			b.targetEdge(radians);
+		//if (Math.abs(radians-b.lastAngle) > 0.5)
+		//radians = b.lastAngle + (radians < 0 ? -0.5 : 0.5)
+		// set max possible radian change using dot.lastAngle
 		else
 			b.move(
 				b.x + b.stats.speed * Math.cos(radians),
@@ -151,8 +167,6 @@ function gameloop() {
 		if (World.OutOfBounds(b)) World.delete(b);
 	});
 }
-
-
 
 const twrs: { [str: string]: HTMLImageElement } = {
 	red: preload(towerimages.red)[0],
@@ -188,7 +202,7 @@ class TowerBtn extends IMGSprite {
 			})();
 
 		this.ondragend = () => {
-			if (gold > config.tower[target].price)
+			if (gold >= config.tower[target].price)
 				if (!World.OutOfBounds(this))
 					if (!this.nearest(40, Tower)[0])
 						new Tower(target).moveTo(this).resize(40);
@@ -212,7 +226,7 @@ class Tower extends IMGSprite {
 	constructor(type: string) {
 		super({ src: twrs[type] });
 		this.type = type;
-		this.goToLayer(3);
+		this.goToLayer(2);
 		({
 			range: this.range,
 			reloadTime: this.reloadTime,
@@ -261,6 +275,7 @@ class Bullet extends SVGSprite {
 	spawn = World.frame;
 	parent: Tower;
 	target: Point;
+	lastAngle: number;
 	stats: typeof config.tower.interface.bullet;
 	constructor(parent: Tower, target: Point) {
 		super({ src: parent.bullet.src });
@@ -269,6 +284,7 @@ class Bullet extends SVGSprite {
 		this.x = parent.x;
 		this.y = parent.y;
 		this.target = target;
+		this.lastAngle = (parent.direction * Math.PI) / 180;
 	}
 	targetEdge(angle: number) {
 		this.target.x = this.target.x + 500 * Math.cos(angle);
@@ -308,7 +324,7 @@ class Dot extends SVGSprite {
 		for (let i = 1; dist >= 0; i++) {
 			if (!dot.path[i]) {
 				World.delete(dot);
-				health--
+				health--;
 				break;
 			}
 			const [dir, len] = dot.path[i];
@@ -322,43 +338,48 @@ class Dot extends SVGSprite {
 	}
 	damage(b: Bullet) {
 		if (b.stats.power > this.health) {
+			//bullet has enough power to kill dot
 			b.stats.power -= this.health;
-			World.delete(this); //add animation with .collision false?
-			for (let o = 0; o < this.onDeath.length; o++)
-				new Dot(this.onDeath[0], this.path).onDeathDist =
-					this.dist - o * 35; //
+			this.die();
 		} else if (this.health < b.stats.power) {
+			//bullet does not have enough power, kill it
 			this.health -= b.stats.power;
 			World.delete(b);
 		} else {
-			//TODO: FIX CONTINIOUS SHOT
-			//must be equal
+			//must be equal, kill both
 			World.delete(b);
-			World.delete(this);
-			for (let o = 0; o < this.onDeath.length; o++)
-				new Dot(this.onDeath[0], this.path).onDeathDist =
-					this.dist - o * 35;
+			this.die();
 		}
+	}
+	die() {
+		//animation
+		gold += this.conf.health;
+		World.delete(this);
+		for (let o = 0; o < this.onDeath.length; o++)
+			new Dot(this.onDeath[0], this.path).onDeathDist =
+				this.dist - o * 35;
 	}
 }
 
 async function spawnWaves(waves: typeof config.maps.int.waves) {
 	const types = ["", "red", "blue", "green", "yellow"];
 	const wavebtn = World.getById("wavebtn") as Button;
-	for (let wave of waves) {
+
+	for (let curr of waves) {
 		await World.inFrames(200, () => wavebtn.enable());
 		if (!autoplay) await new Promise((r) => (wavebtn.onclick = r));
 		wavebtn.disable();
-		let maxlen = wave.reduce((a, v) => Math.max(a, v.length), 0);
+		let maxlen = curr.reduce((a, v) => Math.max(a, v.length), 0);
 		for (let i = 0; i < maxlen; i++) {
 			//loop through each index
-			for (let p = 0; p < wave.length; p++) {
+			for (let p = 0; p < curr.length; p++) {
 				//loop through each path and create the balloon
-				const type = types[Number(wave[p][i])];
+				const type = types[Number(curr[p][i])];
 				if (type) new Dot(type, map.path[p]);
 			}
 			await World.inFrames(config.dot.spawndelay);
 		}
+		gold += 100 + ++wave;
 	}
 	while (true) {
 		await World.inFrames(200, () => wavebtn.enable());
