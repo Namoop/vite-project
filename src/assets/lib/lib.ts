@@ -1,9 +1,16 @@
 /// <reference types="./lib"/>
 import { World } from "./world.class";
 import { Entity } from "./entity.class";
-	ViewBox,
+
 import config from "./system.toml";
 import { Mouse } from "./mouse.class";
+import {
+	Button,
+	SVGSprite,
+	IMGSprite,
+	TXTSprite,
+	ViewBox,
+} from "./templates.class";
 import { Point } from "./point.class";
 export {
 	IMGSprite,
@@ -44,9 +51,9 @@ function draw(): void {
 		ctx.globalAlpha = sprite.effects.opacity / 100;
 		ctx.translate(sprite.trueX * World.scale, sprite.trueY * World.scale);
 		ctx.rotate((sprite.trueDirection * Math.PI) / 180);
-		ctx.scale(sprite.mirrored ? 1/-World.scale : 1, 1/World.scale);
+		ctx.scale(sprite.mirrored ? -1 : 1, 1);
 
-		sprite.render(ctx);
+sprite.render(ctx);
 
 		//draw hitboxes
 		//prettier-ignore
@@ -139,8 +146,8 @@ function loop(func: Function | number): void {
 	const prevscale = World.scale;
 	World.scale = (window.innerWidth * config.runOptions.scale) / 82475;
 	if (prevscale != World.scale) {
-	cnv.width = 800 * World.scale;
-	cnv.height = 400 * World.scale;
+		cnv.width = 800 * World.scale;
+		cnv.height = 400 * World.scale;
 	} else {
 		//ctx.clearRect(0, 0, cnv.width, cnv.height);
 	}
