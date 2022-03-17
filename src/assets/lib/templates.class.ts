@@ -70,6 +70,9 @@ export class TXTSprite extends Entity {
 			(this.theight / 2) * (this.height / 100) * World.scale
 		);
 	}
+	getBoundingBox(): [number, number, number, number] {
+		return [0, 0, 0, 0];
+	}
 }
 
 interface imageOptions extends entityOptions {
@@ -111,6 +114,14 @@ export class IMGSprite extends Entity {
 			((this.src.width * this.width) / 100) * World.scale,
 			((this.src.height * this.height) / 100) * World.scale
 		);
+	}
+	getBoundingBox(): [number, number, number, number] {
+		return [
+			this.trueX - (this.src.width * (this.width / 100)) / 2,
+			this.trueY - (this.src.height * (this.height / 100)) / 2,
+			(this.src.width * this.width) / 100,
+			(this.src.height * this.height) / 100,
+		];
 	}
 }
 
@@ -293,5 +304,8 @@ export class ViewBox extends Entity {
 			((this.pixelwidth * this.width) / 100) * World.scale,
 			((this.pixelheight * this.height) / 100) * World.scale
 		);
+	}
+	getBoundingBox(): [number, number, number, number] {
+		return [0,0,0,0]
 	}
 }

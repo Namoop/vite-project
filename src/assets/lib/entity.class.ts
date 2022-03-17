@@ -13,8 +13,8 @@ export abstract class Entity extends EventBase {
 		super();
 		if (hitbox) this.poly = hitbox;
 		if (id) this.id = id;
-		else while (World.getAll()[this.id]) (this.id as number)++;
-		World.getAll()[this.id] = this;
+		else while (World.entities[this.id]) (this.id as number)++;
+		World.entities[this.id] = this;
 	}
 	get trueX() {
 		return (
@@ -60,7 +60,7 @@ export abstract class Entity extends EventBase {
 		return this;
 	}
 	getChildren() {
-		return World.getEvery(Entity).filter((e)=>e._link = this)
+		return World.getEvery().filter((e) => (e._link = this));
 	}
 	private _x = 0;
 	private _y = 0;
@@ -109,9 +109,7 @@ export abstract class Entity extends EventBase {
 				this._zIndex = 0;
 				break;
 			case "front":
-				const max = Math.max(
-					...World.getEvery(Entity).map((s) => s.zIndex)
-				);
+				const max = Math.max(...World.getEvery().map((s) => s.zIndex));
 				this._zIndex = max + 1;
 				break;
 			case "forward":
@@ -130,9 +128,21 @@ export abstract class Entity extends EventBase {
 	/** If the sprite should be rendered mirrored */
 	mirrored = false;
 	/** horizontal stretch as a percentage 0-100, of the sprite */
-	width = 100;
+	private _width = 100;
+	get width() {
+		return this._width;
+	}
+	protected set width(z) {
+		this._width = z;
+	}
 	/** vertical stretch as a percentage 0-100, of the sprite */
-	height = 100;
+	private _height = 100;
+	get height() {
+		return this._height;
+	}
+	protected set height(z) {
+		this._height = z;
+	}
 	/** id in World.getAll() object. If this sprite is deleted another sprite may use the same id */
 	id = 0 as number | string;
 	/** boolean if the player can click and drag this sprite somewhere else */
@@ -222,10 +232,14 @@ export abstract class Entity extends EventBase {
 	 * Each sprite in the array will be the same distance away,
 	 * there will likely only be one item.
 	 * @param {number} maxDist The maximum distance to search (in a circle)
-	 * @param {Function} type The type of sprite to search (eg button, svgsprite...)
+	 * @param {{new(...args: any[]): Entity}} type The type of sprite to search (eg button, svgsprite...)
 	 * @param {exact} exactType Should it exclude inherited sprites of the type
 	 */
-	nearest(maxDist: number = 1000, type: Function = Entity, exact?: boolean) {
+	nearest(
+		maxDist: number = 1000,
+		type?: { new (...args: any[]): Entity },
+		exact?: boolean
+	) {
 		let furthest: Entity[] = [];
 		let dist = 0;
 		for (const k of World.getEvery(type, exact)) {
@@ -254,7 +268,7 @@ export abstract class Entity extends EventBase {
 	 * @param {number} width
 	 * @param {number} height | Optional - If left blank will set to same as height
 	 */
-	resize(width: number, height?: number) {
+	resize(width = 100, height?: number) {
 		if (typeof height == "undefined") this.height = this.width = width;
 		else [this.width, this.height] = [width, height];
 		return this;
@@ -283,21 +297,21 @@ export abstract class Entity extends EventBase {
 		return World.areColliding(this, target);
 	}
 	/** Returns true if touching any sprite of the given type
-	 * @param {Function} type e.g. Button, Sprite, etc
+	 * @param {{new(...args: any[]): Entity}} type e.g. Button, Sprite, etc
 	 * @param {boolean} exact If true will not include extensions: touchingAny(Sprite, true) would not include Button, only basic Sprites
 	 */
-	touchingAny(type: Function, exact?: boolean) {
+	touchingAny(type: { new (...args: any[]): Entity }, exact?: boolean) {
 		for (const k of World.getEvery(type, exact))
 			if (this.touching(k)) return true;
 		return false;
 	}
 	/** Returns an array with every sprite on top of this one.
-	 * @param {Function} type Optional parameter to specify only one type of sprite
+	 * @param {{new(...args: any[]): Entity}} type Optional parameter to specify only one type of sprite
 	 * @param {boolean} exact Optional parameter if passing a type to not include inherited sprites (eg passing (Sprite, true) does not include Button)
 	 */
-	allCollisions(type?: Function, exact?: boolean) {
+	allCollisions(type?: { new (...args: any[]): Entity }, exact?: boolean) {
 		const ret = [];
-		for (const k of World.getEvery(type ?? Entity, exact))
+		for (const k of World.getEvery(type, exact))
 			if (this.touching(k)) ret.push(k);
 		return ret;
 	}

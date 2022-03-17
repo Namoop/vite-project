@@ -1,7 +1,7 @@
 /// <reference types="./lib"/>
 import { World } from "./world.class";
 import { Entity } from "./entity.class";
-import { Button, SVGSprite, IMGSprite, TXTSprite, ViewBox } from "./templates.class";
+	ViewBox,
 import config from "./system.toml";
 import { Mouse } from "./mouse.class";
 import { Point } from "./point.class";
@@ -77,7 +77,7 @@ function draw(): void {
 
 function checkHover(): void {
 	if (World.frame % config.mouse.onHoverDelay != 0) return;
-	if (World.getAll()[World.hover?.id ?? -1] != World.hover)
+	if (World.entities[World.hover?.id ?? -1] != World.hover)
 		World.hover = null;
 	let hoverHold = World.hover,
 		prev = false;
@@ -136,13 +136,18 @@ function loop(func: Function | number): void {
 
 	//clear and resize canvas
 	// 82475 from: /800 (base width), /100 (scale as percentage), *0.97 (canvas overflow)
+	const prevscale = World.scale;
 	World.scale = (window.innerWidth * config.runOptions.scale) / 82475;
+	if (prevscale != World.scale) {
 	cnv.width = 800 * World.scale;
 	cnv.height = 400 * World.scale;
+	} else {
+		//ctx.clearRect(0, 0, cnv.width, cnv.height);
+	}
 
 	//run code!
 	run();
-	spriteArr = Object.values(World.getAll())
+	spriteArr = World.getEvery()
 		.filter((k) => !k.isHidden())
 		.sort((a, b) => Number(a.zIndex - b.zIndex));
 	draw();

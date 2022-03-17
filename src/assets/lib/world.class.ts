@@ -9,7 +9,7 @@ const tempcnv = document.createElement("canvas");
 const World = {
 	/** Removes every sprite from the world */
 	deleteAll() {
-		Object.keys(sprites).forEach((key) => delete sprites[key]);
+		Object.values(sprites).forEach((val) => World.delete(val));
 	},
 	/** Remove the specified sprite from existence
 	 * @param {Sprite} target Target sprite to delete
@@ -18,7 +18,7 @@ const World = {
 		delete sprites[target.id];
 	},
 	/** Returns an object with every sprite where the key is the sprite ID */
-	getAll() {
+	get entities() {
 		return sprites;
 	},
 	/** Returns the sprite with the specified ID
@@ -46,21 +46,21 @@ const World = {
 		);
 	},
 	/** Returns an array with every sprite of the specified type
-	 * @param {Function} type e.g. Button, Sprite, etc
+	 * @param {{new(...args: any[]): Entity}} type e.g. Button, Sprite, etc
 	 * @param {boolean} exact If true will not include extensions: getEvery(Sprite, true) would not include Button, only basic Sprites
 	 */
-	getEvery(type: Function, exact?: boolean) {
+	getEvery(type?:{new(...args: any[]): Entity}, exact?: boolean) {
 		const arr = Object.values(sprites);
 		if (exact) return arr.filter((a) => a.constructor == type);
-		else return arr.filter((a) => a instanceof type);
+		else return arr.filter((a) => type ? a instanceof type : true);
 	},
 	/** Async function that will execute code after waiting x number of frames
 	 * @param {number} frames How many frames to wait - most useful to wait one frame when code internally is not executed in the preffered order
-	 * @param {Function} callback Callback function after waiting frames
+	 * @param {{new(...args: any[]): Entity}} callback Callback {new(...args: any[]): Entity} after waiting frames
 	 */
-	async inFrames(frames: number, callback?: Function) {
+	async inFrames(frames: number, callback?: (()=>void)) {
 		for (let n = 0; n < frames; n++) await World.nextframe;
-		if (callback) callback();
+		callback?.();
 	},
 	/** Returns true if both sprites' hitboxes are currently colliding */
 	areColliding(first: Entity, second: Entity): boolean {
