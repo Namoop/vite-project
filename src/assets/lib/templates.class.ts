@@ -22,6 +22,7 @@ export class TXTSprite extends Entity {
 		if (typeof z == "string" || typeof z == "number")
 			this.txtfunc = () => z;
 		else this.txtfunc = z;
+		this.resetPoly();
 	}
 	font: string;
 	size: number;
@@ -71,7 +72,14 @@ export class TXTSprite extends Entity {
 		);
 	}
 	getBoundingBox(): [number, number, number, number] {
-		return [0, 0, 0, 0];
+		//if align = right
+		//if align = center
+		return [
+			0,
+			(-this.theight / 2) * World.scale,
+			this.twidth * World.scale,
+			this.theight * World.scale,
+		];
 	}
 }
 
@@ -107,20 +115,14 @@ export class IMGSprite extends Entity {
 		}
 	}
 	render(ctx: CanvasRenderingContext2D) {
-		ctx.drawImage(
-			this.src,
-			0 - (this.src.width / 2) * (this.width / 100) * World.scale,
-			0 - (this.src.height / 2) * (this.height / 100) * World.scale,
-			((this.src.width * this.width) / 100) * World.scale,
-			((this.src.height * this.height) / 100) * World.scale
-		);
+		ctx.drawImage(this.src, ...this.getBoundingBox());
 	}
 	getBoundingBox(): [number, number, number, number] {
 		return [
-			this.trueX - (this.src.width * (this.width / 100)) / 2,
-			this.trueY - (this.src.height * (this.height / 100)) / 2,
-			(this.src.width * this.width) / 100,
-			(this.src.height * this.height) / 100,
+			-(this.src.width / 2) * (this.width / 100) * World.scale,
+			-(this.src.height / 2) * (this.height / 100) * World.scale,
+			((this.src.width * this.width) / 100) * World.scale,
+			((this.src.height * this.height) / 100) * World.scale,
 		];
 	}
 }
@@ -288,10 +290,10 @@ interface viewboxOptions extends entityOptions {
 	height: number;
 }
 export class ViewBox extends Entity {
-	//need to create hole in bg ?? !!clearcanvas in the zone? only draw pixel if in zone?
 	pixelwidth: number;
-	pixelheight: number;
+	pixelheight: number; //getter of width including all elements (auto), set width should lock
 	scrollbar: ScrollBar;
+	//viewwidth, viewheight
 	constructor(op: viewboxOptions) {
 		super(op);
 		this.pixelheight = op.height;
@@ -300,7 +302,7 @@ export class ViewBox extends Entity {
 	}
 	resize(width: number, height?: number) {
 		super.resize(width, height);
-
+		//move scrollbar
 		return this;
 	}
 	get linkOffsetX() {
@@ -318,8 +320,8 @@ export class ViewBox extends Entity {
 	}
 	getBoundingBox(): [number, number, number, number] {
 		return [
-			0 - (this.pixelwidth / 2) * (this.width / 100) * World.scale,
-			0 - (this.pixelheight / 2) * (this.width / 100) * World.scale,
+			-(this.pixelwidth / 2) * (this.width / 100) * World.scale,
+			-(this.pixelheight / 2) * (this.width / 100) * World.scale,
 			((this.pixelwidth * this.width) / 100) * World.scale,
 			((this.pixelheight * this.height) / 100) * World.scale,
 		];
@@ -329,7 +331,7 @@ export class ViewBox extends Entity {
 interface scrollbarOptions extends Omit<svgOptions, "src"> {
 	parent: ViewBox;
 }
-export class ScrollBar extends SVGEntity {
+class ScrollBar extends SVGEntity {
 	view: ViewBox;
 	constructor(op: scrollbarOptions) {
 		super({
@@ -337,9 +339,17 @@ export class ScrollBar extends SVGEntity {
 			...op,
 		});
 		this.link(op.parent);
+		this.draggable = true;
 		this.view = this.parent as ViewBox;
 		this.link = () => this;
-		this.move(this.view.getBoundingBox()[2], 0);
+		this.move(this.view.pixelwidth, 40); //this.view.getBoundingBox()[2]
 	}
 	unlink = () => this;
+
+	protected async defaultOnDragStart() {
+		while (this.dragging) {
+			//this.move(this.view.pixelwidth,this.y)
+			await World.nextframe;
+		}
+	}
 }

@@ -162,6 +162,8 @@ export abstract class Entity extends EventBase {
 	draggable = false;
 	/** Method for rendering a sprite - to be defined by the template used */
 	abstract render(ctx: CanvasRenderingContext2D): void;
+	/** Returns a rectangle (x, y, width height) that should include every pixel this entity would render - To be defined by a template */
+	abstract getBoundingBox(): [number, number, number, number];
 	private hidden = false;
 	/** visual effects on the sprite */
 	effects = {

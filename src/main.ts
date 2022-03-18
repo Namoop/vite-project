@@ -29,7 +29,7 @@ function init() {
 	  width=800 height=400 style=background-color:#5e5e5e>
 		<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
 	</svg>`;
-	new SVGEntity({ src: background }).move(400, 200); //background
+	//new SVGEntity({ src: background }).move(400, 200); //background
 
 	const lane = new Button({
 		text: "Dot Lane",
@@ -53,11 +53,11 @@ function init() {
 		align: "left",
 		size: 12,
 		//src: towerimages.aqua
-	}).link(view).move(0,20)
+	}).link(view).move(30,20)
 	//debugger;
 	const im = new IMGSprite({
 		src: towerimages.aqua
-	}).link(view).resize(30).move(0,60)
+	}).link(tx).resize(30).move(0,60)
 }
 
 let autoplay = false;
@@ -134,7 +134,6 @@ function laneInit() {
 
 function gameloop() {
 	//@ts-ignore
-	globals[0] = World.hover?.id ?? "";
 	const dots = World.getEvery(Dot) as Dot[];
 	const bullets = World.getEvery(Bullet) as Bullet[];
 	const towers = World.getEvery(Tower) as Tower[];

@@ -44,9 +44,9 @@ const getFilterString = (obj: Entity) =>
 	saturate(${obj.effects.saturate / 100})
 	${obj.dragging ? `drop-shadow(${10 * World.scale}px ${10 * World.scale}px ${3 * World.scale}px)` : ""}`;
 
-function renderChildren(sprite: Entity) {
+function renderChildren(sprite: Entity, region: Path2D) {
 	if (sprite.clip && sprite.children[0]) {
-		let region = new Path2D();
+		//let region = new Path2D();
 		//ctx.rect(...sprite.clip);
 		region.rect(...sprite.clip);
 		ctx.clip(region); //add to current clip somehow ??
@@ -57,12 +57,19 @@ function renderChildren(sprite: Entity) {
 		ctx.globalAlpha = c.effects.opacity / 100;
 		ctx.translate(
 			c.x * World.scale + sprite.linkOffsetX,
-			c.y * World.scale + sprite.linkOffsetY,
+			c.y * World.scale + sprite.linkOffsetY
 		);
 		ctx.rotate((c.direction * Math.PI) / 180);
 		ctx.scale(c.mirrored ? -1 : 1, 1);
 		c.render(ctx);
-		renderChildren(c);
+		ctx.rect(...c.getBoundingBox());
+		ctx.rect(
+			c.poly[0].x,
+			c.poly[0].y,
+			c.poly[2].x - c.poly[0].x,
+			c.poly[2].y - c.poly[0].y
+		);
+		renderChildren(c, region);
 		ctx.restore();
 	}
 }
@@ -75,32 +82,16 @@ function draw(): void {
 		ctx.translate(sprite.x * World.scale, sprite.y * World.scale);
 		ctx.rotate((sprite.direction * Math.PI) / 180);
 		ctx.scale(sprite.mirrored ? -1 : 1, 1);
-		// //draw hitbox
-		// //prettier-ignore
-		// if (World.debugView) {
-		// 	ctx.moveTo( sprite.poly[0].x * World.scale, sprite.poly[0].y * World.scale );
-		// 	ctx.beginPath();
-		// 	for (let k = 0; k < sprite.poly.length; k++)
-		// 		ctx.lineTo( sprite.poly[k].x * World.scale, sprite.poly[k].y * World.scale );
-		// 	ctx.lineTo( sprite.poly[0].x * World.scale, sprite.poly[0].y * World.scale );
-		// 	ctx.lineWidth = 2;
-		// 	ctx.strokeStyle = "red";
-		// 	ctx.stroke();
-		// }
-		// if (sprite.parent?.clip) {
-		// 	debugger;
-		// 	let region = new Path2D()
-		// 	ctx.rect(...sprite.parent.clip)
-		// 	region.rect(
-		// 		...sprite.parent.clip
-		// 	)
-		// 	ctx.clip(region);
-		// }
 
-		if (!sprite.parent) sprite.render(ctx);
-		renderChildren(sprite);
+		if (!sprite.parent) {
+			//if it is a top level entity
+			sprite.render(ctx);
+			ctx.rect(...sprite.getBoundingBox());
+			renderChildren(sprite, new Path2D());
+		}
 		ctx.restore();
 	}
+
 	{
 		//draw debug lines
 		ctx.save();
@@ -111,6 +102,7 @@ function draw(): void {
 		ctx.lineWidth = 3;
 		ctx.strokeStyle = "black";
 		ctx.stroke();
+		ctx.restore();
 	}
 }
 
@@ -192,6 +184,9 @@ function loop(func: Function | number): void {
 	draw();
 	resolveframe();
 	checkHover();
+	try {
+		globals[0] = World.hover?.id ?? "";
+	} catch {}
 
 	(document.getElementById("other") as HTMLElement).innerHTML =
 		//@ts-ignore globals isn't real
