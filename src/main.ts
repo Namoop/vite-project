@@ -50,13 +50,14 @@ function init() {
 	}).center()
 	const tx = new TXTSprite({ //.resize for text
 		text: "Hi nerd",
+		align: "left",
 		size: 12,
 		//src: towerimages.aqua
-	}).link(view).move(20,0)
+	}).link(view).move(0,20)
 	//debugger;
 	const im = new IMGSprite({
 		src: towerimages.aqua
-	}).link(tx).resize(30).move(50,0)
+	}).link(view).resize(30).move(0,60)
 }
 
 let autoplay = false;

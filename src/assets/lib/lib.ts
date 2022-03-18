@@ -56,8 +56,8 @@ function renderChildren(sprite: Entity) {
 		ctx.filter = getFilterString(c);
 		ctx.globalAlpha = c.effects.opacity / 100;
 		ctx.translate(
-			(c.x + sprite.linkOffsetX) * World.scale,
-			(c.y + sprite.linkOffsetY) * World.scale
+			c.x * World.scale + sprite.linkOffsetX,
+			c.y * World.scale + sprite.linkOffsetY,
 		);
 		ctx.rotate((c.direction * Math.PI) / 180);
 		ctx.scale(c.mirrored ? -1 : 1, 1);
