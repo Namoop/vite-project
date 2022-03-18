@@ -44,6 +44,29 @@ const getFilterString = (obj: Entity) =>
 	saturate(${obj.effects.saturate / 100})
 	${obj.dragging ? `drop-shadow(${10 * World.scale}px ${10 * World.scale}px ${3 * World.scale}px)` : ""}`;
 
+function renderChildren(sprite: Entity) {
+	if (sprite.clip && sprite.children[0]) {
+		let region = new Path2D();
+		//ctx.rect(...sprite.clip);
+		region.rect(...sprite.clip);
+		ctx.clip(region); //add to current clip somehow ??
+	}
+	for (const c of sprite.children) {
+		ctx.save();
+		ctx.filter = getFilterString(c);
+		ctx.globalAlpha = c.effects.opacity / 100;
+		ctx.translate(
+			(c.x + sprite.linkOffsetX) * World.scale,
+			(c.y + sprite.linkOffsetY) * World.scale
+		);
+		ctx.rotate((c.direction * Math.PI) / 180);
+		ctx.scale(c.mirrored ? -1 : 1, 1);
+		c.render(ctx);
+		renderChildren(c);
+		ctx.restore();
+	}
+}
+
 function draw(): void {
 	for (const sprite of spriteArr) {
 		ctx.save();
@@ -52,21 +75,30 @@ function draw(): void {
 		ctx.translate(sprite.trueX * World.scale, sprite.trueY * World.scale);
 		ctx.rotate((sprite.trueDirection * Math.PI) / 180);
 		ctx.scale(sprite.mirrored ? -1 : 1, 1);
+		// //draw hitbox
+		// //prettier-ignore
+		// if (World.debugView) {
+		// 	ctx.moveTo( sprite.poly[0].x * World.scale, sprite.poly[0].y * World.scale );
+		// 	ctx.beginPath();
+		// 	for (let k = 0; k < sprite.poly.length; k++)
+		// 		ctx.lineTo( sprite.poly[k].x * World.scale, sprite.poly[k].y * World.scale );
+		// 	ctx.lineTo( sprite.poly[0].x * World.scale, sprite.poly[0].y * World.scale );
+		// 	ctx.lineWidth = 2;
+		// 	ctx.strokeStyle = "red";
+		// 	ctx.stroke();
+		// }
+		// if (sprite.parent?.clip) {
+		// 	debugger;
+		// 	let region = new Path2D()
+		// 	ctx.rect(...sprite.parent.clip)
+		// 	region.rect(
+		// 		...sprite.parent.clip
+		// 	)
+		// 	ctx.clip(region);
+		// }
 
-sprite.render(ctx);
-
-		//draw hitboxes
-		//prettier-ignore
-		if (World.debugView) {
-			ctx.moveTo( sprite.poly[0].x * World.scale, sprite.poly[0].y * World.scale );
-			ctx.beginPath();
-			for (let k = 0; k < sprite.poly.length; k++)
-				ctx.lineTo( sprite.poly[k].x * World.scale, sprite.poly[k].y * World.scale );
-			ctx.lineTo( sprite.poly[0].x * World.scale, sprite.poly[0].y * World.scale );
-			ctx.lineWidth = 2;
-			ctx.strokeStyle = "red";
-			ctx.stroke();
-		}
+		if (!sprite.parent) sprite.render(ctx);
+		renderChildren(sprite);
 		ctx.restore();
 	}
 	{

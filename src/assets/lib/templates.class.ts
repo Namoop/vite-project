@@ -296,16 +296,25 @@ export class ViewBox extends Entity {
 		this.pixelheight = op.height;
 		this.pixelwidth = op.width;
 	}
+	get linkOffsetX () {
+		return this.getBoundingBox()[0]
+	}
+	get linkOffsetY () {
+		return this.getBoundingBox()[1]
+	}
+	get clip () {
+		return this.getBoundingBox()
+	}
 	render(ctx: CanvasRenderingContext2D) {
 		ctx.fillStyle = "orange";
 		ctx.fillRect(
-			0 - (this.pixelwidth / 2) * (this.width / 100) * World.scale,
-			0 - (this.pixelheight / 2) * (this.width / 100) * World.scale,
-			((this.pixelwidth * this.width) / 100) * World.scale,
-			((this.pixelheight * this.height) / 100) * World.scale
+			...this.getBoundingBox()
 		);
 	}
 	getBoundingBox(): [number, number, number, number] {
-		return [0,0,0,0]
+		return [0 - (this.pixelwidth / 2) * (this.width / 100) * World.scale,
+		0 - (this.pixelheight / 2) * (this.width / 100) * World.scale,
+		((this.pixelwidth * this.width) / 100) * World.scale,
+		((this.pixelheight * this.height) / 100) * World.scale]
 	}
 }

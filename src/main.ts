@@ -44,10 +44,19 @@ function init() {
 		laneInit();
 	};
 
-	new ViewBox({
+	const view = new ViewBox({
 		width: 100,
-		height: 100
-	}).move(100,10)
+		height: 100,
+	}).center()
+	const tx = new TXTSprite({ //.resize for text
+		text: "Hi nerd",
+		size: 12,
+		//src: towerimages.aqua
+	}).link(view).move(20,0)
+	//debugger;
+	const im = new IMGSprite({
+		src: towerimages.aqua
+	}).link(tx).resize(30).move(50,0)
 }
 
 let autoplay = false;
@@ -155,7 +164,7 @@ function gameloop() {
 		}
 	});
 
-	const wizbullets = bullets.filter((v) => v.parent.type == "aqua");
+	const wizbullets = bullets.filter((v) => v.tower.type == "aqua");
 	globals[1] = wizbullets;
 	wizbullets.forEach((wb) => {
 		if (wb.target) return;
@@ -284,18 +293,18 @@ class Tower extends IMGSprite {
 
 class Bullet extends SVGSprite {
 	spawn = World.frame;
-	parent: Tower;
+	tower: Tower;
 	target: Point;
 	lastAngle: number;
 	stats: typeof config.tower.interface.bullet;
-	constructor(parent: Tower, target: Point) {
-		super({ src: parent.bullet.src });
-		this.stats = { ...parent.bullet };
-		this.parent = parent;
-		this.x = parent.x;
-		this.y = parent.y;
+	constructor(tower: Tower, target: Point) {
+		super({ src: tower.bullet.src });
+		this.stats = { ...tower.bullet };
+		this.tower = tower;
+		this.x = tower.x;
+		this.y = tower.y;
 		this.target = target;
-		this.lastAngle = (parent.direction * Math.PI) / 180;
+		this.lastAngle = (tower.direction * Math.PI) / 180;
 	}
 	targetEdge(angle: number) {
 		this.target.x = this.target.x + 500 * Math.cos(angle);

@@ -18,22 +18,27 @@ export abstract class Entity extends EventBase {
 	}
 	get trueX() {
 		return (
-			(this._link?.x ?? 0) + this.x + (this._link ? this.linkOffset.x : 0)
+			(this._link?.x ?? 0) + this.x + (this._link ? this._link.linkOffsetX : 0)
 		);
 	}
 	get trueY() {
 		return (
-			(this._link?.y ?? 0) + this.y + (this._link ? this.linkOffset.y : 0)
+			(this._link?.y ?? 0) + this.y + (this._link ? this._link.linkOffsetY : 0)
 		);
 	}
 	get trueDirection() {
 		return (this._link?.direction ?? 0) + this.direction;
 	}
 	private _link?: Entity;
-	protected linkOffset = {
-		x: 0,
-		y: 0,
-	};
+	get parent () {
+		return this._link
+	}
+	get linkOffsetX () {
+		return 0
+	}
+	get linkOffsetY () {
+		return 0
+	}
 	/** Attach this sprite to another. While linked both the
 	 * position and direction will be relative to the parent.
 	 * The sprite will automatically move with the parent.
@@ -42,26 +47,34 @@ export abstract class Entity extends EventBase {
 	 * @param {Entity} parent The sprite to be linked to
 	 */
 	link(parent: Entity) {
+		if (this._link) throw new Error (`Cannot link to two entities: Connected to entity with id ${this._link.id} and trying to connect to entity with id ${parent.id}.`)
+		for (let p:Entity | undefined = parent; p; p=p.parent)
+			if (p == this) throw new Error (`Cannot create entity loop: The requested link is itself or its parent, or its parent parent...`)
 		this._link = parent;
 		this._x -= parent.x;
 		this._y -= parent.y;
 		this.direction -= parent.direction;
+		parent.children.push(this)
 		return this;
 	}
+	get clip (): false | [number, number, number, number] { return false}
 	/** Unlink the sprite from its parent. Its x, y, and
 	 * direction will set themselves relative to (0,0)
 	 * and the sprite will move independently from now on.
 	 */
 	unlink() {
+		if (!this._link) return this;
 		this._x = this.trueX;
 		this._y = this.trueY;
 		this.direction = this.trueDirection;
+		this._link.children.splice(this._link.children.indexOf(this), 1)
 		this._link = undefined;
 		return this;
 	}
-	getChildren() {
-		return World.getEvery().filter((e) => (e._link = this));
-	}
+	children: Entity[] = []
+	// getChildren() {
+	// 	return World.getEvery().filter((e) => (e._link = this));
+	// }
 	private _x = 0;
 	private _y = 0;
 	/** the horizontal coordinate of the sprite */
