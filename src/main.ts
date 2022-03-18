@@ -3,7 +3,7 @@ import {
 	beginLoop,
 	preload,
 	IMGSprite,
-	SVGSprite,
+	SVGEntity,
 	TXTSprite,
 	Button,
 	World,
@@ -29,7 +29,7 @@ function init() {
 	  width=800 height=400 style=background-color:#5e5e5e>
 		<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
 	</svg>`;
-	new SVGSprite({ src: background }).move(400, 200); //background
+	new SVGEntity({ src: background }).move(400, 200); //background
 
 	const lane = new Button({
 		text: "Dot Lane",
@@ -90,7 +90,7 @@ function generalSetup() {
 		if (autoplay) World.getById("wavebtn").onclick();
 	};
 
-	new SVGSprite({
+	new SVGEntity({
 		src: `<svg width=100 height=100><circle cx=50 cy=50 r=50 /></svg>`,
 		id: "towerrange",
 	})
@@ -292,7 +292,7 @@ class Tower extends IMGSprite {
 	}
 }
 
-class Bullet extends SVGSprite {
+class Bullet extends SVGEntity {
 	spawn = World.frame;
 	tower: Tower;
 	target: Point;
@@ -314,7 +314,7 @@ class Bullet extends SVGSprite {
 	}
 }
 
-class Dot extends SVGSprite {
+class Dot extends SVGEntity {
 	spawn = World.frame;
 	private onDeathDist = 0;
 	speed: number;

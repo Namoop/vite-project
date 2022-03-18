@@ -128,7 +128,7 @@ export class IMGSprite extends Entity {
 interface svgOptions extends entityOptions {
 	src: SVGSVGElement | string;
 }
-export class SVGSprite extends IMGSprite {
+export class SVGEntity extends IMGSprite {
 	svg: SVGSVGElement;
 	constructor(op: svgOptions) {
 		let svg = op.src;
@@ -179,7 +179,7 @@ interface buttonOptions extends Omit<svgOptions, "src"> {
 	additionalData?: string;
 	noDarken?: boolean;
 }
-export class Button extends SVGSprite {
+export class Button extends SVGEntity {
 	constructor(op: buttonOptions = {}) {
 		const w = op.width ?? 70;
 		const h = op.height ?? (op.width ?? 70) / 3.5;
@@ -291,30 +291,55 @@ export class ViewBox extends Entity {
 	//need to create hole in bg ?? !!clearcanvas in the zone? only draw pixel if in zone?
 	pixelwidth: number;
 	pixelheight: number;
+	scrollbar: ScrollBar;
 	constructor(op: viewboxOptions) {
 		super(op);
 		this.pixelheight = op.height;
 		this.pixelwidth = op.width;
+		this.scrollbar = new ScrollBar({ parent: this });
 	}
-	get linkOffsetX () {
-		return this.getBoundingBox()[0]
+	resize(width: number, height?: number) {
+		super.resize(width, height);
+
+		return this;
 	}
-	get linkOffsetY () {
-		return this.getBoundingBox()[1]
+	get linkOffsetX() {
+		return this.getBoundingBox()[0];
 	}
-	get clip () {
-		return this.getBoundingBox()
+	get linkOffsetY() {
+		return this.getBoundingBox()[1];
+	}
+	get clip() {
+		return this.getBoundingBox();
 	}
 	render(ctx: CanvasRenderingContext2D) {
 		ctx.fillStyle = "orange";
-		ctx.fillRect(
-			...this.getBoundingBox()
-		);
+		ctx.fillRect(...this.getBoundingBox());
 	}
 	getBoundingBox(): [number, number, number, number] {
-		return [0 - (this.pixelwidth / 2) * (this.width / 100) * World.scale,
-		0 - (this.pixelheight / 2) * (this.width / 100) * World.scale,
-		((this.pixelwidth * this.width) / 100) * World.scale,
-		((this.pixelheight * this.height) / 100) * World.scale]
+		return [
+			0 - (this.pixelwidth / 2) * (this.width / 100) * World.scale,
+			0 - (this.pixelheight / 2) * (this.width / 100) * World.scale,
+			((this.pixelwidth * this.width) / 100) * World.scale,
+			((this.pixelheight * this.height) / 100) * World.scale,
+		];
 	}
+}
+
+interface scrollbarOptions extends Omit<svgOptions, "src"> {
+	parent: ViewBox;
+}
+export class ScrollBar extends SVGEntity {
+	view: ViewBox;
+	constructor(op: scrollbarOptions) {
+		super({
+			src: `<svg width=20 height = 20><circle cx=10 cy=10 r=10 fill="darkgrey" /></svg>`,
+			...op,
+		});
+		this.link(op.parent);
+		this.view = this.parent as ViewBox;
+		this.link = () => this;
+		this.move(this.view.getBoundingBox()[2], 0);
+	}
+	unlink = () => this;
 }

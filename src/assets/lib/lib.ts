@@ -6,7 +6,7 @@ import config from "./system.toml";
 import { Mouse } from "./mouse.class";
 import {
 	Button,
-	SVGSprite,
+	SVGEntity,
 	IMGSprite,
 	TXTSprite,
 	ViewBox,
@@ -16,7 +16,7 @@ export {
 	IMGSprite,
 	TXTSprite,
 	Entity,
-	SVGSprite,
+	SVGEntity,
 	Button,
 	Point,
 	ViewBox,
@@ -72,8 +72,8 @@ function draw(): void {
 		ctx.save();
 		ctx.filter = getFilterString(sprite);
 		ctx.globalAlpha = sprite.effects.opacity / 100;
-		ctx.translate(sprite.trueX * World.scale, sprite.trueY * World.scale);
-		ctx.rotate((sprite.trueDirection * Math.PI) / 180);
+		ctx.translate(sprite.x * World.scale, sprite.y * World.scale);
+		ctx.rotate((sprite.direction * Math.PI) / 180);
 		ctx.scale(sprite.mirrored ? -1 : 1, 1);
 		// //draw hitbox
 		// //prettier-ignore
