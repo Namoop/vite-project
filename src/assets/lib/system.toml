@@ -1,7 +1,7 @@
 [runOptions]
 gamespeed = 0
 scale = 100
-debugView = true
+debugView = false
 
 [mouse]
 onHoverDelay = 1

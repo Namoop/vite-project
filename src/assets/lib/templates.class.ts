@@ -115,7 +115,7 @@ export class IMGSprite extends Entity {
 		}
 	}
 	render(ctx: CanvasRenderingContext2D) {
-		ctx.drawImage(this.src, ...this.getBoundingBox());
+		ctx.drawImage(this.src, this.getBoundingBox()[0], this.getBoundingBox()[1]);
 	}
 	getBoundingBox(): [number, number, number, number] {
 		return [

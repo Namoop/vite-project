@@ -46,10 +46,8 @@ const getFilterString = (obj: Entity) =>
 
 function renderChildren(sprite: Entity, region: Path2D) {
 	if (sprite.clip && sprite.children[0]) {
-		//let region = new Path2D();
-		//ctx.rect(...sprite.clip);
 		region.rect(...sprite.clip);
-		ctx.clip(region); //add to current clip somehow ??
+		ctx.clip(region);
 	}
 	for (const c of sprite.children) {
 		ctx.save();
@@ -85,8 +83,9 @@ function draw(): void {
 
 		if (!sprite.parent) {
 			//if it is a top level entity
+			//if (Mouse.y < 350 && sprite instanceof TXTSprite)
 			sprite.render(ctx);
-			ctx.rect(...sprite.getBoundingBox());
+			if (config.runOptions.debugView) ctx.rect(...sprite.getBoundingBox());
 			renderChildren(sprite, new Path2D());
 		}
 		ctx.restore();
@@ -173,6 +172,7 @@ function loop(func: Function | number): void {
 		cnv.width = 800 * World.scale;
 		cnv.height = 400 * World.scale;
 	} else {
+		cnv.width = cnv.width //less laggy?
 		//ctx.clearRect(0, 0, cnv.width, cnv.height);
 	}
 

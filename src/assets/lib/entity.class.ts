@@ -18,12 +18,12 @@ export abstract class Entity extends EventBase {
 	}
 	get trueX() {
 		return (
-			(this._link?.x ?? 0) + this.x + (this._link ? this._link.linkOffsetX : 0)
+			(this._link?.trueX ?? 0) + this.x + (this._link ? this._link.linkOffsetX : 0)
 		);
 	}
 	get trueY() {
 		return (
-			(this._link?.y ?? 0) + this.y + (this._link ? this._link.linkOffsetY : 0)
+			(this._link?.trueY ?? 0) + this.y + (this._link ? this._link.linkOffsetY : 0)
 		);
 	}
 	get trueDirection() {
