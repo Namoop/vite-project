@@ -60,11 +60,34 @@ export class TXTSprite extends Entity {
 			new Point(+this.twidth / 2 + center, -this.theight / 2),
 		];
 	}
-	render(ctx: CanvasRenderingContext2D) {
+	backupsvg?: HTMLImageElement;
+	backupsvgtext?: string;
+	render(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
 		ctx.textAlign = this.align;
 		ctx.font = this.size + "px " + this.font;
 		ctx.fillStyle = this.color;
 		ctx.stroke;
+		if (!ctx.fillText) {
+			let svg = `<svg width=${this.twidth} height=${this.theight} xmlns=${svgURL} ><text font=${this.font} fillstyle=${this.color} >${this.text}</text></svg>`;
+			if (this.backupsvgtext != svg) {
+				const blob = new Blob([svg], {
+					type: "image/svg+xml",
+				});
+				const url = URL.createObjectURL(blob);
+				const image = new Image();
+				image.src = url;
+				image.addEventListener("load", () => URL.revokeObjectURL(url), {
+					once: true,
+				});
+				this.backupsvgtext = svg;
+				this.backupsvg = image;
+			}
+			ctx.drawImage(
+				this.backupsvg as HTMLImageElement,
+				(this.width / 100) * World.scale,
+				(this.theight / 2) * (this.height / 100) * World.scale
+			);
+		} else
 		ctx.fillText(
 			this.text + "",
 			(this.width / 100) * World.scale,
@@ -115,7 +138,7 @@ export class IMGSprite extends Entity {
 		}
 	}
 	render(ctx: CanvasRenderingContext2D) {
-		ctx.drawImage(this.src, this.getBoundingBox()[0], this.getBoundingBox()[1]);
+		ctx.drawImage(this.src, -(this.src.width / 2), -(this.src.height / 2));
 	}
 	getBoundingBox(): [number, number, number, number] {
 		return [

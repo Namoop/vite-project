@@ -29,7 +29,7 @@ function init() {
 	  width=800 height=400 style=background-color:#5e5e5e>
 		<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
 	</svg>`;
-	//new SVGEntity({ src: background }).move(400, 200); //background
+	new SVGEntity({ src: background }).move(400, 200); //background
 
 	const lane = new Button({
 		text: "Dot Lane",
@@ -44,20 +44,20 @@ function init() {
 		laneInit();
 	};
 
-	const view = new ViewBox({
-		width: 100,
-		height: 100,
-	}).center()
-	const tx = new TXTSprite({ //.resize for text
-		text: "Hi nerd",
-		align: "left",
-		size: 12,
-		//src: towerimages.aqua
-	}).link(view).move(30,20)
-	//debugger;
-	const im = new IMGSprite({
-		src: towerimages.aqua
-	}).link(tx).resize(30).move(0,60)
+	// const view = new ViewBox({
+	// 	width: 100,
+	// 	height: 100,
+	// }).center()
+	// const tx = new TXTSprite({ //.resize for text
+	// 	text: "Hi nerd",
+	// 	align: "left",
+	// 	size: 12,
+	// 	//src: towerimages.aqua
+	// }).link(view).move(30,20)
+	// //debugger;
+	// const im = new IMGSprite({
+	// 	src: towerimages.aqua
+	// }).link(tx).resize(30).move(0,60)
 }
 
 let autoplay = false;

@@ -73,23 +73,30 @@ function renderChildren(sprite: Entity, region: Path2D) {
 }
 
 function draw(): void {
+	const time = Date.now()
+	const offcnv = new OffscreenCanvas(World.canvas.width, World.canvas.height)
+	const ctx = offcnv.getContext("2d") as OffscreenCanvasRenderingContext2D
 	for (const sprite of spriteArr) {
 		ctx.save();
 		ctx.filter = getFilterString(sprite);
 		ctx.globalAlpha = sprite.effects.opacity / 100;
 		ctx.translate(sprite.x * World.scale, sprite.y * World.scale);
+		ctx.scale(sprite.width/100*World.scale*(sprite.mirrored ? -1 : 1), sprite.height/100*World.scale)
 		ctx.rotate((sprite.direction * Math.PI) / 180);
-		ctx.scale(sprite.mirrored ? -1 : 1, 1);
+		//ctx.scale(sprite.mirrored ? -1 : 1, 1);
+		
 
 		if (!sprite.parent) {
 			//if it is a top level entity
-			//if (Mouse.y < 350 && sprite instanceof TXTSprite)
 			sprite.render(ctx);
 			if (config.runOptions.debugView) ctx.rect(...sprite.getBoundingBox());
 			renderChildren(sprite, new Path2D());
 		}
 		ctx.restore();
 	}
+	World.context.drawImage(offcnv.transferToImageBitmap(), 0, 0)
+	const newtime = Date.now()
+	console.log(newtime-time)
 
 	{
 		//draw debug lines

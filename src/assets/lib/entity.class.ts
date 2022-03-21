@@ -16,12 +16,12 @@ export abstract class Entity extends EventBase {
 		else while (World.entities[this.id]) (this.id as number)++;
 		World.entities[this.id] = this;
 	}
-	get trueX() {
+	get trueX():number {
 		return (
 			(this._link?.trueX ?? 0) + this.x + (this._link ? this._link.linkOffsetX : 0)
 		);
 	}
-	get trueY() {
+	get trueY():number {
 		return (
 			(this._link?.trueY ?? 0) + this.y + (this._link ? this._link.linkOffsetY : 0)
 		);
@@ -161,7 +161,7 @@ export abstract class Entity extends EventBase {
 	/** boolean if the player can click and drag this sprite somewhere else */
 	draggable = false;
 	/** Method for rendering a sprite - to be defined by the template used */
-	abstract render(ctx: CanvasRenderingContext2D): void;
+	abstract render(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D): void;
 	/** Returns a rectangle (x, y, width height) that should include every pixel this entity would render - To be defined by a template */
 	abstract getBoundingBox(): [number, number, number, number];
 	private hidden = false;
