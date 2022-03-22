@@ -27,7 +27,6 @@ export {
 };
 
 const cnv = World.canvas;
-const ctx = World.context;
 cnv.oncontextmenu = function () {
 	return false;
 };
@@ -44,7 +43,11 @@ const getFilterString = (obj: Entity) =>
 	saturate(${obj.effects.saturate / 100})
 	${obj.dragging ? `drop-shadow(${10 * World.scale}px ${10 * World.scale}px ${3 * World.scale}px)` : ""}`;
 
-function renderChildren(sprite: Entity, region: Path2D) {
+function renderChildren(
+	sprite: Entity,
+	region: Path2D,
+	ctx: CanvasRenderingContext2D
+) {
 	if (sprite.clip && sprite.children[0]) {
 		region.rect(...sprite.clip);
 		ctx.clip(region);
@@ -67,37 +70,33 @@ function renderChildren(sprite: Entity, region: Path2D) {
 			c.poly[2].x - c.poly[0].x,
 			c.poly[2].y - c.poly[0].y
 		);
-		renderChildren(c, region);
+		renderChildren(c, region, ctx);
 		ctx.restore();
 	}
 }
 
 function draw(): void {
-	const time = Date.now()
-	const offcnv = new OffscreenCanvas(World.canvas.width, World.canvas.height)
-	const ctx = offcnv.getContext("2d") as OffscreenCanvasRenderingContext2D
+	const ctx = World.offctx;
 	for (const sprite of spriteArr) {
 		ctx.save();
 		ctx.filter = getFilterString(sprite);
 		ctx.globalAlpha = sprite.effects.opacity / 100;
 		ctx.translate(sprite.x * World.scale, sprite.y * World.scale);
-		ctx.scale(sprite.width/100*World.scale*(sprite.mirrored ? -1 : 1), sprite.height/100*World.scale)
+		ctx.scale(
+			(sprite.width / 100) * World.scale * (sprite.mirrored ? -1 : 1),
+			(sprite.height / 100) * World.scale
+		);
 		ctx.rotate((sprite.direction * Math.PI) / 180);
-		//ctx.scale(sprite.mirrored ? -1 : 1, 1);
-		
 
+		//is a top level entity
 		if (!sprite.parent) {
-			//if it is a top level entity
 			sprite.render(ctx);
-			if (config.runOptions.debugView) ctx.rect(...sprite.getBoundingBox());
-			renderChildren(sprite, new Path2D());
+			// const bb = sprite.getBoundingBox()
+			// if (config.runOptions.debugView) ctx.rect(bb[0]/World.scale, bb[1]/World.scale, bb[2]/World.scale, bb[3]/World.scale);
+			renderChildren(sprite, new Path2D(), ctx);
 		}
 		ctx.restore();
 	}
-	World.context.drawImage(offcnv.transferToImageBitmap(), 0, 0)
-	const newtime = Date.now()
-	console.log(newtime-time)
-
 	{
 		//draw debug lines
 		ctx.save();
@@ -110,6 +109,7 @@ function draw(): void {
 		ctx.stroke();
 		ctx.restore();
 	}
+	World.context.transferFromImageBitmap(World.offcnv.transferToImageBitmap());
 }
 
 function checkHover(): void {
@@ -178,10 +178,7 @@ function loop(func: Function | number): void {
 	if (prevscale != World.scale) {
 		cnv.width = 800 * World.scale;
 		cnv.height = 400 * World.scale;
-	} else {
-		cnv.width = cnv.width //less laggy?
-		//ctx.clearRect(0, 0, cnv.width, cnv.height);
-	}
+	} else World.offctx.clearRect(0, 0, cnv.width, cnv.height);
 
 	//run code!
 	run();

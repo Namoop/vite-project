@@ -42,7 +42,7 @@ export class TXTSprite extends Entity {
 		this.resetPoly();
 	}
 	resetPoly() {
-		const measure = World.context.measureText(this.text + "");
+		const measure = World.offctx.measureText(this.text + "");
 		this.twidth = (measure.width * this.size) / 8;
 		this.theight = this.size;
 		const center =
@@ -62,32 +62,11 @@ export class TXTSprite extends Entity {
 	}
 	backupsvg?: HTMLImageElement;
 	backupsvgtext?: string;
-	render(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+	render(ctx: OffscreenCanvasRenderingContext2D) {
 		ctx.textAlign = this.align;
 		ctx.font = this.size + "px " + this.font;
 		ctx.fillStyle = this.color;
-		ctx.stroke;
-		if (!ctx.fillText) {
-			let svg = `<svg width=${this.twidth} height=${this.theight} xmlns=${svgURL} ><text font=${this.font} fillstyle=${this.color} >${this.text}</text></svg>`;
-			if (this.backupsvgtext != svg) {
-				const blob = new Blob([svg], {
-					type: "image/svg+xml",
-				});
-				const url = URL.createObjectURL(blob);
-				const image = new Image();
-				image.src = url;
-				image.addEventListener("load", () => URL.revokeObjectURL(url), {
-					once: true,
-				});
-				this.backupsvgtext = svg;
-				this.backupsvg = image;
-			}
-			ctx.drawImage(
-				this.backupsvg as HTMLImageElement,
-				(this.width / 100) * World.scale,
-				(this.theight / 2) * (this.height / 100) * World.scale
-			);
-		} else
+		ctx.stroke; //
 		ctx.fillText(
 			this.text + "",
 			(this.width / 100) * World.scale,
@@ -97,6 +76,8 @@ export class TXTSprite extends Entity {
 	getBoundingBox(): [number, number, number, number] {
 		//if align = right
 		//if align = center
+
+		//if align is left
 		return [
 			0,
 			(-this.theight / 2) * World.scale,

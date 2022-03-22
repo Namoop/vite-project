@@ -5,6 +5,7 @@ export { World };
 type SpriteObj = { [key: string]: Entity };
 const sprites: SpriteObj = {};
 const tempcnv = document.createElement("canvas");
+const tempoff = new OffscreenCanvas(800,400)
 /** World object that offers useful data about the current state of the game and other methods*/
 const World = {
 	/** Removes every sprite from the world */
@@ -75,7 +76,9 @@ const World = {
 	nextframe: new Promise(() => {}),
 	hover: null as null | Entity,
 	canvas: tempcnv,
-	context: tempcnv.getContext("2d") as CanvasRenderingContext2D,
+	context: tempoff.getContext("bitmaprenderer") as ImageBitmapRenderingContext,
+	offcnv: tempoff,
+	offctx: tempcnv.getContext("2d") as CanvasRenderingContext2D,
 	scale: 1,
 	debugView: config.runOptions.debugView,
 	debuglines: [] as [Point, Point][],
