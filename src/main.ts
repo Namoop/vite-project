@@ -12,6 +12,7 @@ import {
 } from "./assets/lib/lib";
 
 const app = document.getElementById("app") as HTMLElement;
+app.appendChild(World.bgcanvas);
 app.appendChild(World.canvas);
 //@ts-ignore
 (window.globals = []).world = World;
@@ -29,7 +30,7 @@ function init() {
 	  width=800 height=400 style=background-color:#5e5e5e>
 		<text x=100 y=80 fill=white font-family=arial font-size=60>Dots Defense Towers</text>
 	</svg>`;
-	new SVGEntity({ src: background }).move(400, 200); //background
+	World.setBackground(background)
 
 	const lane = new Button({
 		text: "Dot Lane",
@@ -122,7 +123,7 @@ let map: typeof config.maps.interface;
 function laneInit() {
 	World.gameBounds.right = 600;
 	map = config.maps.lane;
-	new IMGSprite({ src: laneMap }).center().goToLayer(-1); //background
+	World.setBackground(laneMap)
 	new TowerBtn("red", 660, 100);
 	new TowerBtn("blue", 660, 175);
 	new TowerBtn("aqua", 660, 250);

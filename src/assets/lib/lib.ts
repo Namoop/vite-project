@@ -176,8 +176,8 @@ function loop(func: Function | number): void {
 	const prevscale = World.scale;
 	World.scale = (window.innerWidth * config.runOptions.scale) / 82475;
 	if (prevscale != World.scale) {
-		cnv.width = 800 * World.scale;
-		cnv.height = 400 * World.scale;
+		World.bgcanvas.width = cnv.width = 800 * World.scale;
+		World.bgcanvas.height = cnv.height = 400 * World.scale;
 	} else World.offctx.clearRect(0, 0, cnv.width, cnv.height);
 
 	//run code!
